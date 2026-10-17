@@ -1,0 +1,180 @@
+/* ==========================================================================
+   CampusOne – auth.css  (login.html, forgot-password.html)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Auth layout: split screen on desktop, centered card on mobile
+   -------------------------------------------------------------------------- */
+.auth-page {
+  display: flex;
+  min-block-size: calc(100dvh - var(--header-height));
+}
+
+/* Left panel: illustration / branding */
+.auth-side {
+  display: none;
+  flex: 1;
+  background-color: #0D0D0D;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 900px) {
+  .auth-side { display: flex; flex-direction: column; justify-content: flex-end; }
+}
+
+.auth-side__img {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  opacity: 0.30;
+}
+
+.auth-side__content {
+  position: relative;
+  z-index: 1;
+  padding-block: var(--space-12);
+  padding-inline: var(--space-10);
+  color: #fff;
+}
+
+.auth-side__logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block-end: var(--space-16);
+}
+
+.auth-side__logo img {
+  block-size: 44px;
+  inline-size: auto;
+}
+
+.auth-side__title {
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.2;
+  margin-block-end: var(--space-4);
+  letter-spacing: -0.02em;
+}
+
+.auth-side__sub {
+  color: #94A3B8;
+  font-size: var(--text-md);
+  line-height: 1.7;
+  max-inline-size: 340px;
+}
+
+/* Right panel: form */
+.auth-main {
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: var(--space-10);
+  padding-inline: var(--space-5);
+  background-color: var(--color-bg);
+  overflow-y: auto;
+}
+
+@media (min-width: 900px) {
+  .auth-main { flex: 0 0 480px; }
+}
+
+/* --------------------------------------------------------------------------
+   Auth card
+   -------------------------------------------------------------------------- */
+.auth-card {
+  inline-size: 100%;
+  max-inline-size: 420px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding-block: var(--space-8);
+  padding-inline: var(--space-6);
+  box-shadow: var(--shadow-lg);
+}
+
+@media (min-width: 480px) { .auth-card { padding-inline: var(--space-8); } }
+
+/* --------------------------------------------------------------------------
+   Card header
+   -------------------------------------------------------------------------- */
+.auth-logo {
+  display: flex;
+  justify-content: center;
+  margin-block-end: var(--space-6);
+}
+
+.auth-logo img {
+  block-size: 56px;
+  inline-size: auto;
+}
+
+.auth-heading {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--color-ink);
+  text-align: center;
+  margin-block-end: var(--space-1);
+  letter-spacing: -0.01em;
+}
+
+.auth-subtext {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  text-align: center;
+  margin-block-end: var(--space-6);
+  line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------------
+   Form spacing
+   -------------------------------------------------------------------------- */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.auth-form .btn { inline-size: 100%; margin-block-start: var(--space-2); }
+
+/* --------------------------------------------------------------------------
+   Auth links
+   -------------------------------------------------------------------------- */
+.auth-links {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2);
+  font-size: var(--text-sm); color: var(--color-muted); margin-block-start: var(--space-4);
+}
+.auth-links a { font-weight: 600; }
+
+/* --------------------------------------------------------------------------
+   Dev-mode hint box
+   -------------------------------------------------------------------------- */
+.dev-hint {
+  background-color: #FFFBEB; border: 1px solid #FDE68A;
+  border-radius: var(--radius-card); padding-block: var(--space-3); padding-inline: var(--space-4);
+  font-size: var(--text-xs); color: #78350F; display: none; margin-block-start: var(--space-5);
+}
+.dev-hint.is-visible { display: block; }
+.dev-hint strong { display: block; margin-block-end: var(--space-1); font-weight: 700; }
+.dev-hint-account { margin-block: var(--space-1); font-family: monospace; }
+
+/* --------------------------------------------------------------------------
+   Multi-step (forgot password)
+   -------------------------------------------------------------------------- */
+.auth-step { display: none; }
+.auth-step.is-active { display: flex; flex-direction: column; gap: var(--space-4); }
+.auth-step .btn { inline-size: 100%; margin-block-start: var(--space-2); }
+
+/* --------------------------------------------------------------------------
+   Confirmation state
+   -------------------------------------------------------------------------- */
+.auth-confirm { text-align: center; display: none; flex-direction: column; align-items: center; gap: var(--space-4); }
+.auth-confirm.is-active { display: flex; }
+.auth-confirm__icon { inline-size: 56px; block-size: 56px; color: var(--color-success); }
+.auth-confirm__title { font-size: var(--text-xl); font-weight: 700; color: var(--color-ink); }
+.auth-confirm__text  { color: var(--color-muted); font-size: var(--text-sm); }
