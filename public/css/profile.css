@@ -30,13 +30,49 @@
   text-decoration: none;
   color: var(--color-ink);
   font-weight: 700;
-  margin-inline-end: var(--space-4);
+  margin-inline-end: var(--space-6);
   min-block-size: 44px;
+  flex-shrink: 0;
 }
 
 .app-header__logo img {
-  block-size: 36px;
+  block-size: 34px;
   inline-size: auto;
+}
+
+/* MIU text column */
+.app-header__logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.app-header__logo-abbr {
+  font-size: var(--text-md);
+  font-weight: 800;
+  color: var(--color-ink);
+  letter-spacing: -0.01em;
+}
+.app-header__logo-sub {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+/* Thin separator between MIU text and CampusOne */
+.app-header__logo-divider {
+  display: inline-block;
+  inline-size: 1px;
+  block-size: 22px;
+  background-color: var(--color-border);
+  margin-inline: var(--space-1);
+}
+
+/* Brand word */
+.app-header__logo-brand {
+  font-size: var(--text-lg);
+  font-weight: 800;
+  color: var(--color-primary);
+  letter-spacing: -0.02em;
 }
 
 /* --------------------------------------------------------------------------
@@ -45,7 +81,7 @@
 .app-nav {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
+  gap: 0;
   flex: 1;
 }
 
@@ -74,6 +110,17 @@
   background-color: var(--color-primary-tint);
   color: var(--color-primary);
   font-weight: 600;
+}
+
+/* "Report an Issue" link - subtle red text in nav */
+.app-nav__report-link {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.app-nav__report-link:hover {
+  background-color: var(--color-primary-tint);
+  color: var(--color-primary-dark);
 }
 
 /* --------------------------------------------------------------------------

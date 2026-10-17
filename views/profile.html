@@ -7,31 +7,28 @@
   <meta name="description" content="View and update your CampusOne profile, change your password and manage notification settings.">
   <meta name="robots" content="noindex">
   <meta name="theme-color" content="#B80008">
-  <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
-  <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
-  <link rel="apple-touch-icon" href="../public/apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <meta property="og:title" content="Profile - CampusOne">
   <meta property="og:description" content="Your CampusOne profile page.">
-  <meta property="og:image" content="../public/images/logo.png">
-  <link rel="stylesheet" href="../public/css/style.css">
-  <link rel="stylesheet" href="../public/css/profile.css">
+  <meta property="og:image" content="images/logo.png">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/profile.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
-
-  <!-- App header -->
+  <!-- App header (authenticated) -->
   <header class="app-header">
     <div class="container">
       <a href="index.html" class="app-header__logo" aria-label="CampusOne home">
-        <img src="../public/images/logo.png" alt="Misr International University logo" width="36" height="36">
+        <img src="images/logo.png" alt="Misr International University logo" width="36" height="36">
         <span class="visually-hidden">CampusOne</span>
       </a>
-
+      <!-- Role-based navigation (rendered by JS) -->
       <nav id="app-nav" class="app-nav" aria-label="Application navigation"></nav>
-
       <div class="app-header__actions">
-
-        <!-- Notifications -->
+        <!-- Notifications dropdown -->
         <div class="dropdown" id="notifications-dropdown">
           <button
             type="button"
@@ -51,8 +48,7 @@
             <p class="dropdown__empty">No new notifications.</p>
           </div>
         </div>
-
-        <!-- Profile -->
+        <!-- Profile dropdown -->
         <div class="dropdown" id="profile-dropdown">
           <button
             type="button"
@@ -63,7 +59,7 @@
             aria-controls="profile-panel"
             aria-label="Profile menu">
             <span class="profile-trigger__avatar">
-              <img id="nav-avatar-img" src="../public/images/logo.png" alt="Your profile picture" width="30" height="30">
+              <img id="nav-avatar-img" src="images/logo.png" alt="Your profile picture" width="30" height="30">
             </span>
             <span id="profile-trigger-name" class="profile-trigger__name"></span>
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -71,65 +67,88 @@
             </svg>
           </button>
           <div id="profile-panel" class="dropdown__panel" role="menu" aria-labelledby="profile-trigger">
-            <a href="profile.html" id="nav-profile-link" class="dropdown__item" aria-current="page" role="menuitem">
+            <a
+              href="profile.html"
+              id="nav-profile-link"
+              class="dropdown__item"
+              aria-current="page"
+              role="menuitem">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                <circle cx="8" cy="6" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+                <circle cx="8" cy="6" r="3"/>
+                <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
               </svg>
               Profile
             </a>
             <div class="dropdown__divider" role="separator"></div>
-            <button type="button" class="dropdown__item dropdown__item--danger" data-action="logout" role="menuitem">
+            <button
+              type="button"
+              class="dropdown__item dropdown__item--danger"
+              data-action="logout"
+              role="menuitem">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                 <path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3"/>
-                <polyline points="11,11 14,8 11,5"/><line x1="14" y1="8" x2="6" y2="8"/>
+                <polyline points="11,11 14,8 11,5"/>
+                <line x1="14" y1="8" x2="6" y2="8"/>
               </svg>
               Log out
             </button>
           </div>
         </div>
-
         <!-- Mobile menu toggle -->
-        <button type="button" id="app-menu-toggle" class="app-menu-toggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="app-nav">
+        <button
+          type="button"
+          id="app-menu-toggle"
+          class="app-menu-toggle"
+          aria-label="Open navigation menu"
+          aria-expanded="false"
+          aria-controls="app-nav">
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true" focusable="false">
             <line x1="3" y1="6"  x2="19" y2="6"  stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
             <line x1="3" y1="11" x2="19" y2="11" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
             <line x1="3" y1="16" x2="19" y2="16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
           </svg>
         </button>
-
       </div>
     </div>
   </header>
-
   <main id="main">
     <div class="profile-page">
       <div class="container">
         <h1 class="visually-hidden">Your profile</h1>
-
         <div class="profile-grid">
-
           <!-- Left: avatar card -->
           <aside>
             <div class="avatar-card" id="avatar-card">
               <div class="avatar-wrapper">
-                <img id="avatar-img" class="avatar-img" src="../public/images/logo.png" alt="Your profile picture">
-                <label for="avatar-file-input" class="avatar-upload-label" title="Change profile photo" aria-label="Change profile photo">
+                <img
+                  id="avatar-img"
+                  class="avatar-img"
+                  src="images/logo.png"
+                  alt="Your profile picture">
+                <label
+                  for="avatar-file-input"
+                  class="avatar-upload-label"
+                  title="Change profile photo"
+                  aria-label="Change profile photo">
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                     <path d="M9.5 1.5l3 3L4 13H1v-3L9.5 1.5z"/>
                   </svg>
                 </label>
-                <input type="file" id="avatar-file-input" accept="image/*" class="visually-hidden" aria-label="Upload profile photo">
+                <input
+                  type="file"
+                  id="avatar-file-input"
+                  accept="image/*"
+                  class="visually-hidden"
+                  aria-label="Upload profile photo">
               </div>
               <p id="avatar-name" class="avatar-name"></p>
               <span id="avatar-role-badge" class="avatar-role"></span>
               <p id="avatar-email" class="avatar-email"></p>
             </div>
           </aside>
-
           <!-- Right: details -->
           <div class="profile-details">
-
-            <!-- Account info -->
+            <!-- Account information -->
             <section class="profile-section" aria-labelledby="info-heading">
               <div class="profile-section__header">
                 <h2 id="info-heading" class="profile-section__title">Account information</h2>
@@ -159,7 +178,6 @@
                 </dl>
               </div>
             </section>
-
             <!-- Change password -->
             <section class="profile-section" aria-labelledby="password-heading">
               <div class="profile-section__header">
@@ -167,7 +185,7 @@
               </div>
               <div class="profile-section__body">
                 <div id="cp-success" class="alert alert-success" role="status" aria-live="polite">Password updated successfully.</div>
-
+                <div id="cp-error"   class="alert alert-error"   role="alert"  aria-live="assertive"></div>
                 <form id="change-password-form" class="auth-form" novalidate>
                   <div class="form-group">
                     <label for="cp-current" class="form-label">
@@ -175,10 +193,22 @@
                       <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <div class="password-wrapper">
-                      <input type="password" id="cp-current" name="currentPassword" class="form-input" autocomplete="current-password" required aria-describedby="cp-current-error">
-                      <button type="button" id="cp-current-toggle" class="password-toggle" aria-label="Show password">
+                      <input
+                        type="password"
+                        id="cp-current"
+                        name="currentPassword"
+                        class="form-input"
+                        autocomplete="current-password"
+                        required
+                        aria-describedby="cp-current-error">
+                      <button
+                        type="button"
+                        id="cp-current-toggle"
+                        class="password-toggle"
+                        aria-label="Show password">
                         <svg class="icon-eye" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                          <path d="M1 9s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5z"/><circle cx="9" cy="9" r="2"/>
+                          <path d="M1 9s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5z"/>
+                          <circle cx="9" cy="9" r="2"/>
                         </svg>
                         <svg class="icon-eye-off visually-hidden" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                           <path d="M1 1l16 16M7.5 7.6A2 2 0 0 0 10.4 10.5M5.2 5.2C3 6.5 1 9 1 9s3 5 8 5a8.7 8.7 0 0 0 3.8-.9M9 4c4.1.5 6.5 3.6 7 5a11 11 0 0 1-1.3 2"/>
@@ -187,17 +217,28 @@
                     </div>
                     <span id="cp-current-error" class="form-error" role="alert"></span>
                   </div>
-
                   <div class="form-group">
                     <label for="cp-new" class="form-label">
                       New password
                       <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <div class="password-wrapper">
-                      <input type="password" id="cp-new" name="newPassword" class="form-input" autocomplete="new-password" required aria-describedby="cp-new-error">
-                      <button type="button" id="cp-new-toggle" class="password-toggle" aria-label="Show password">
+                      <input
+                        type="password"
+                        id="cp-new"
+                        name="newPassword"
+                        class="form-input"
+                        autocomplete="new-password"
+                        required
+                        aria-describedby="cp-new-error">
+                      <button
+                        type="button"
+                        id="cp-new-toggle"
+                        class="password-toggle"
+                        aria-label="Show password">
                         <svg class="icon-eye" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                          <path d="M1 9s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5z"/><circle cx="9" cy="9" r="2"/>
+                          <path d="M1 9s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5z"/>
+                          <circle cx="9" cy="9" r="2"/>
                         </svg>
                         <svg class="icon-eye-off visually-hidden" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                           <path d="M1 1l16 16M7.5 7.6A2 2 0 0 0 10.4 10.5M5.2 5.2C3 6.5 1 9 1 9s3 5 8 5a8.7 8.7 0 0 0 3.8-.9M9 4c4.1.5 6.5 3.6 7 5a11 11 0 0 1-1.3 2"/>
@@ -206,17 +247,28 @@
                     </div>
                     <span id="cp-new-error" class="form-error" role="alert"></span>
                   </div>
-
                   <div class="form-group">
                     <label for="cp-confirm" class="form-label">
                       Confirm new password
                       <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <div class="password-wrapper">
-                      <input type="password" id="cp-confirm" name="confirmPassword" class="form-input" autocomplete="new-password" required aria-describedby="cp-confirm-error">
-                      <button type="button" id="cp-confirm-toggle" class="password-toggle" aria-label="Show password">
+                      <input
+                        type="password"
+                        id="cp-confirm"
+                        name="confirmPassword"
+                        class="form-input"
+                        autocomplete="new-password"
+                        required
+                        aria-describedby="cp-confirm-error">
+                      <button
+                        type="button"
+                        id="cp-confirm-toggle"
+                        class="password-toggle"
+                        aria-label="Show password">
                         <svg class="icon-eye" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                          <path d="M1 9s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5z"/><circle cx="9" cy="9" r="2"/>
+                          <path d="M1 9s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5z"/>
+                          <circle cx="9" cy="9" r="2"/>
                         </svg>
                         <svg class="icon-eye-off visually-hidden" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                           <path d="M1 1l16 16M7.5 7.6A2 2 0 0 0 10.4 10.5M5.2 5.2C3 6.5 1 9 1 9s3 5 8 5a8.7 8.7 0 0 0 3.8-.9M9 4c4.1.5 6.5 3.6 7 5a11 11 0 0 1-1.3 2"/>
@@ -225,14 +277,12 @@
                     </div>
                     <span id="cp-confirm-error" class="form-error" role="alert"></span>
                   </div>
-
                   <div>
                     <button type="submit" id="cp-submit" class="btn btn-primary">Update password</button>
                   </div>
                 </form>
               </div>
             </section>
-
             <!-- Notification settings -->
             <section class="profile-section" aria-labelledby="notif-heading">
               <div class="profile-section__header">
@@ -246,17 +296,27 @@
                       <span class="toggle-label__desc">Get notified when your maintenance report changes status.</span>
                     </div>
                     <label class="toggle-switch">
-                      <input type="checkbox" id="notif-maintenance" name="notif-maintenance" checked aria-label="Maintenance updates notifications">
+                      <input
+                        type="checkbox"
+                        id="notif-maintenance"
+                        name="notif-maintenance"
+                        checked
+                        aria-label="Maintenance updates notifications">
                       <span class="toggle-switch__track" aria-hidden="true"></span>
                     </label>
                   </div>
                   <div class="toggle-item">
                     <div class="toggle-label">
-                      <span class="toggle-label__name">Lost &amp; Found matches</span>
+                      <span class="toggle-label__name">Lost & Found matches</span>
                       <span class="toggle-label__desc">Get notified when a match is found for your lost item report.</span>
                     </div>
                     <label class="toggle-switch">
-                      <input type="checkbox" id="notif-lost-found" name="notif-lost-found" checked aria-label="Lost and Found match notifications">
+                      <input
+                        type="checkbox"
+                        id="notif-lost-found"
+                        name="notif-lost-found"
+                        checked
+                        aria-label="Lost and Found match notifications">
                       <span class="toggle-switch__track" aria-hidden="true"></span>
                     </label>
                   </div>
@@ -266,35 +326,44 @@
                       <span class="toggle-label__desc">Receive important notices from the university.</span>
                     </div>
                     <label class="toggle-switch">
-                      <input type="checkbox" id="notif-announcements" name="notif-announcements" aria-label="Campus announcement notifications">
+                      <input
+                        type="checkbox"
+                        id="notif-announcements"
+                        name="notif-announcements"
+                        aria-label="Campus announcement notifications">
                       <span class="toggle-switch__track" aria-hidden="true"></span>
                     </label>
                   </div>
                 </div>
               </div>
             </section>
-
-            <!-- Logout -->
+            <!-- Log out -->
             <div class="danger-zone">
-              <button type="button" class="btn btn-outline" data-action="logout" id="logout-btn">
+              <button
+                type="button"
+                class="btn btn-outline"
+                data-action="logout"
+                id="logout-btn">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                   <path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3"/>
-                  <polyline points="11,11 14,8 11,5"/><line x1="14" y1="8" x2="6" y2="8"/>
+                  <polyline points="11,11 14,8 11,5"/>
+                  <line x1="14" y1="8" x2="6" y2="8"/>
                 </svg>
                 Log out
               </button>
             </div>
-
           </div>
         </div>
       </div>
     </div>
   </main>
-
   <footer id="site-footer"></footer>
-
   <!-- Emergency button -->
-  <a href="emergency.html" id="emergency-btn" class="emergency-btn" aria-label="Emergency - call for help">
+  <a
+    href="emergency.html"
+    id="emergency-btn"
+    class="emergency-btn"
+    aria-label="Emergency - call for help">
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
       <path d="M9 1L1 17h16L9 1z"/>
       <line x1="9" y1="8" x2="9" y2="12"/>
@@ -302,7 +371,6 @@
     </svg>
     <span class="emergency-label">Emergency</span>
   </a>
-
-  <script type="module" src="../public/js/profile.js"></script>
+  <script type="module" src="js/profile.js"></script>
 </body>
 </html>

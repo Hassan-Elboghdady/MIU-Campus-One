@@ -74,11 +74,25 @@ export function requireLogin() {
 }
 
 // --------------------------------------------------------------------------
-// findUserByEmail - searches only mock accounts (no register)
+// findUserByEmail - checks mock accounts + localStorage-registered accounts
 // --------------------------------------------------------------------------
+const REGISTERED_KEY = 'campusone_registered_users';
+
+export function getRegisteredUsers() {
+  return storage.get(REGISTERED_KEY) || [];
+}
+
+export function saveRegisteredUser(user) {
+  const list = getRegisteredUsers();
+  list.push(user);
+  storage.set(REGISTERED_KEY, list);
+}
+
 export function findUserByEmail(email) {
   const lower = email.toLowerCase().trim();
-  return MOCK_USERS.find((u) => u.email.toLowerCase() === lower);
+  const mock = MOCK_USERS.find((u) => u.email.toLowerCase() === lower);
+  if (mock) return mock;
+  return getRegisteredUsers().find((u) => u.email.toLowerCase() === lower) || null;
 }
 
 // --------------------------------------------------------------------------
