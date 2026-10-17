@@ -50,11 +50,10 @@ export function renderNav() {
   const currentPage = getCurrentPage();
 
   const navLinks = [
-    { href: 'home.html',       label: 'Home',            icon: ICONS.home,      file: 'home.html'       },
-    { href: 'map.html',        label: 'Campus map',      icon: ICONS.map,       file: 'map.html'        },
-    { href: 'emergency.html',  label: 'Emergency map',   icon: ICONS.emergency, file: 'emergency.html'  },
-    { href: 'my-reports.html', label: 'Maintenance',     icon: ICONS.reports,   file: 'my-reports.html' },
-    { href: 'lost-found.html', label: 'Lost something?', icon: ICONS.lostFound, file: 'lost-found.html' },
+    { href: 'map.html',        label: 'Campus Map',     file: 'map.html'        },
+    { href: 'emergency.html',  label: 'Emergency Map',  file: 'emergency.html'  },
+    { href: 'my-reports.html', label: 'Maintenance',    file: 'my-reports.html' },
+    { href: 'lost-found.html', label: 'Lost & Found',   file: 'lost-found.html' },
   ];
 
   const initials = getInitials(user ? user.name : '');
@@ -64,7 +63,12 @@ export function renderNav() {
     <div class="container">
       <a href="home.html" class="app-header__logo" aria-label="CampusOne home">
         <img src="../public/images/logo.png" alt="Misr International University logo" width="36" height="36">
-        <span>CampusOne</span>
+        <div class="app-header__logo-text">
+          <span class="app-header__logo-abbr">MIU</span>
+          <span class="app-header__logo-sub">Misr International University</span>
+        </div>
+        <span class="app-header__logo-divider" aria-hidden="true"></span>
+        <span class="app-header__logo-brand">CampusOne</span>
       </a>
 
       <nav class="app-nav" id="app-nav" aria-label="Main navigation">
@@ -73,16 +77,13 @@ export function renderNav() {
             href="${link.href}"
             class="app-nav__link"
             ${currentPage === link.file ? 'aria-current="page"' : ''}
-          >${link.icon} ${link.label}</a>
+          >${link.label}</a>
         `).join('')}
         <a
           href="report.html"
           class="app-nav__link app-nav__link--mobile-only"
           ${currentPage === 'report.html' ? 'aria-current="page"' : ''}
-        >
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 3H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6l-4-3z"/><path d="M14 3v4h4"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="8" y1="14" x2="11" y2="14"/></svg>
-          Report issue
-        </a>
+        >Report an Issue</a>
       </nav>
 
       <div class="app-header__actions">
