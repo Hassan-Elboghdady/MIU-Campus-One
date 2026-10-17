@@ -14,10 +14,9 @@ import {
   validateEmail,
   showError,
   clearError,
-} from '../public/js/common.js';
+} from './common.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  renderFooter();
   initPublicMenuToggle();
 
   // -- DEV_MODE hint ---------------------------------------------------------

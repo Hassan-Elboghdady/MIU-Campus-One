@@ -10,17 +10,17 @@
   min-block-size: calc(100dvh - var(--header-height));
 }
 
-/* Left panel: illustration / branding */
+/* Left panel: campus photo + branding */
 .auth-side {
   display: none;
   flex: 1;
-  background-color: #0D0D0D;
+  background-color: #070A0F;
   position: relative;
   overflow: hidden;
 }
 
 @media (min-width: 900px) {
-  .auth-side { display: flex; flex-direction: column; justify-content: flex-end; }
+  .auth-side { display: flex; flex-direction: column; }
 }
 
 .auth-side__img {
@@ -29,36 +29,80 @@
   inline-size: 100%;
   block-size: 100%;
   object-fit: cover;
-  opacity: 0.30;
+  object-position: center 25%;
+  opacity: 0.38;
+}
+
+/* Dark overlay - stronger at bottom so text is always readable */
+.auth-side__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(7,10,15,0.20) 0%,
+    rgba(7,10,15,0.55) 55%,
+    rgba(7,10,15,0.90) 100%
+  );
+  z-index: 1;
+}
+
+/* Red accent line on the right edge */
+.auth-side::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  inline-size: 3px;
+  background-color: var(--color-primary);
+  z-index: 3;
 }
 
 .auth-side__content {
   position: relative;
-  z-index: 1;
-  padding-block: var(--space-12);
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-block: var(--space-10);
   padding-inline: var(--space-10);
-  color: #fff;
 }
 
-.auth-side__logo {
-  display: flex;
+/* ---------- Logo link (top) ---------- */
+.auth-side__logo-link {
+  display: inline-flex;
   align-items: center;
   gap: var(--space-3);
-  margin-block-end: var(--space-16);
+  text-decoration: none;
+  margin-block-end: auto;
+  transition: opacity var(--transition);
 }
 
-.auth-side__logo img {
-  block-size: 44px;
+.auth-side__logo-link:hover { opacity: 0.80; }
+
+.auth-side__logo-link img {
+  block-size: 48px;
   inline-size: auto;
 }
 
-.auth-side__title {
-  font-size: var(--text-3xl);
+.auth-side__logo-name {
+  font-size: var(--text-xl);
   font-weight: 800;
   color: #fff;
-  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Body (middle) ---------- */
+.auth-side__body {
+  padding-block: var(--space-10) var(--space-6);
+}
+
+.auth-side__title {
+  font-size: clamp(var(--text-2xl), 3.5vw, var(--text-4xl));
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.15;
   margin-block-end: var(--space-4);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
 
 .auth-side__sub {
@@ -66,7 +110,46 @@
   font-size: var(--text-md);
   line-height: 1.7;
   max-inline-size: 340px;
+  margin-block-end: var(--space-8);
 }
+
+/* Feature list */
+.auth-side__features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.auth-side__feature {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: #CBD5E1;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.auth-side__feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 32px;
+  block-size: 32px;
+  background-color: rgba(184,0,8,.25);
+  border: 1px solid rgba(184,0,8,.45);
+  border-radius: var(--radius);
+  color: #FCA5A5;
+  flex-shrink: 0;
+}
+
+/* ---------- Footer (bottom) ---------- */
+.auth-side__footer {
+  border-block-start: 1px solid rgba(255,255,255,.10);
+  padding-block-start: var(--space-5);
+  color: #475569;
+  font-size: var(--text-xs);
+}
+
 
 /* Right panel: form */
 .auth-main {
@@ -114,6 +197,16 @@
   inline-size: auto;
 }
 
+.auth-logo a {
+  display: inline-block;
+  text-decoration: none;
+  transition: opacity var(--transition);
+}
+
+.auth-logo a:hover {
+  opacity: 0.80;
+}
+
 .auth-heading {
   font-size: var(--text-2xl);
   font-weight: 800;
@@ -140,7 +233,8 @@
   gap: var(--space-4);
 }
 
-.auth-form .btn { inline-size: 100%; margin-block-start: var(--space-2); }
+.auth-form .btn { inline-size: 100%; margin-block-start: var(--space-3); }
+.auth-step .btn { inline-size: 100%; margin-block-start: var(--space-3); }
 
 /* --------------------------------------------------------------------------
    Auth links
@@ -150,6 +244,27 @@
   font-size: var(--text-sm); color: var(--color-muted); margin-block-start: var(--space-4);
 }
 .auth-links a { font-weight: 600; }
+
+/* Back link (centered, used on forgot-password) */
+.auth-back-link {
+  display: flex;
+  justify-content: center;
+  margin-block-start: var(--space-5);
+}
+.auth-back-link a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+.auth-back-link a:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}
 
 /* --------------------------------------------------------------------------
    Dev-mode hint box
@@ -168,7 +283,6 @@
    -------------------------------------------------------------------------- */
 .auth-step { display: none; }
 .auth-step.is-active { display: flex; flex-direction: column; gap: var(--space-4); }
-.auth-step .btn { inline-size: 100%; margin-block-start: var(--space-2); }
 
 /* --------------------------------------------------------------------------
    Confirmation state
