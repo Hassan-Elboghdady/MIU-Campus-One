@@ -1,0 +1,449 @@
+/* ==========================================================================
+   CampusOne - report.css
+   Styles for report.html: form layout, image upload area, thumbnails,
+   success screen.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Page layout
+   -------------------------------------------------------------------------- */
+.report-page-grid {
+  display: grid;
+  gap: var(--space-8);
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .report-page-grid {
+    grid-template-columns: 1fr 340px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Form card
+   -------------------------------------------------------------------------- */
+.report-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* --------------------------------------------------------------------------
+   Form section groups (visual grouping inside the card)
+   -------------------------------------------------------------------------- */
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.form-section + .form-section {
+  padding-block-start: var(--space-6);
+  border-block-start: 1px solid var(--color-border);
+}
+
+.form-section__label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+}
+
+.form-row {
+  display: grid;
+  gap: var(--space-5);
+}
+
+@media (min-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Textarea with character counter
+   -------------------------------------------------------------------------- */
+.textarea-wrapper {
+  position: relative;
+}
+
+.report-textarea {
+  resize: vertical;
+  min-block-size: 130px;
+  padding-block-end: var(--space-6);
+}
+
+.char-counter {
+  position: absolute;
+  inset-block-end: var(--space-2);
+  inset-inline-end: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  pointer-events: none;
+  background-color: var(--color-surface);
+  padding-inline: 4px;
+  border-radius: 2px;
+}
+
+.char-counter--warn {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Image upload area
+   -------------------------------------------------------------------------- */
+.image-upload-area {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding-block: var(--space-6);
+  padding-inline: var(--space-6);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-card);
+  background-color: var(--color-bg);
+  transition: border-color var(--transition), background-color var(--transition);
+}
+
+.image-upload-area.is-dragover {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-tint);
+}
+
+.image-upload-label {
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.image-upload-note {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Image thumbnails
+   -------------------------------------------------------------------------- */
+.image-thumbnails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-block-start: var(--space-4);
+}
+
+.thumb-item {
+  position: relative;
+  inline-size: 100px;
+  block-size: 100px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg);
+  flex-shrink: 0;
+}
+
+.thumb-item img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumb-remove {
+  position: absolute;
+  inset-block-start: var(--space-1);
+  inset-inline-end: var(--space-1);
+  inline-size: 26px;
+  block-size: 26px;
+  border-radius: var(--radius-sm);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background-color var(--transition);
+  min-inline-size: 26px;
+  min-block-size: 26px;
+}
+
+.thumb-remove:hover {
+  background-color: var(--color-danger);
+}
+
+/* --------------------------------------------------------------------------
+   Form actions
+   -------------------------------------------------------------------------- */
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-block-start: var(--space-6);
+  border-block-start: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+.form-actions__note {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Info sidebar card & stack
+   -------------------------------------------------------------------------- */
+.report-sidebar-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.report-info-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.emergency-notice-card {
+  display: flex;
+  gap: var(--space-3);
+  padding-block: var(--space-4);
+  padding-inline: var(--space-4);
+  background-color: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: var(--radius-card);
+  align-items: flex-start;
+}
+
+.emergency-notice-card__icon {
+  color: var(--color-danger);
+  flex-shrink: 0;
+  padding-block-start: 2px;
+}
+
+.emergency-notice-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.emergency-notice-card__title {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: #991B1B;
+}
+
+.emergency-notice-card__text {
+  font-size: var(--text-xs);
+  color: #7F1D1D;
+  line-height: 1.5;
+}
+
+.emergency-notice-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-danger);
+  text-decoration: underline;
+  margin-block-start: var(--space-1);
+}
+
+.emergency-notice-card__link:hover {
+  color: #991B1B;
+}
+
+.report-info-card__header {
+  padding-block: var(--space-4);
+  padding-inline: var(--space-5);
+  border-block-end: 1px solid var(--color-border);
+  background-color: var(--color-bg);
+}
+
+.report-info-card__title {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.report-info-card__body {
+  padding-block: var(--space-5);
+  padding-inline: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.info-tip {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.info-tip__icon {
+  inline-size: 32px;
+  block-size: 32px;
+  border-radius: var(--radius);
+  background-color: var(--color-primary-tint);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info-tip__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.info-tip__label {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.info-tip__desc {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  line-height: 1.5;
+  max-inline-size: none;
+}
+
+/* --------------------------------------------------------------------------
+   Status tracker (sidebar - shows what happens after submit)
+   -------------------------------------------------------------------------- */
+.status-track {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--color-border);
+}
+
+.status-track__title {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  margin-block-end: var(--space-4);
+}
+
+.status-track-step {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding-block-end: var(--space-4);
+  position: relative;
+}
+
+.status-track-step:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 11px;
+  inset-block-start: 24px;
+  block-size: calc(100% - 8px);
+  inline-size: 1px;
+  background-color: var(--color-border);
+}
+
+.status-track-step__dot {
+  inline-size: 24px;
+  block-size: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  background-color: var(--color-surface);
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.status-track-step--active .status-track-step__dot {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
+}
+
+.status-track-step__label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-muted);
+  padding-block-start: 2px;
+}
+
+.status-track-step--active .status-track-step__label {
+  color: var(--color-ink);
+}
+
+/* --------------------------------------------------------------------------
+   Success screen
+   -------------------------------------------------------------------------- */
+.report-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-5);
+  max-inline-size: 560px;
+  padding-block: var(--space-16);
+  padding-inline: var(--space-10);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+}
+
+.success-icon {
+  inline-size: 72px;
+  block-size: 72px;
+  border-radius: 50%;
+  background-color: #F0FDF4;
+  border: 2px solid #BBF7D0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-success);
+}
+
+.success-heading {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.success-body {
+  color: var(--color-muted);
+  max-inline-size: 40ch;
+  font-size: var(--text-md);
+}
+
+.success-id {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding-block: var(--space-3);
+  padding-inline: var(--space-5);
+  inline-size: 100%;
+}
+
+.success-id strong {
+  display: block;
+  font-family: monospace;
+  font-size: var(--text-lg);
+  color: var(--color-ink);
+  margin-block-start: var(--space-1);
+  letter-spacing: 0.05em;
+}
+
+.success-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+}

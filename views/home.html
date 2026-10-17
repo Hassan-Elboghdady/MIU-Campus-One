@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home - CampusOne</title>
+  <meta name="description" content="Your CampusOne student home. Access the campus map, emergency map, maintenance reports and Lost and Found.">
+  <meta name="theme-color" content="#B80008">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
+  <link rel="apple-touch-icon" href="../public/apple-touch-icon.png">
+  <link rel="stylesheet" href="../public/css/style.css">
+  <link rel="stylesheet" href="../public/css/profile.css">
+  <link rel="stylesheet" href="../public/css/student.css">
+  <link rel="stylesheet" href="../public/css/home.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header></header>
+  <main id="main">
+
+    <!-- Hero Section (Split 2-Column matching design image) -->
+    <section class="portal-hero" aria-labelledby="portal-hero-title">
+      <div class="container">
+        <div class="portal-hero__grid">
+          
+          <!-- Left Column -->
+          <div class="portal-hero__col-left">
+            <div class="portal-eyebrow">
+              <span class="portal-eyebrow__dash" aria-hidden="true">—</span>
+              <span class="portal-eyebrow__text">YOUR MIU CAMPUS COMPANION</span>
+            </div>
+
+            <h1 class="portal-hero__title" id="portal-hero-title">
+              Your campus,<br>
+              <span class="portal-hero__title-accent">made easier.</span>
+            </h1>
+
+            <p class="portal-hero__greeting" id="portal-hero-greeting" aria-live="polite"></p>
+
+            <p class="portal-hero__desc">
+              Navigate campus, report problems, and find lost belongings. Everything you need for a better day at MIU, in one place.
+            </p>
+
+            <!-- Search Form / Bar -->
+            <form class="portal-search" id="portal-search-form" action="map.html" method="get" role="search">
+              <span class="portal-search__icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="9" cy="9" r="6"/>
+                  <line x1="13.5" y1="13.5" x2="18" y2="18"/>
+                </svg>
+              </span>
+              <input
+                type="search"
+                class="portal-search__input"
+                name="q"
+                id="portal-search-input"
+                placeholder="Search buildings, rooms, and facilities..."
+                aria-label="Search buildings, rooms, and facilities"
+                autocomplete="off"
+              >
+              <button type="submit" class="portal-search__btn" id="portal-search-btn">
+                Search
+              </button>
+            </form>
+
+            <!-- Quick suggestion tags -->
+            <div class="portal-suggestions">
+              <span class="portal-suggestions__label">Looking for:</span>
+              <div class="portal-suggestions__chips">
+                <a href="map.html?q=Library" class="suggestion-chip">Library</a>
+                <a href="map.html?q=Student+Affairs" class="suggestion-chip">Student Affairs</a>
+                <a href="map.html?q=Cafeteria" class="suggestion-chip">Cafeteria</a>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Campus Image Card with floating badge -->
+          <div class="portal-hero__col-right">
+            <div class="portal-media-card">
+              <img
+                src="../public/images/campus_hero.png"
+                alt="Misr International University campus grounds"
+                class="portal-media-card__img"
+                width="640"
+                height="400"
+              >
+              <div class="portal-media-card__badge">
+                <span class="badge-pin" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="9" cy="8" r="3"/>
+                    <path d="M9 1C5.13 1 2 4.13 2 8c0 5.5 7 10 7 10s7-4.5 7-10c0-3.87-3.13-7-7-7z"/>
+                  </svg>
+                </span>
+                <div class="badge-text">
+                  <strong class="badge-title">Misr International University</strong>
+                  <span class="badge-sub">Your campus. Your community.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Four Essentials Section (matches design image) -->
+    <section class="essentials-section" aria-labelledby="essentials-heading">
+      <div class="container">
+        
+        <div class="essentials-header">
+          <h2 class="essentials-header__title" id="essentials-heading">
+            A little help for every campus day.
+          </h2>
+          <span class="essentials-header__caption">
+            Four essentials. One connected campus.
+          </span>
+        </div>
+
+        <div class="essentials-grid" id="quick-actions-grid"></div>
+
+      </div>
+    </section>
+
+    <!-- Recent reports for student -->
+    <section class="home-section home-section--alt" aria-labelledby="recent-reports-heading">
+      <div class="container">
+        <div class="home-section__header home-section__header--row">
+          <div>
+            <span class="section-eyebrow">Maintenance</span>
+            <h2 class="home-section__title" id="recent-reports-heading">Recent reports</h2>
+          </div>
+          <a href="my-reports.html" class="view-all-link" id="view-all-reports-link">
+            View all reports
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <path d="M2 7h10M8 3l4 4-4 4"/>
+            </svg>
+          </a>
+        </div>
+        <div id="recent-reports-list" aria-live="polite" aria-atomic="true"></div>
+      </div>
+    </section>
+
+    <!-- Tagline bar from design image -->
+    <div class="portal-tagline-bar" aria-hidden="true">
+      <div class="container">
+        <div class="portal-tagline-content">
+          <span class="portal-tagline-title">
+            <svg class="portal-tagline-icon" width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 2L3 5v5c0 4.5 3.5 8.5 7 9.5 3.5-1 7-5 7-9.5V5l-7-3z"/>
+              <path d="M7 10l2 2 4-4"/>
+            </svg>
+            Built to make campus life safer, simpler, and more organized.
+          </span>
+          <span class="portal-tagline-sub">CampusOne · Misr International University</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+  <footer id="site-footer"></footer>
+  <script type="module" src="../public/js/home.js"></script>
+</body>
+</html>
