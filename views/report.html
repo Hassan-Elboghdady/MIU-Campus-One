@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report an Issue - CampusOne</title>
+  <meta name="description" content="Report a maintenance issue on campus. Describe the problem, choose a building and attach images.">
+  <meta name="theme-color" content="#B80008">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
+  <link rel="apple-touch-icon" href="../public/apple-touch-icon.png">
+  <link rel="stylesheet" href="../public/css/style.css">
+  <link rel="stylesheet" href="../public/css/profile.css">
+  <link rel="stylesheet" href="../public/css/student.css">
+  <link rel="stylesheet" href="../public/css/report.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header></header>
+  <main id="main">
+    <div class="container page-container">
+
+      <div class="page-title-block">
+        <h1 class="page-title">Report an issue</h1>
+        <p class="page-subtitle">Describe the maintenance problem and its location. Campus staff will review and assign it.</p>
+      </div>
+
+      <div id="report-form-wrapper">
+        <div class="report-page-grid">
+
+          <!-- Form card -->
+          <div class="card report-form" id="report-form-card">
+            <form id="report-form" novalidate aria-label="Report an issue">
+
+              <!-- Section 1: Issue details -->
+              <div class="form-section">
+                <p class="form-section__label">Issue details</p>
+
+                <div class="form-group">
+                  <label class="form-label" for="field-title">
+                    Issue title
+                    <span class="required-mark" aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    class="form-input"
+                    type="text"
+                    id="field-title"
+                    name="title"
+                    autocomplete="off"
+                    maxlength="100"
+                    placeholder="e.g. Broken projector in lecture hall"
+                    aria-required="true"
+                    aria-describedby="error-title"
+                  >
+                  <span id="error-title" class="form-error" aria-live="polite"></span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="field-description">
+                    Description
+                    <span class="required-mark" aria-hidden="true">*</span>
+                  </label>
+                  <div class="textarea-wrapper">
+                    <textarea
+                      class="form-input report-textarea"
+                      id="field-description"
+                      name="description"
+                      rows="5"
+                      maxlength="500"
+                      placeholder="Describe the problem in detail. Include how long it has been occurring and any other relevant context."
+                      aria-required="true"
+                      aria-describedby="error-description desc-counter"
+                    ></textarea>
+                    <span id="desc-counter" class="char-counter" aria-live="polite" aria-atomic="true">0 / 500</span>
+                  </div>
+                  <span id="error-description" class="form-error" aria-live="polite"></span>
+                </div>
+              </div>
+
+              <!-- Section 2: Location -->
+              <div class="form-section">
+                <p class="form-section__label">Location</p>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="field-building">
+                      Building
+                      <span class="required-mark" aria-hidden="true">*</span>
+                    </label>
+                    <select
+                      class="form-select"
+                      id="field-building"
+                      name="building"
+                      aria-required="true"
+                      aria-describedby="error-building"
+                    >
+                      <option value="">Select a building</option>
+                    </select>
+                    <span id="error-building" class="form-error" aria-live="polite"></span>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="field-room">
+                      Room or area
+                      <span class="required-mark" aria-hidden="true">*</span>
+                    </label>
+                    <input
+                      class="form-input"
+                      type="text"
+                      id="field-room"
+                      name="room"
+                      autocomplete="off"
+                      maxlength="80"
+                      placeholder="e.g. Room 204, Main lobby"
+                      aria-required="true"
+                      aria-describedby="error-room"
+                    >
+                    <span id="error-room" class="form-error" aria-live="polite"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 3: Images -->
+              <div class="form-section">
+                <p class="form-section__label">Images (optional)</p>
+
+                <div class="form-group">
+                  <p class="form-hint" id="images-hint">Up to 3 files. JPG, PNG or WebP. Max 5 MB each.</p>
+                  <div class="image-upload-area" id="image-upload-area" aria-describedby="images-hint">
+                    <input
+                      type="file"
+                      id="field-images"
+                      name="images"
+                      accept="image/jpeg,image/png,image/webp"
+                      multiple
+                      class="visually-hidden"
+                      aria-label="Choose images"
+                      tabindex="-1"
+                    >
+                    <label for="field-images" class="image-upload-label btn btn-secondary" id="image-upload-btn">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <rect x="2" y="4" width="14" height="11" rx="1"/>
+                        <circle cx="6.5" cy="8.5" r="1.5"/>
+                        <path d="M16 15 l-4-4-3 3-2-2-5 5"/>
+                      </svg>
+                      Choose images
+                    </label>
+                    <span class="image-upload-note">or drag and drop here</span>
+                  </div>
+                  <span id="error-images" class="form-error" aria-live="polite"></span>
+                  <div id="image-thumbnails" class="image-thumbnails" aria-label="Selected images" role="list"></div>
+                </div>
+              </div>
+
+              <div id="report-form-alert" class="alert alert-error" role="alert"></div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg" id="submit-report-btn">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <path d="M2 9l6 6L16 3"/>
+                  </svg>
+                  Submit report
+                </button>
+                <span class="form-actions__note">All fields marked with * are required.</span>
+              </div>
+
+            </form>
+          </div>
+
+          <!-- Info sidebar -->
+          <div class="report-sidebar-stack">
+            <div class="report-info-card">
+              <div class="report-info-card__header">
+                <p class="report-info-card__title">How it works</p>
+              </div>
+              <div class="report-info-card__body">
+                <div class="info-tip">
+                  <span class="info-tip__icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                      <path d="M14 3H5a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1z"/>
+                      <line x1="8" y1="7" x2="11" y2="7"/>
+                      <line x1="8" y1="10" x2="11" y2="10"/>
+                      <line x1="6" y1="7" x2="6" y2="7"/>
+                      <line x1="6" y1="10" x2="6" y2="10"/>
+                    </svg>
+                  </span>
+                  <div class="info-tip__text">
+                    <span class="info-tip__label">Submit your report</span>
+                    <span class="info-tip__desc">Fill in the details of the problem and where it is located on campus.</span>
+                  </div>
+                </div>
+
+                <div class="info-tip">
+                  <span class="info-tip__icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                      <circle cx="8" cy="6" r="2.5"/>
+                      <path d="M3 14c0-2.76 2.24-5 5-5s5 2.24 5 5"/>
+                    </svg>
+                  </span>
+                  <div class="info-tip__text">
+                    <span class="info-tip__label">Staff reviews and assigns</span>
+                    <span class="info-tip__desc">A supervisor reviews your report and assigns it to a technician.</span>
+                  </div>
+                </div>
+
+                <div class="info-tip">
+                  <span class="info-tip__icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                      <circle cx="8" cy="8" r="6"/>
+                      <path d="M5 8l2 2 4-4"/>
+                    </svg>
+                  </span>
+                  <div class="info-tip__text">
+                    <span class="info-tip__label">Issue is resolved</span>
+                    <span class="info-tip__desc">The technician fixes the problem and marks the report as resolved.</span>
+                  </div>
+                </div>
+
+                <div class="status-track">
+                  <p class="status-track__title">Report statuses</p>
+                  <div class="status-track-step status-track-step--active">
+                    <span class="status-track-step__dot" aria-hidden="true"></span>
+                    <span class="status-track-step__label">Submitted</span>
+                  </div>
+                  <div class="status-track-step">
+                    <span class="status-track-step__dot" aria-hidden="true"></span>
+                    <span class="status-track-step__label">Assigned</span>
+                  </div>
+                  <div class="status-track-step">
+                    <span class="status-track-step__dot" aria-hidden="true"></span>
+                    <span class="status-track-step__label">In progress</span>
+                  </div>
+                  <div class="status-track-step">
+                    <span class="status-track-step__dot" aria-hidden="true"></span>
+                    <span class="status-track-step__label">Resolved</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Emergency notice card -->
+            <div class="emergency-notice-card">
+              <div class="emergency-notice-card__icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M8 1.5L1 14.5h14L8 1.5z"/>
+                  <line x1="8" y1="7" x2="8" y2="10"/>
+                  <circle cx="8" cy="12" r=".6" fill="currentColor"/>
+                </svg>
+              </div>
+              <div class="emergency-notice-card__content">
+                <p class="emergency-notice-card__title">Immediate safety hazard?</p>
+                <p class="emergency-notice-card__text">For fire, active water flooding, or electrical hazards, do not wait for maintenance triage. Check campus emergency resources immediately.</p>
+                <a href="emergency.html" class="emergency-notice-card__link">Go to Emergency Map &rarr;</a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Success screen -->
+      <div id="report-success" hidden class="report-success">
+        <div class="success-icon" aria-hidden="true">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <path d="M7 18l7 7 15-14"/>
+          </svg>
+        </div>
+        <h2 class="success-heading">Report submitted</h2>
+        <p class="success-body">Your report has been received. Track its progress in My reports.</p>
+        <div class="success-id">
+          <span>Report ID</span>
+          <strong id="success-report-id"></strong>
+        </div>
+        <div class="success-actions">
+          <a id="success-view-btn" href="my-reports.html" class="btn btn-primary">View my report</a>
+          <button type="button" id="success-another-btn" class="btn btn-secondary">Report another</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+  <footer id="site-footer"></footer>
+  <script type="module" src="../public/js/report.js"></script>
+</body>
+</html>
