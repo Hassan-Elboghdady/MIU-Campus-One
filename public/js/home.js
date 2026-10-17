@@ -4,8 +4,8 @@
  * four essentials cards, recent reports list (3 newest).
  */
 
-import { requireLogin, ROLE_HOME, renderFooter } from './common.js';
-import { renderNav, renderStatusBadge }           from './student-nav.js';
+import { requireLogin, ROLE_HOME, renderFooter, clearSession } from './common.js';
+import { renderStatusBadge }           from './student-nav.js';
 import { getMyReports }                           from './reports-service.js';
 
 // --------------------------------------------------------------------------
@@ -247,8 +247,54 @@ function setupSearch() {
 // Boot
 // --------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
-  renderNav();
   renderFooter();
+
+  // Fill user info into static nav elements
+  if (user) {
+    const initials = user.name.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    const initialsEl = document.getElementById('nav-initials');
+    const nameEl     = document.getElementById('nav-user-name');
+    const emailEl    = document.getElementById('nav-user-email');
+    if (initialsEl) initialsEl.textContent = initials;
+    if (nameEl)     nameEl.textContent     = user.name;
+    if (emailEl)    emailEl.textContent    = user.email;
+  }
+
+  // Wire dropdowns
+  initDropdown('notif-trigger', 'notif-panel');
+  initDropdown('profile-trigger', 'profile-panel');
+
+  // Mobile hamburger
+  const toggle = document.getElementById('app-menu-toggle');
+  const nav    = document.getElementById('app-nav');
+  if (toggle && nav) {
+    toggle.addEventListener('click', () => {
+      const open = nav.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', String(open));
+    });
+  }
+
+  // Logout
+  const logoutBtn = document.getElementById('logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      clearSession();
+      window.location.replace('login.html');
+    });
+  }
+
+  // Close dropdowns on outside click
+  document.addEventListener('click', (e) => {
+    ['notif-dropdown', 'profile-dropdown'].forEach((id) => {
+      const wrap = document.getElementById(id);
+      if (wrap && !wrap.contains(e.target)) {
+        const panel   = wrap.querySelector('.dropdown__panel');
+        const trigger = wrap.querySelector('.dropdown__trigger');
+        if (panel)   panel.classList.remove('is-open');
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
 
   const greetEl   = document.getElementById('portal-hero-greeting');
   const actionsEl = document.getElementById('quick-actions-grid');
@@ -260,3 +306,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   setupSearch();
 });
+
+function initDropdown(triggerId, panelId) {
+  const trigger = document.getElementById(triggerId);
+  const panel   = document.getElementById(panelId);
+  if (!trigger || !panel) return;
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = panel.classList.toggle('is-open');
+    trigger.setAttribute('aria-expanded', String(isOpen));
+  });
+}

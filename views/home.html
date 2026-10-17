@@ -17,14 +17,117 @@
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
-  <header></header>
+
+  <!-- =====================================================================
+       APP HEADER
+       ===================================================================== -->
+  <header class="app-header" id="app-header">
+    <div class="container">
+
+      <!-- Logo → back to landing page -->
+      <a href="index.html" class="app-header__logo" aria-label="Go to CampusOne home">
+        <img src="../public/images/logo.png" alt="Misr International University logo" width="36" height="36">
+        <div class="app-header__logo-text">
+          <span class="app-header__logo-abbr">MIU</span>
+          <span class="app-header__logo-sub">Misr International University</span>
+        </div>
+        <span class="app-header__logo-divider" aria-hidden="true"></span>
+        <span class="app-header__logo-brand">CampusOne</span>
+      </a>
+
+      <!-- Nav links -->
+      <nav class="app-nav" id="app-nav" aria-label="Main navigation">
+        <a href="map.html"        class="app-nav__link" id="nav-map">Campus Map</a>
+        <a href="emergency.html"  class="app-nav__link" id="nav-emergency">Emergency Map</a>
+        <a href="maintenance.html" class="app-nav__link" id="nav-maintenance">Maintenance</a>
+        <a href="lost-found.html" class="app-nav__link" id="nav-lostfound">Lost &amp; Found</a>
+        <a href="report.html"     class="app-nav__link app-nav__report-link" id="nav-report">Report an Issue</a>
+      </nav>
+
+      <!-- Right actions -->
+      <div class="app-header__actions">
+
+        <!-- Notifications -->
+        <div class="dropdown" id="notif-dropdown">
+          <button type="button" class="dropdown__trigger" id="notif-trigger"
+                  aria-haspopup="true" aria-expanded="false"
+                  aria-controls="notif-panel" aria-label="Notifications">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <path d="M9 2a5 5 0 0 1 5 5v3l1.5 2.5H2.5L4 10V7a5 5 0 0 1 5-5z"/>
+              <path d="M7 15a2 2 0 0 0 4 0"/>
+            </svg>
+          </button>
+          <div class="dropdown__panel" id="notif-panel" role="menu" aria-labelledby="notif-trigger">
+            <div class="dropdown__header">Notifications</div>
+            <div class="dropdown__empty">No new notifications</div>
+          </div>
+        </div>
+
+        <!-- Profile -->
+        <div class="dropdown" id="profile-dropdown">
+          <button type="button" class="dropdown__trigger profile-trigger" id="profile-trigger"
+                  aria-haspopup="true" aria-expanded="false"
+                  aria-controls="profile-panel" aria-label="Account menu">
+            <span class="profile-trigger__avatar" aria-hidden="true">
+              <span class="avatar-initials" id="nav-initials">?</span>
+            </span>
+            <span class="profile-trigger__name" id="nav-user-name"></span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <path d="M3 5l4 4 4-4"/>
+            </svg>
+          </button>
+          <div class="dropdown__panel" id="profile-panel" role="menu" aria-labelledby="profile-trigger">
+            <div class="dropdown__header" id="nav-user-email"></div>
+            <a href="profile.html" class="dropdown__item" role="menuitem" id="nav-profile-link">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <circle cx="8" cy="6" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+              </svg>
+              Profile
+            </a>
+            <div class="dropdown__divider" role="separator"></div>
+            <button type="button" class="dropdown__item dropdown__item--danger" id="logout-btn" role="menuitem">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M7 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4"/>
+                <polyline points="11,11 14,8 11,5"/><line x1="7" y1="8" x2="14" y2="8"/>
+              </svg>
+              Log out
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile hamburger -->
+        <button type="button" class="app-menu-toggle" id="app-menu-toggle"
+                aria-label="Open navigation menu" aria-expanded="false" aria-controls="app-nav">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true" focusable="false">
+            <line x1="3" y1="6"  x2="19" y2="6"  stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+            <line x1="3" y1="11" x2="19" y2="11" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+            <line x1="3" y1="16" x2="19" y2="16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Emergency floating button -->
+    <a href="emergency.html" class="emergency-btn" id="emergency-btn" aria-label="Emergency map">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <path d="M8 1.5L1 14.5h14L8 1.5z"/>
+        <line x1="8" y1="7" x2="8" y2="10"/>
+        <circle cx="8" cy="12" r=".6" fill="currentColor" stroke="none"/>
+      </svg>
+      <span class="emergency-label">Emergency</span>
+    </a>
+  </header>
+
+  <!-- =====================================================================
+       MAIN CONTENT
+       ===================================================================== -->
   <main id="main">
 
-    <!-- Hero Section (Split 2-Column matching design image) -->
+    <!-- ── Hero Section ── -->
     <section class="portal-hero" aria-labelledby="portal-hero-title">
       <div class="container">
         <div class="portal-hero__grid">
-          
+
           <!-- Left Column -->
           <div class="portal-hero__col-left">
             <div class="portal-eyebrow">
@@ -40,10 +143,11 @@
             <p class="portal-hero__greeting" id="portal-hero-greeting" aria-live="polite"></p>
 
             <p class="portal-hero__desc">
-              Navigate campus, report problems, and find lost belongings. Everything you need for a better day at MIU, in one place.
+              Navigate campus, report problems, and find lost belongings.
+              Everything you need for a better day at MIU, in one place.
             </p>
 
-            <!-- Search Form / Bar -->
+            <!-- Search bar -->
             <form class="portal-search" id="portal-search-form" action="map.html" method="get" role="search">
               <span class="portal-search__icon" aria-hidden="true">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -58,35 +162,29 @@
                 id="portal-search-input"
                 placeholder="Search buildings, rooms, and facilities..."
                 aria-label="Search buildings, rooms, and facilities"
-                autocomplete="off"
-              >
-              <button type="submit" class="portal-search__btn" id="portal-search-btn">
-                Search
-              </button>
+                autocomplete="off">
+              <button type="submit" class="portal-search__btn" id="portal-search-btn">Search</button>
             </form>
 
-            <!-- Quick suggestion tags -->
+            <!-- Quick chips -->
             <div class="portal-suggestions">
               <span class="portal-suggestions__label">Looking for:</span>
               <div class="portal-suggestions__chips">
-                <a href="map.html?q=Library" class="suggestion-chip">Library</a>
-                <a href="map.html?q=Student+Affairs" class="suggestion-chip">Student Affairs</a>
-                <a href="map.html?q=Cafeteria" class="suggestion-chip">Cafeteria</a>
+                <a href="map.html?q=Library"         class="suggestion-chip" id="chip-library">Library</a>
+                <a href="map.html?q=Student+Affairs" class="suggestion-chip" id="chip-student-affairs">Student Affairs</a>
+                <a href="map.html?q=Cafeteria"       class="suggestion-chip" id="chip-cafeteria">Cafeteria</a>
               </div>
             </div>
-
           </div>
 
-          <!-- Right Column: Campus Image Card with floating badge -->
+          <!-- Right Column: campus image card -->
           <div class="portal-hero__col-right">
             <div class="portal-media-card">
               <img
                 src="../public/images/campus_hero.png"
                 alt="Misr International University campus grounds"
                 class="portal-media-card__img"
-                width="640"
-                height="400"
-              >
+                width="640" height="400">
               <div class="portal-media-card__badge">
                 <span class="badge-pin" aria-hidden="true">
                   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -106,25 +204,86 @@
       </div>
     </section>
 
-    <!-- Four Essentials Section (matches design image) -->
+    <!-- ── Four Essentials Section (static HTML, always visible) ── -->
     <section class="essentials-section" aria-labelledby="essentials-heading">
       <div class="container">
-        
+
         <div class="essentials-header">
-          <h2 class="essentials-header__title" id="essentials-heading">
-            A little help for every campus day.
-          </h2>
-          <span class="essentials-header__caption">
-            Four essentials. One connected campus.
-          </span>
+          <h2 class="essentials-header__title" id="essentials-heading">A little help for every campus day.</h2>
+          <span class="essentials-header__caption">Four essentials. One connected campus.</span>
         </div>
 
-        <div class="essentials-grid" id="quick-actions-grid"></div>
+        <div class="essentials-grid">
 
+          <!-- Campus Map -->
+          <a href="map.html" class="essential-card" id="essential-map">
+            <span class="essential-card__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4"/>
+              </svg>
+            </span>
+            <span class="essential-card__title">Campus Map</span>
+            <span class="essential-card__desc">Find buildings, classrooms, and the best way to your next stop.</span>
+            <span class="essential-card__link">
+              Explore
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 7h9M7 3l4 4-4 4"/></svg>
+            </span>
+          </a>
+
+          <!-- Emergency Map -->
+          <a href="emergency.html" class="essential-card" id="essential-emergency">
+            <span class="essential-card__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <circle cx="12" cy="11" r="1.5" fill="currentColor"/>
+              </svg>
+            </span>
+            <span class="essential-card__title">Emergency Map</span>
+            <span class="essential-card__desc">Locate emergency exits, first-aid points, and safe assembly areas.</span>
+            <span class="essential-card__link">
+              Explore
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 7h9M7 3l4 4-4 4"/></svg>
+            </span>
+          </a>
+
+          <!-- Maintenance → report.html (submit a new issue) -->
+          <a href="maintenance.html" class="essential-card" id="essential-maintenance">
+            <span class="essential-card__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+              </svg>
+            </span>
+            <span class="essential-card__title">Maintenance</span>
+            <span class="essential-card__desc">Report a campus issue and keep track of your request.</span>
+            <span class="essential-card__link">
+              Explore
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 7h9M7 3l4 4-4 4"/></svg>
+            </span>
+          </a>
+
+          <!-- AI Lost & Found -->
+          <a href="lost-found.html" class="essential-card" id="essential-lost-found">
+            <span class="essential-card__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                <line x1="11" y1="8" x2="11" y2="14"/>
+                <line x1="8" y1="11" x2="14" y2="11"/>
+              </svg>
+            </span>
+            <span class="essential-card__title">AI Lost &amp; Found</span>
+            <span class="essential-card__desc">Find what's missing with smart matches for lost and found items.</span>
+            <span class="essential-card__link">
+              Explore
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 7h9M7 3l4 4-4 4"/></svg>
+            </span>
+          </a>
+
+        </div>
       </div>
     </section>
 
-    <!-- Recent reports for student -->
+    <!-- ── Recent Reports ── -->
     <section class="home-section home-section--alt" aria-labelledby="recent-reports-heading">
       <div class="container">
         <div class="home-section__header home-section__header--row">
@@ -139,11 +298,21 @@
             </svg>
           </a>
         </div>
-        <div id="recent-reports-list" aria-live="polite" aria-atomic="true"></div>
+        <div id="recent-reports-list" aria-live="polite" aria-atomic="true">
+          <!-- Populated by home.js when running on a server -->
+          <div class="empty-state">
+            <div class="empty-state__icon">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="6" width="32" height="36" rx="2"/><line x1="16" y1="18" x2="32" y2="18"/><line x1="16" y1="24" x2="32" y2="24"/><line x1="16" y1="30" x2="24" y2="30"/></svg>
+            </div>
+            <p class="empty-state__title">No reports yet</p>
+            <p class="empty-state__text">You have not submitted any maintenance reports yet.</p>
+            <a href="report.html" class="btn btn-primary" id="home-report-btn" style="margin-block-start:var(--space-2);">Report an issue</a>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Tagline bar from design image -->
+    <!-- ── Tagline bar ── -->
     <div class="portal-tagline-bar" aria-hidden="true">
       <div class="container">
         <div class="portal-tagline-content">
@@ -160,7 +329,9 @@
     </div>
 
   </main>
+
   <footer id="site-footer"></footer>
+
   <script type="module" src="../public/js/home.js"></script>
 </body>
 </html>
