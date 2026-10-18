@@ -4,105 +4,77 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profile - CampusOne</title>
-  <meta name="description" content="View and update your CampusOne profile, change your password and manage notification settings.">
+  <meta name="description" content="View and update your CampusOne profile.">
   <meta name="robots" content="noindex">
   <meta name="theme-color" content="#B80008">
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <meta property="og:title" content="Profile - CampusOne">
-  <meta property="og:description" content="Your CampusOne profile page.">
-  <meta property="og:image" content="images/logo.png">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/profile.css">
+  <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
+  <link rel="stylesheet" href="../public/css/style.css">
+  <link rel="stylesheet" href="../public/css/profile.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
-  <!-- App header (authenticated) -->
-  <header class="app-header">
+
+  <!-- ===== HEADER (same as home.html) ===== -->
+  <header class="app-header" id="app-header">
     <div class="container">
-      <a href="index.html" class="app-header__logo" aria-label="CampusOne home">
-        <img src="images/logo.png" alt="Misr International University logo" width="36" height="36">
-        <span class="visually-hidden">CampusOne</span>
+      <a href="home.html" class="app-header__logo" aria-label="Go to CampusOne home">
+        <img src="../public/images/logo.png" alt="Misr International University logo" width="36" height="36">
+        <div class="app-header__logo-text">
+          <span class="app-header__logo-abbr">MIU</span>
+          <span class="app-header__logo-sub">Misr International University</span>
+        </div>
+        <span class="app-header__logo-divider" aria-hidden="true"></span>
+        <span class="app-header__logo-brand">CampusOne</span>
       </a>
-      <!-- Role-based navigation (rendered by JS) -->
-      <nav id="app-nav" class="app-nav" aria-label="Application navigation"></nav>
+
+      <nav class="app-nav" id="app-nav" aria-label="Main navigation">
+        <a href="map.html"        class="app-nav__link" id="nav-map">Campus Map</a>
+        <a href="emergency.html"  class="app-nav__link" id="nav-emergency">Emergency Map</a>
+        <a href="maintenance.html" class="app-nav__link" id="nav-maintenance">Maintenance</a>
+        <a href="lost-found.html" class="app-nav__link" id="nav-lostfound">Lost &amp; Found</a>
+        <a href="report.html"     class="app-nav__link app-nav__report-link" id="nav-report">Report an Issue</a>
+      </nav>
+
       <div class="app-header__actions">
-        <!-- Notifications dropdown -->
-        <div class="dropdown" id="notifications-dropdown">
-          <button
-            type="button"
-            id="notifications-trigger"
-            class="dropdown__trigger"
-            aria-haspopup="true"
-            aria-expanded="false"
-            aria-controls="notifications-panel"
-            aria-label="Notifications">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-              <path d="M10 2a6 6 0 0 0-6 6v3l-2 2v1h16v-1l-2-2V8a6 6 0 0 0-6-6z"/>
-              <path d="M8 16a2 2 0 0 0 4 0"/>
+        <div class="dropdown" id="notif-dropdown">
+          <button type="button" class="dropdown__trigger" id="notif-trigger"
+                  aria-haspopup="true" aria-expanded="false" aria-controls="notif-panel" aria-label="Notifications">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 2a5 5 0 0 1 5 5v3l1.5 2.5H2.5L4 10V7a5 5 0 0 1 5-5z"/><path d="M7 15a2 2 0 0 0 4 0"/>
             </svg>
           </button>
-          <div id="notifications-panel" class="dropdown__panel" role="menu" aria-labelledby="notifications-trigger">
-            <p class="dropdown__header">Notifications</p>
-            <p class="dropdown__empty">No new notifications.</p>
+          <div class="dropdown__panel" id="notif-panel" role="menu">
+            <div class="dropdown__header">Notifications</div>
+            <div class="dropdown__empty">No new notifications</div>
           </div>
         </div>
-        <!-- Profile dropdown -->
+
         <div class="dropdown" id="profile-dropdown">
-          <button
-            type="button"
-            id="profile-trigger"
-            class="dropdown__trigger profile-trigger"
-            aria-haspopup="true"
-            aria-expanded="false"
-            aria-controls="profile-panel"
-            aria-label="Profile menu">
-            <span class="profile-trigger__avatar">
-              <img id="nav-avatar-img" src="images/logo.png" alt="Your profile picture" width="30" height="30">
+          <button type="button" class="dropdown__trigger profile-trigger" id="profile-trigger"
+                  aria-haspopup="true" aria-expanded="false" aria-controls="profile-panel" aria-label="Account menu">
+            <span class="profile-trigger__avatar" aria-hidden="true">
+              <span class="avatar-initials" id="nav-initials">?</span>
             </span>
-            <span id="profile-trigger-name" class="profile-trigger__name"></span>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-              <polyline points="3,5 7,9 11,5"/>
-            </svg>
+            <span class="profile-trigger__name" id="nav-user-name"></span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5l4 4 4-4"/></svg>
           </button>
-          <div id="profile-panel" class="dropdown__panel" role="menu" aria-labelledby="profile-trigger">
-            <a
-              href="profile.html"
-              id="nav-profile-link"
-              class="dropdown__item"
-              aria-current="page"
-              role="menuitem">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                <circle cx="8" cy="6" r="3"/>
-                <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
-              </svg>
+          <div class="dropdown__panel" id="profile-panel" role="menu">
+            <div class="dropdown__header" id="nav-user-email"></div>
+            <a href="profile.html" class="dropdown__item" aria-current="page" role="menuitem" id="nav-profile-link">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="6" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
               Profile
             </a>
             <div class="dropdown__divider" role="separator"></div>
-            <button
-              type="button"
-              class="dropdown__item dropdown__item--danger"
-              data-action="logout"
-              role="menuitem">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                <path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3"/>
-                <polyline points="11,11 14,8 11,5"/>
-                <line x1="14" y1="8" x2="6" y2="8"/>
-              </svg>
+            <button type="button" class="dropdown__item dropdown__item--danger" id="logout-btn" role="menuitem">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4"/><polyline points="11,11 14,8 11,5"/><line x1="7" y1="8" x2="14" y2="8"/></svg>
               Log out
             </button>
           </div>
         </div>
-        <!-- Mobile menu toggle -->
-        <button
-          type="button"
-          id="app-menu-toggle"
-          class="app-menu-toggle"
-          aria-label="Open navigation menu"
-          aria-expanded="false"
-          aria-controls="app-nav">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true" focusable="false">
+
+        <button type="button" class="app-menu-toggle" id="app-menu-toggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="app-nav">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
             <line x1="3" y1="6"  x2="19" y2="6"  stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
             <line x1="3" y1="11" x2="19" y2="11" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
             <line x1="3" y1="16" x2="19" y2="16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
@@ -110,44 +82,39 @@
         </button>
       </div>
     </div>
+
+    <a href="emergency.html" class="emergency-btn" id="emergency-btn" aria-label="Emergency map">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M8 1.5L1 14.5h14L8 1.5z"/><line x1="8" y1="7" x2="8" y2="10"/><circle cx="8" cy="12" r=".6" fill="currentColor" stroke="none"/>
+      </svg>
+      <span class="emergency-label">Emergency</span>
+    </a>
   </header>
+
+  <!-- ===== MAIN ===== -->
   <main id="main">
     <div class="profile-page">
       <div class="container">
         <h1 class="visually-hidden">Your profile</h1>
         <div class="profile-grid">
+
           <!-- Left: avatar card -->
           <aside>
             <div class="avatar-card" id="avatar-card">
               <div class="avatar-wrapper">
-                <img
-                  id="avatar-img"
-                  class="avatar-img"
-                  src="images/logo.png"
-                  alt="Your profile picture">
-                <label
-                  for="avatar-file-input"
-                  class="avatar-upload-label"
-                  title="Change profile photo"
-                  aria-label="Change profile photo">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                    <path d="M9.5 1.5l3 3L4 13H1v-3L9.5 1.5z"/>
-                  </svg>
-                </label>
-                <input
-                  type="file"
-                  id="avatar-file-input"
-                  accept="image/*"
-                  class="visually-hidden"
-                  aria-label="Upload profile photo">
+                <div class="avatar-img" id="avatar-circle" style="width:96px;height:96px;border-radius:50%;background:var(--color-primary-tint);border:3px solid var(--color-border);display:flex;align-items:center;justify-content:center;">
+                  <span id="avatar-big-initials" style="font-size:2rem;font-weight:800;color:var(--color-primary);">?</span>
+                </div>
               </div>
               <p id="avatar-name" class="avatar-name"></p>
               <span id="avatar-role-badge" class="avatar-role"></span>
               <p id="avatar-email" class="avatar-email"></p>
             </div>
           </aside>
+
           <!-- Right: details -->
           <div class="profile-details">
+
             <!-- Account information -->
             <section class="profile-section" aria-labelledby="info-heading">
               <div class="profile-section__header">
@@ -157,132 +124,57 @@
                 <dl>
                   <div class="info-row">
                     <dt class="info-row__label">Full name</dt>
-                    <dd id="profile-name" class="info-row__value"></dd>
+                    <dd id="profile-name" class="info-row__value">—</dd>
                   </div>
                   <div class="info-row">
                     <dt class="info-row__label">Email</dt>
-                    <dd id="profile-email" class="info-row__value"></dd>
+                    <dd id="profile-email" class="info-row__value">—</dd>
                   </div>
                   <div class="info-row">
                     <dt class="info-row__label">Student ID</dt>
-                    <dd id="profile-id" class="info-row__value"></dd>
+                    <dd id="profile-id" class="info-row__value">—</dd>
                   </div>
                   <div class="info-row">
                     <dt class="info-row__label">Faculty</dt>
-                    <dd id="profile-faculty" class="info-row__value"></dd>
+                    <dd id="profile-faculty" class="info-row__value">—</dd>
                   </div>
                   <div class="info-row">
                     <dt class="info-row__label">Role</dt>
-                    <dd id="profile-role" class="info-row__value"></dd>
+                    <dd id="profile-role" class="info-row__value">—</dd>
                   </div>
                 </dl>
               </div>
             </section>
+
             <!-- Change password -->
             <section class="profile-section" aria-labelledby="password-heading">
               <div class="profile-section__header">
                 <h2 id="password-heading" class="profile-section__title">Change password</h2>
               </div>
               <div class="profile-section__body">
-                <div id="cp-success" class="alert alert-success" role="status" aria-live="polite">Password updated successfully.</div>
-                <div id="cp-error"   class="alert alert-error"   role="alert"  aria-live="assertive"></div>
+                <div id="cp-success" class="alert alert-success" role="status" style="display:none;">Password updated successfully.</div>
+                <div id="cp-error"   class="alert alert-error"   role="alert"></div>
                 <form id="change-password-form" class="auth-form" novalidate>
                   <div class="form-group">
-                    <label for="cp-current" class="form-label">
-                      Current password
-                      <span class="required-mark" aria-hidden="true">*</span>
-                    </label>
-                    <div class="password-wrapper">
-                      <input
-                        type="password"
-                        id="cp-current"
-                        name="currentPassword"
-                        class="form-input"
-                        autocomplete="current-password"
-                        required
-                        aria-describedby="cp-current-error">
-                      <button
-                        type="button"
-                        id="cp-current-toggle"
-                        class="password-toggle"
-                        aria-label="Show password">
-                        <svg class="icon-eye" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                          <path d="M1 9s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5z"/>
-                          <circle cx="9" cy="9" r="2"/>
-                        </svg>
-                        <svg class="icon-eye-off visually-hidden" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                          <path d="M1 1l16 16M7.5 7.6A2 2 0 0 0 10.4 10.5M5.2 5.2C3 6.5 1 9 1 9s3 5 8 5a8.7 8.7 0 0 0 3.8-.9M9 4c4.1.5 6.5 3.6 7 5a11 11 0 0 1-1.3 2"/>
-                        </svg>
-                      </button>
-                    </div>
+                    <label for="cp-current" class="form-label">Current password <span class="required-mark" aria-hidden="true">*</span></label>
+                    <input type="password" id="cp-current" class="form-input" autocomplete="current-password" required>
                     <span id="cp-current-error" class="form-error" role="alert"></span>
                   </div>
                   <div class="form-group">
-                    <label for="cp-new" class="form-label">
-                      New password
-                      <span class="required-mark" aria-hidden="true">*</span>
-                    </label>
-                    <div class="password-wrapper">
-                      <input
-                        type="password"
-                        id="cp-new"
-                        name="newPassword"
-                        class="form-input"
-                        autocomplete="new-password"
-                        required
-                        aria-describedby="cp-new-error">
-                      <button
-                        type="button"
-                        id="cp-new-toggle"
-                        class="password-toggle"
-                        aria-label="Show password">
-                        <svg class="icon-eye" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                          <path d="M1 9s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5z"/>
-                          <circle cx="9" cy="9" r="2"/>
-                        </svg>
-                        <svg class="icon-eye-off visually-hidden" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                          <path d="M1 1l16 16M7.5 7.6A2 2 0 0 0 10.4 10.5M5.2 5.2C3 6.5 1 9 1 9s3 5 8 5a8.7 8.7 0 0 0 3.8-.9M9 4c4.1.5 6.5 3.6 7 5a11 11 0 0 1-1.3 2"/>
-                        </svg>
-                      </button>
-                    </div>
+                    <label for="cp-new" class="form-label">New password <span class="required-mark" aria-hidden="true">*</span></label>
+                    <input type="password" id="cp-new" class="form-input" autocomplete="new-password" required>
                     <span id="cp-new-error" class="form-error" role="alert"></span>
                   </div>
                   <div class="form-group">
-                    <label for="cp-confirm" class="form-label">
-                      Confirm new password
-                      <span class="required-mark" aria-hidden="true">*</span>
-                    </label>
-                    <div class="password-wrapper">
-                      <input
-                        type="password"
-                        id="cp-confirm"
-                        name="confirmPassword"
-                        class="form-input"
-                        autocomplete="new-password"
-                        required
-                        aria-describedby="cp-confirm-error">
-                      <button
-                        type="button"
-                        id="cp-confirm-toggle"
-                        class="password-toggle"
-                        aria-label="Show password">
-                        <svg class="icon-eye" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                          <path d="M1 9s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5z"/>
-                          <circle cx="9" cy="9" r="2"/>
-                        </svg>
-                        <svg class="icon-eye-off visually-hidden" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                          <path d="M1 1l16 16M7.5 7.6A2 2 0 0 0 10.4 10.5M5.2 5.2C3 6.5 1 9 1 9s3 5 8 5a8.7 8.7 0 0 0 3.8-.9M9 4c4.1.5 6.5 3.6 7 5a11 11 0 0 1-1.3 2"/>
-                        </svg>
-                      </button>
-                    </div>
+                    <label for="cp-confirm" class="form-label">Confirm new password <span class="required-mark" aria-hidden="true">*</span></label>
+                    <input type="password" id="cp-confirm" class="form-input" autocomplete="new-password" required>
                     <span id="cp-confirm-error" class="form-error" role="alert"></span>
                   </div>
-                  <div>
-                    <button type="submit" id="cp-submit" class="btn btn-primary">Update password</button>
-                  </div>
+                  <button type="submit" id="cp-submit" class="btn btn-primary">Update password</button>
                 </form>
               </div>
             </section>
+
             <!-- Notification settings -->
             <section class="profile-section" aria-labelledby="notif-heading">
               <div class="profile-section__header">
@@ -296,27 +188,17 @@
                       <span class="toggle-label__desc">Get notified when your maintenance report changes status.</span>
                     </div>
                     <label class="toggle-switch">
-                      <input
-                        type="checkbox"
-                        id="notif-maintenance"
-                        name="notif-maintenance"
-                        checked
-                        aria-label="Maintenance updates notifications">
+                      <input type="checkbox" id="notif-maintenance" checked aria-label="Maintenance updates notifications">
                       <span class="toggle-switch__track" aria-hidden="true"></span>
                     </label>
                   </div>
                   <div class="toggle-item">
                     <div class="toggle-label">
-                      <span class="toggle-label__name">Lost & Found matches</span>
+                      <span class="toggle-label__name">Lost &amp; Found matches</span>
                       <span class="toggle-label__desc">Get notified when a match is found for your lost item report.</span>
                     </div>
                     <label class="toggle-switch">
-                      <input
-                        type="checkbox"
-                        id="notif-lost-found"
-                        name="notif-lost-found"
-                        checked
-                        aria-label="Lost and Found match notifications">
+                      <input type="checkbox" id="notif-lost-found" checked aria-label="Lost and Found match notifications">
                       <span class="toggle-switch__track" aria-hidden="true"></span>
                     </label>
                   </div>
@@ -326,29 +208,18 @@
                       <span class="toggle-label__desc">Receive important notices from the university.</span>
                     </div>
                     <label class="toggle-switch">
-                      <input
-                        type="checkbox"
-                        id="notif-announcements"
-                        name="notif-announcements"
-                        aria-label="Campus announcement notifications">
+                      <input type="checkbox" id="notif-announcements" aria-label="Campus announcement notifications">
                       <span class="toggle-switch__track" aria-hidden="true"></span>
                     </label>
                   </div>
                 </div>
               </div>
             </section>
+
             <!-- Log out -->
             <div class="danger-zone">
-              <button
-                type="button"
-                class="btn btn-outline"
-                data-action="logout"
-                id="logout-btn">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                  <path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3"/>
-                  <polyline points="11,11 14,8 11,5"/>
-                  <line x1="14" y1="8" x2="6" y2="8"/>
-                </svg>
+              <button type="button" class="btn btn-outline" id="logout-page-btn">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3"/><polyline points="11,11 14,8 11,5"/><line x1="14" y1="8" x2="6" y2="8"/></svg>
                 Log out
               </button>
             </div>
@@ -357,20 +228,107 @@
       </div>
     </div>
   </main>
+
   <footer id="site-footer"></footer>
-  <!-- Emergency button -->
-  <a
-    href="emergency.html"
-    id="emergency-btn"
-    class="emergency-btn"
-    aria-label="Emergency - call for help">
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-      <path d="M9 1L1 17h16L9 1z"/>
-      <line x1="9" y1="8" x2="9" y2="12"/>
-      <circle cx="9" cy="14.5" r="0.5" fill="currentColor" stroke="none"/>
-    </svg>
-    <span class="emergency-label">Emergency</span>
-  </a>
-  <script type="module" src="js/profile.js"></script>
+
+  <script>
+    (function () {
+      // ── Read session ───────────────────────────────────────────────────
+      var session = null;
+      try { session = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
+
+      if (!session) { window.location.replace('login.html'); return; }
+
+      var el = function (id) { return document.getElementById(id); };
+      var initials = (session.name || '?').trim().split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+
+      // ── Nav header ─────────────────────────────────────────────────────
+      if (el('nav-initials'))   el('nav-initials').textContent   = initials;
+      if (el('nav-user-name'))  el('nav-user-name').textContent  = session.name  || '';
+      if (el('nav-user-email')) el('nav-user-email').textContent = session.email || '';
+
+      // ── Avatar card ────────────────────────────────────────────────────
+      if (el('avatar-big-initials')) el('avatar-big-initials').textContent = initials;
+      if (el('avatar-name'))         el('avatar-name').textContent         = session.name  || '';
+      if (el('avatar-email'))        el('avatar-email').textContent        = session.email || '';
+      if (el('avatar-role-badge'))   el('avatar-role-badge').textContent   = session.role  || '';
+
+      // ── Account info rows ──────────────────────────────────────────────
+      if (el('profile-name'))    el('profile-name').textContent    = session.name      || '—';
+      if (el('profile-email'))   el('profile-email').textContent   = session.email     || '—';
+      if (el('profile-id'))      el('profile-id').textContent      = session.studentId || '—';
+      if (el('profile-faculty')) el('profile-faculty').textContent = session.faculty   || '—';
+      if (el('profile-role'))    el('profile-role').textContent    = session.role      || '—';
+
+      // ── Dropdowns ──────────────────────────────────────────────────────
+      function initDropdown(triggerId, panelId) {
+        var trigger = el(triggerId), panel = el(panelId);
+        if (!trigger || !panel) return;
+        trigger.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var open = panel.classList.toggle('is-open');
+          trigger.setAttribute('aria-expanded', String(open));
+          ['notif-panel','profile-panel'].forEach(function (pid) {
+            if (pid !== panelId) { var p = el(pid); if (p) p.classList.remove('is-open'); }
+          });
+        });
+      }
+      initDropdown('notif-trigger', 'notif-panel');
+      initDropdown('profile-trigger', 'profile-panel');
+
+      document.addEventListener('click', function () {
+        ['notif-panel','profile-panel'].forEach(function (pid) { var p = el(pid); if (p) p.classList.remove('is-open'); });
+        ['notif-trigger','profile-trigger'].forEach(function (tid) { var t = el(tid); if (t) t.setAttribute('aria-expanded','false'); });
+      });
+
+      // ── Logout ─────────────────────────────────────────────────────────
+      function doLogout() { localStorage.removeItem('campusone_session'); window.location.replace('login.html'); }
+      if (el('logout-btn'))      el('logout-btn').addEventListener('click', doLogout);
+      if (el('logout-page-btn')) el('logout-page-btn').addEventListener('click', doLogout);
+
+      // ── Mobile hamburger ───────────────────────────────────────────────
+      var toggle = el('app-menu-toggle'), nav = el('app-nav');
+      if (toggle && nav) {
+        toggle.addEventListener('click', function () {
+          var open = nav.classList.toggle('is-open');
+          toggle.setAttribute('aria-expanded', String(open));
+        });
+      }
+
+      // ── Change password form ───────────────────────────────────────────
+      var cpForm = el('change-password-form');
+      if (cpForm) {
+        cpForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var current = el('cp-current').value;
+          var newPw   = el('cp-new').value;
+          var confirm = el('cp-confirm').value;
+          var errEl   = el('cp-error');
+          var okEl    = el('cp-success');
+          errEl.textContent = ''; okEl.style.display = 'none';
+
+          // Find user's stored password to verify current one
+          var registered = [];
+          try { registered = JSON.parse(localStorage.getItem('campusone_registered_users') || '[]'); } catch (e) {}
+          var stored = registered.find(function (u) { return u.email === session.email; });
+          var mockPasswords = { 'student@miu.edu.eg':'student123','supervisor@miu.edu.eg':'super123','tech@miu.edu.eg':'tech123','lostandfound@miu.edu.eg':'lf123','admin@miu.edu.eg':'admin123' };
+          var knownPassword = stored ? stored.password : mockPasswords[session.email];
+
+          if (!current)                    { errEl.textContent = 'Enter your current password.'; return; }
+          if (knownPassword && current !== knownPassword) { errEl.textContent = 'Current password is incorrect.'; return; }
+          if (newPw.length < 8)            { errEl.textContent = 'New password must be at least 8 characters.'; return; }
+          if (newPw !== confirm)           { errEl.textContent = 'New passwords do not match.'; return; }
+
+          // Update password in registered users
+          if (stored) {
+            stored.password = newPw;
+            localStorage.setItem('campusone_registered_users', JSON.stringify(registered));
+          }
+          okEl.style.display = '';
+          cpForm.reset();
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

@@ -123,6 +123,89 @@
 
   </main>
 
-  <script type="module" src="../public/js/login.js"></script>
+  <script>
+    // Plain script — works on file:// (no ES module restrictions)
+    (function () {
+      // Mock accounts (same as common.js MOCK_USERS)
+      var MOCK_USERS = [
+        { id:'u1', name:'Ahmed Nasser',      email:'student@miu.edu.eg',      password:'student123',  role:'student',          studentId:'MIU-20220001', faculty:'Engineering' },
+        { id:'u2', name:'Sara Mahmoud',      email:'supervisor@miu.edu.eg',   password:'super123',    role:'supervisor',       studentId:null, faculty:null },
+        { id:'u3', name:'Omar Khaled',       email:'tech@miu.edu.eg',         password:'tech123',     role:'technician',       studentId:null, faculty:null },
+        { id:'u4', name:'Nour El-Din Fawzy', email:'lostandfound@miu.edu.eg', password:'lf123',       role:'lost-found-staff', studentId:null, faculty:null },
+        { id:'u5', name:'Admin User',        email:'admin@miu.edu.eg',        password:'admin123',    role:'admin',            studentId:null, faculty:null },
+      ];
+      var ROLE_HOME = { student:'home.html', supervisor:'staff.html', technician:'maintenance.html', 'lost-found-staff':'staff-lost-found.html', admin:'admin.html' };
+
+      function findUser(email, password) {
+        var lower = email.toLowerCase().trim();
+        // Check mock users first
+        var mock = MOCK_USERS.find(function (u) { return u.email.toLowerCase() === lower; });
+        if (mock && mock.password === password) return mock;
+        // Check registered users from localStorage
+        try {
+          var registered = JSON.parse(localStorage.getItem('campusone_registered_users') || '[]');
+          var reg = registered.find(function (u) { return u.email.toLowerCase() === lower; });
+          if (reg && reg.password === password) return reg;
+        } catch (e) {}
+        return null;
+      }
+
+      // Password toggle
+      var passInput  = document.getElementById('login-password');
+      var passToggle = document.getElementById('login-pass-toggle');
+      if (passToggle && passInput) {
+        passToggle.addEventListener('click', function () {
+          var show = passInput.type === 'password';
+          passInput.type = show ? 'text' : 'password';
+          passToggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+          var eye    = passToggle.querySelector('.icon-eye');
+          var eyeOff = passToggle.querySelector('.icon-eye-off');
+          if (eye)    eye.classList.toggle('visually-hidden', show);
+          if (eyeOff) eyeOff.classList.toggle('visually-hidden', !show);
+        });
+      }
+
+      // Form submit
+      var form       = document.getElementById('login-form');
+      var emailInput = document.getElementById('login-email');
+      var summaryEl  = document.getElementById('login-summary-error');
+      var submitBtn  = document.getElementById('login-submit');
+
+      if (form) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          summaryEl.textContent = '';
+
+          var email    = emailInput ? emailInput.value.trim() : '';
+          var password = passInput  ? passInput.value         : '';
+
+          if (!email || !password) {
+            summaryEl.textContent = 'Please enter your email and password.';
+            return;
+          }
+
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Signing in…';
+
+          setTimeout(function () {
+            var user = findUser(email, password);
+            if (!user) {
+              summaryEl.textContent = 'Incorrect email or password. Please try again.';
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Login';
+              return;
+            }
+
+            // Save session (no password stored)
+            var session = { id:user.id, name:user.name, email:user.email, role:user.role, studentId:user.studentId||null, faculty:user.faculty||null };
+            try { localStorage.setItem('campusone_session', JSON.stringify(session)); } catch (err) {}
+
+            // Redirect to role home
+            window.location.replace(ROLE_HOME[user.role] || 'home.html');
+          }, 300);
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

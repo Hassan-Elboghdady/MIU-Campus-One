@@ -231,6 +231,136 @@
 
   </main>
 
-  <script type="module" src="../public/js/register.js"></script>
+  <script>
+    // Plain script (no module) so it works when opened from file:// directly.
+    document.addEventListener('DOMContentLoaded', function () {
+      var form          = document.getElementById('register-form');
+      var nameInput     = document.getElementById('reg-name');
+      var emailInput    = document.getElementById('reg-email');
+      var idInput       = document.getElementById('reg-student-id');
+      var facultySelect = document.getElementById('reg-faculty');
+      var passInput     = document.getElementById('reg-password');
+      var confirmInput  = document.getElementById('reg-confirm-password');
+      var summaryAlert  = document.getElementById('reg-summary-error');
+      var submitBtn     = document.getElementById('reg-submit');
+      if (!form) return;
+
+      // Password toggles
+      setupToggle('reg-pass-toggle', passInput);
+      setupToggle('reg-confirm-toggle', confirmInput);
+
+      function setupToggle(btnId, input) {
+        var btn = document.getElementById(btnId);
+        if (!btn || !input) return;
+        btn.addEventListener('click', function () {
+          var show = input.type === 'password';
+          input.type = show ? 'text' : 'password';
+          btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+          var eye    = btn.querySelector('.icon-eye');
+          var eyeOff = btn.querySelector('.icon-eye-off');
+          if (eye)    eye.classList.toggle('visually-hidden', show);
+          if (eyeOff) eyeOff.classList.toggle('visually-hidden', !show);
+        });
+      }
+
+      function showErr(field, errId, msg) {
+        field.classList.add('is-error');
+        field.setAttribute('aria-invalid', 'true');
+        var el = document.getElementById(errId);
+        if (el) { el.textContent = msg; el.classList.add('is-visible'); }
+      }
+
+      function clearErr(field, errId) {
+        field.classList.remove('is-error');
+        field.removeAttribute('aria-invalid');
+        var el = document.getElementById(errId);
+        if (el) { el.textContent = ''; el.classList.remove('is-visible'); }
+      }
+
+      function findExistingUser(email) {
+        var lower = email.toLowerCase().trim();
+        try {
+          var registered = JSON.parse(localStorage.getItem('campusone_registered_users') || '[]');
+          return registered.find(function (u) { return u.email.toLowerCase() === lower; }) || null;
+        } catch (e) { return null; }
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        // Clear errors
+        summaryAlert.textContent = '';
+        summaryAlert.classList.remove('is-visible');
+        clearErr(nameInput,     'reg-name-error');
+        clearErr(emailInput,    'reg-email-error');
+        clearErr(idInput,       'reg-student-id-error');
+        clearErr(facultySelect, 'reg-faculty-error');
+        clearErr(passInput,     'reg-password-error');
+        clearErr(confirmInput,  'reg-confirm-error');
+
+        var hasError = false;
+        var name     = nameInput.value.trim();
+        var email    = emailInput.value.trim();
+        var id       = idInput.value.trim();
+        var faculty  = facultySelect.value;
+        var pass     = passInput.value;
+        var confirm  = confirmInput.value;
+
+        if (!name)    { showErr(nameInput,     'reg-name-error',       'Full name is required.');        hasError = true; }
+        if (!email)   { showErr(emailInput,    'reg-email-error',      'Email is required.');             hasError = true; }
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+                        showErr(emailInput,    'reg-email-error',      'Enter a valid email address.');   hasError = true; }
+        if (!id)      { showErr(idInput,       'reg-student-id-error', 'Student ID is required.');       hasError = true; }
+        if (!faculty) { showErr(facultySelect, 'reg-faculty-error',    'Please select your faculty.');   hasError = true; }
+        if (!pass)    { showErr(passInput,     'reg-password-error',   'Password is required.');         hasError = true; }
+        else if (pass.length < 8) {
+                        showErr(passInput,     'reg-password-error',   'Password must be at least 8 characters.'); hasError = true; }
+        if (!confirm) { showErr(confirmInput,  'reg-confirm-error',    'Please confirm your password.'); hasError = true; }
+        else if (pass !== confirm) {
+                        showErr(confirmInput,  'reg-confirm-error',    'Passwords do not match.');       hasError = true; }
+        if (hasError) return;
+
+        // Duplicate check
+        if (findExistingUser(email)) {
+          showErr(emailInput, 'reg-email-error', 'An account with this email already exists.');
+          emailInput.focus();
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating account…';
+
+        setTimeout(function () {
+          var newUser = {
+            id:        'r_' + Date.now(),
+            name:      name,
+            email:     email.toLowerCase(),
+            password:  pass,
+            role:      'student',
+            studentId: id.toUpperCase(),
+            faculty:   faculty,
+          };
+
+          try {
+            // Save to registered users list
+            var registered = JSON.parse(localStorage.getItem('campusone_registered_users') || '[]');
+            registered.push(newUser);
+            localStorage.setItem('campusone_registered_users', JSON.stringify(registered));
+            // Set session (without password)
+            var session = { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role, studentId: newUser.studentId, faculty: newUser.faculty };
+            localStorage.setItem('campusone_session', JSON.stringify(session));
+          } catch (err) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Create account';
+            summaryAlert.textContent = 'Could not save your account. Please try again.';
+            summaryAlert.classList.add('is-visible');
+            return;
+          }
+
+          // Redirect to student home
+          window.location.replace('home.html');
+        }, 300);
+      });
+    });
+  </script>
 </body>
 </html>
