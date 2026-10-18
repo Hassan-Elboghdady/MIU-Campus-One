@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CampusOne | Lost & Found</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../public/css/lost-and-found.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="site-header">
+        <div class="site-header-container">
+          <a href="/views/index.html" class="site-header-logo" aria-label="CampusOne home">
+            <img src="../public/images/logo.png" alt="Misr International University logo" width="44" height="44">
+            <span class="site-header-logo-text"><strong>CampusOne</strong><small>Misr International University</small></span>
+          </a>
+          <nav class="site-header-nav" aria-label="Main navigation">
+            <a href="/views/index.html">Campus Map</a>
+            <a href="#">Emergency Map</a>
+            <a href="#">Maintenance</a>
+            <a href="/lost-found/new?type=lost" data-route="new" class="active">Lost &amp; Found</a>
+            <a href="login.html" class="button button-primary">Login</a>
+          </nav>
+        </div>
+      </header>
+      <main id="app" class="page"></main>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <template id="new-view-template">
+      <a class="back-link" href="/lost-found/browse" data-route="browse">← Browse lost items</a>
+      <div class="new-layout"><section class="form-intro"><p class="eyebrow">Your campus. Your community.</p>
+        <h1 data-title></h1><p class="lead">Give your item a few details and our matching assistant will look through recent reports to help bring it back to you.</p>
+        <div class="type-switch" aria-label="Report type"><button data-type="lost" type="button">I lost something</button><button data-type="found" type="button">I found something</button><button class="browse-tab" type="button" data-route="browse" data-href="/lost-found/browse">Browse lost items</button><button class="browse-tab" type="button" data-route="browse-found" data-href="/lost-found/browse-found">Browse found items</button></div>
+        <form id="report-form" class="form-card"><h3>Tell us about the item</h3><div class="field-grid">
+          <div class="field full"><label for="item-name">Item name <span>*</span></label><input id="item-name" name="itemName" placeholder="e.g. Blue North Face backpack" required></div>
+          <div class="field"><label for="category">Category <span>*</span></label><select id="category" name="category" required><option value="">Select category</option><option>Phone</option><option>Wallet</option><option>ID card</option><option>Keys</option><option>Bag</option><option>Laptop</option><option>Clothes</option><option>Other</option></select></div>
+          <div class="field"><label for="color">Color</label><input id="color" name="color" placeholder="e.g. Navy blue"></div>
+          <div class="field"><label for="item-date" data-date-label>Date lost <span>*</span></label><input id="item-date" name="date" type="date" required></div>
+          <div class="field"><label for="building">Building &amp; location <span>*</span></label><input id="building" name="building" placeholder="e.g. Main Building, room 302" required></div>
+          <div class="field full"><label for="description">Description</label><textarea id="description" name="description" placeholder="Add identifying details, marks, or what was inside..."></textarea></div>
+          <div class="field full"><label for="photo">Photo</label><label class="photo-drop" for="photo"><span class="photo-icon">▧</span><span class="photo-copy"><strong>Click to upload or drag a photo</strong><small>JPG or PNG, up to 10 MB</small></span></label><input id="photo" name="photo" type="file" accept="image/png,image/jpeg" hidden></div>
+        </div><div class="security-row" hidden><p><strong>Handed to security office?</strong><br>Let students know where to collect this item.</p><div class="radio-group"><label><input type="radio" name="security" value="yes"> Yes</label><label><input type="radio" name="security" value="no" checked> No</label></div></div>
+        <div class="form-footer"><span class="required-note">* Required fields</span><button class="button button-primary button-large" type="submit">Submit &amp; find matches →</button></div></form></section>
+        <aside class="side-visual"><div class="visual-copy"><p class="eyebrow">CampusOne assist</p><h2>Small details can make a big difference.</h2><p>We compare descriptions, images, places, and dates to surface the most likely matches.</p></div><span class="visual-sticker">✦ Your community is looking out for you</span></aside>
+      </div>
+    </template>
+    <template id="browse-view-template"><a class="back-link" href="/lost-found/new?type=lost" data-route="new">← Back to report</a><div class="browse-heading"><div><p class="eyebrow" data-browse-eyebrow>Community board</p><h1 data-browse-title></h1><p class="lead" data-browse-lead></p></div><span class="browse-count" data-browse-count></span></div><div class="browse-toolbar"><div class="browse-search">⌕ <input data-search placeholder="Search item, building, or category" /></div><select data-category-filter><option value="all">All categories</option><option>Phone</option><option>Wallet</option><option>ID card</option><option>Keys</option><option>Bag</option><option>Laptop</option><option>Clothes</option><option>Other</option></select></div><section class="lost-grid" data-card-grid></section><p class="no-results" data-no-results hidden>No reports match your search.</p></template>
+    <template id="browse-card-template"><article class="lost-card"><div data-photo></div><div class="lost-card-body"><div class="lost-card-top"><span class="category-tag" data-card-category></span><span class="lost-date" data-card-date></span></div><h3 data-card-name></h3><p data-card-detail></p><div class="lost-meta" data-card-place></div><button class="button button-primary button-wide" data-card-action type="button"></button></div></article></template>
+    <template id="matches-view-template"><a class="back-link" href="/lost-found/new?type=lost" data-route="new">← Post another item</a><div class="matches-heading"><div><p class="eyebrow">AI match assistant</p><h1>We found a few possibilities.</h1><p class="lead">Your report is now being compared with items recently found around campus. The closest matches appear first.</p></div><span class="button button-ghost">3 matches found</span></div><div class="matches-layout"><section><article class="student-item"><div class="item-photo"></div><div class="item-info"><p class="eyebrow">Your item</p><h2>Blue North Face backpack</h2><p>Navy blue backpack with a small front pocket and silver zipper pull. Reported near the Library entrance.</p><div class="meta-row"><span>◉ Bag</span><span>⌖ Central Library</span><span>◷ Yesterday</span></div></div></article></section><aside class="match-panel"><h3>Top matches</h3><p class="panel-kicker">Sorted by confidence score</p><article class="match-card"><div class="match-top"><strong>Blue backpack found near Library</strong><span class="score">87%</span></div><div class="match-thumbs"><div class="thumb one"></div><div class="thumb two"></div></div><ul class="match-reasons"><li>✅ Similar description</li><li>✅ Similar image</li><li>✅ Same building</li><li>✅ 1 day apart</li></ul><button class="button claim-button" id="claim-button" type="button">This is mine</button></article><div class="confidence">Matches are suggestions for review. Lost &amp; Found staff will verify every claim.</div></aside></div></template>
+    <script src="../public/js/lost-and-found.js"></script>
+  </body>
+</html>
