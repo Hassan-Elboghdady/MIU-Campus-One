@@ -173,6 +173,8 @@ export function renderNav() {
     </a>
   `;
 
+  if (window.CampusOneAvatar) window.CampusOneAvatar.render(user);
+
   // Dropdowns
   initDropdown('notif-trigger', 'notif-panel');
   initDropdown('profile-trigger', 'profile-panel');

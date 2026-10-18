@@ -1,6 +1,6 @@
 const app = document.querySelector("#app");
 const toast = document.querySelector("#toast");
-const categories = ["Phone", "Wallet", "ID card", "Keys", "Bag", "Laptop", "Clothes", "Other"];
+
 let reportType = new URLSearchParams(window.location.search).get("type") === "found" ? "found" : "lost";
 
 const lostItems = [
@@ -27,29 +27,49 @@ function cloneTemplate(id) {
   return document.querySelector(`#${id}`).content.cloneNode(true);
 }
 
-function navigate(path) {
-  window.history.pushState({}, "", path);
-  renderRoute();
+/* ── Hash-based navigation (works on file://) ── */
+function navigate(hash) {
+  window.location.hash = hash;
+}
+
+function getRoute() {
+  const hash = window.location.hash.replace("#", "");
+  if (hash.startsWith("matches")) return "matches";
+  if (hash === "browse-found")    return "browse-found";
+  if (hash === "browse")          return "browse";
+  return "new";
 }
 
 function renderNew() {
   app.replaceChildren(cloneTemplate("new-view-template"));
+
   const params = new URLSearchParams(window.location.search);
   const itemToReport = params.get("item") || "";
-  const title = document.querySelector("[data-title]");
-  const dateLabel = document.querySelector("[data-date-label]");
+  const title      = document.querySelector("[data-title]");
+  const dateLabel  = document.querySelector("[data-date-label]");
   const securityRow = document.querySelector(".security-row");
-  const itemInput = document.querySelector("#item-name");
+  const itemInput  = document.querySelector("#item-name");
+
   title.textContent = reportType === "found" ? "Report a found item." : "Report a lost item.";
   dateLabel.firstChild.textContent = `Date ${reportType} `;
   itemInput.value = itemToReport;
+
   document.querySelectorAll("[data-type]").forEach(button => {
     button.classList.toggle("selected", button.dataset.type === reportType);
     button.addEventListener("click", () => {
       reportType = button.dataset.type;
-      navigate(`/lost-found/new?type=${reportType}`);
+      renderNew();
     });
   });
+
+  /* Browse tab buttons inside the form */
+  document.querySelectorAll("[data-route='browse']").forEach(btn => {
+    btn.addEventListener("click", () => navigate("browse"));
+  });
+  document.querySelectorAll("[data-route='browse-found']").forEach(btn => {
+    btn.addEventListener("click", () => navigate("browse-found"));
+  });
+
   securityRow.hidden = reportType !== "found";
   document.querySelector("#report-form").addEventListener("submit", handleReportSubmit);
   document.querySelector("#photo").addEventListener("change", handlePhotoChange);
@@ -58,29 +78,35 @@ function renderNew() {
 function handleReportSubmit(event) {
   event.preventDefault();
   if (!event.currentTarget.reportValidity()) return;
-  showToast("Report received. Finding the closest matches...");
-  window.setTimeout(() => navigate("/lost-found/matches/blue-backpack"), 700);
+  showToast("Report received. Finding the closest matches…");
+  window.setTimeout(() => navigate("matches"), 700);
 }
 
 function handlePhotoChange(event) {
-  if (event.target.files[0]) document.querySelector(".photo-copy strong").textContent = event.target.files[0].name;
+  if (event.target.files[0]) {
+    document.querySelector(".photo-copy strong").textContent = event.target.files[0].name;
+  }
 }
 
 function createBrowseCard(item, isFoundBoard) {
-  const card = document.querySelector("#browse-card-template").content.cloneNode(true);
-  const root = card.querySelector(".lost-card");
-  const photo = card.querySelector("[data-photo]");
+  const card   = document.querySelector("#browse-card-template").content.cloneNode(true);
+  const root   = card.querySelector(".lost-card");
+  const photo  = card.querySelector("[data-photo]");
+
   root.dataset.category = item.category;
-  root.dataset.search = `${item.name} ${item.category} ${item.place}`;
+  root.dataset.search   = `${item.name} ${item.category} ${item.place}`;
   photo.classList.add(item.style);
+
   card.querySelector("[data-card-category]").textContent = item.category;
-  card.querySelector("[data-card-date]").textContent = item.date;
-  card.querySelector("[data-card-name]").textContent = item.name;
-  card.querySelector("[data-card-detail]").textContent = item.detail;
-  card.querySelector("[data-card-place]").textContent = `⌖ ${item.place}`;
+  card.querySelector("[data-card-date]").textContent     = item.date;
+  card.querySelector("[data-card-name]").textContent     = item.name;
+  card.querySelector("[data-card-detail]").textContent   = item.detail;
+  card.querySelector("[data-card-place]").textContent    = `⌖ ${item.place}`;
+
   const action = card.querySelector("[data-card-action]");
   action.textContent = isFoundBoard ? "This is mine" : "I found this item";
   action.classList.toggle("claim-button", isFoundBoard);
+
   action.addEventListener("click", () => {
     if (isFoundBoard) {
       action.classList.add("claimed");
@@ -90,40 +116,58 @@ function createBrowseCard(item, isFoundBoard) {
       return;
     }
     reportType = "found";
-    navigate(`/lost-found/new?type=found&item=${encodeURIComponent(item.name)}`);
+    navigate("new");
     showToast("Tell us where you found this item.");
   });
+
   return card;
 }
 
 function renderBrowse(isFoundBoard = false) {
   app.replaceChildren(cloneTemplate("browse-view-template"));
+
+  /* Wire back link inside browse view */
+  const backLink = app.querySelector(".back-link");
+  if (backLink) backLink.addEventListener("click", e => { e.preventDefault(); navigate("new"); });
+
   const items = isFoundBoard ? foundItems : lostItems;
-  document.querySelector("[data-browse-title]").textContent = isFoundBoard ? "Browse found items." : "Browse lost items.";
-  document.querySelector("[data-browse-lead]").textContent = isFoundBoard ? "See what students and staff have handed in. Recognize your item? Send a claim to Lost & Found staff." : "Recognize something? Open a report and let the student know you may have found it.";
-  document.querySelector("[data-browse-count]").textContent = isFoundBoard ? "12 found reports" : "24 active reports";
-  const grid = document.querySelector("[data-card-grid]");
+  document.querySelector("[data-browse-title]").textContent    = isFoundBoard ? "Browse found items." : "Browse lost items.";
+  document.querySelector("[data-browse-lead]").textContent     = isFoundBoard
+    ? "See what students and staff have handed in. Recognize your item? Send a claim to Lost & Found staff."
+    : "Recognize something? Open a report and let the student know you may have found it.";
+  document.querySelector("[data-browse-count]").textContent    = isFoundBoard ? "12 found reports" : "24 active reports";
+
+  const grid       = document.querySelector("[data-card-grid]");
+  const search     = document.querySelector("[data-search]");
+  const catFilter  = document.querySelector("[data-category-filter]");
+  const noResults  = document.querySelector("[data-no-results]");
+
   items.forEach(item => grid.append(createBrowseCard(item, isFoundBoard)));
-  const search = document.querySelector("[data-search]");
-  const categoryFilter = document.querySelector("[data-category-filter]");
-  const noResults = document.querySelector("[data-no-results]");
+
   const filterItems = () => {
-    const searchValue = search.value.toLowerCase();
-    const category = categoryFilter.value;
+    const q   = search.value.toLowerCase();
+    const cat = catFilter.value;
     let visible = 0;
     grid.querySelectorAll(".lost-card").forEach(card => {
-      const matches = card.dataset.search.toLowerCase().includes(searchValue) && (category === "all" || card.dataset.category === category);
+      const matches = card.dataset.search.toLowerCase().includes(q) &&
+                      (cat === "all" || card.dataset.category === cat);
       card.hidden = !matches;
       if (matches) visible += 1;
     });
     noResults.hidden = visible !== 0;
   };
+
   search.addEventListener("input", filterItems);
-  categoryFilter.addEventListener("change", filterItems);
+  catFilter.addEventListener("change", filterItems);
 }
 
 function renderMatches() {
   app.replaceChildren(cloneTemplate("matches-view-template"));
+
+  /* Wire back link inside matches view */
+  const backLink = app.querySelector(".back-link");
+  if (backLink) backLink.addEventListener("click", e => { e.preventDefault(); navigate("new"); });
+
   document.querySelector("#claim-button").addEventListener("click", event => {
     event.currentTarget.classList.add("claimed");
     event.currentTarget.textContent = "Claim sent to staff ✓";
@@ -133,18 +177,15 @@ function renderMatches() {
 }
 
 function renderRoute() {
-  const path = window.location.pathname;
-  if (path.includes("/lost-found/matches/")) renderMatches();
-  else if (path.includes("/lost-found/browse-found")) renderBrowse(true);
-  else if (path.includes("/lost-found/browse")) renderBrowse();
-  else renderNew();
+  const route = getRoute();
+  if (route === "matches")      renderMatches();
+  else if (route === "browse-found") renderBrowse(true);
+  else if (route === "browse")  renderBrowse();
+  else                          renderNew();
 }
 
-document.addEventListener("click", event => {
-  const route = event.target.closest("[data-route]");
-  if (!route) return;
-  event.preventDefault();
-  navigate(route.dataset.href || route.getAttribute("href"));
-});
-window.addEventListener("popstate", renderRoute);
+/* Re-render on hash change (back/forward buttons) */
+window.addEventListener("hashchange", renderRoute);
+
+/* Initial render */
 renderRoute();
