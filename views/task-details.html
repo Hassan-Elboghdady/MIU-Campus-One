@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Details – CampusOne Maintenance</title>
+  <meta name="description" content="Full details, status controls, and activity log for a maintenance task.">
+  <meta name="theme-color" content="#B80008">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
+  <link rel="stylesheet" href="../public/css/style.css">
+  <link rel="stylesheet" href="../public/css/profile.css">
+  <link rel="stylesheet" href="../public/css/student.css">
+  <link rel="stylesheet" href="../public/css/my-reports.css">
+  <link rel="stylesheet" href="../public/css/maintenance.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ===== APP HEADER ===== -->
+  <header class="app-header" id="app-header">
+    <div class="container">
+      <a href="home.html" class="app-header__logo" aria-label="Go to CampusOne home">
+        <img src="../public/images/logo.png" alt="MIU logo" width="36" height="36">
+        <div class="app-header__logo-text">
+          <span class="app-header__logo-abbr">MIU</span>
+          <span class="app-header__logo-sub">Misr International University</span>
+        </div>
+        <span class="app-header__logo-divider" aria-hidden="true"></span>
+        <span class="app-header__logo-brand">CampusOne</span>
+      </a>
+      <nav class="app-nav" id="app-nav" aria-label="Main navigation">
+        <a href="supervisor-dashboard.html" class="app-nav__link" id="nav-dashboard">Dashboard</a>
+        <a href="maintenance-team.html"     class="app-nav__link" id="nav-team">Team</a>
+        <a href="my-tasks.html"             class="app-nav__link" id="nav-tasks">My Tasks</a>
+      </nav>
+      <div class="app-header__actions">
+        <div class="dropdown" id="notif-dropdown">
+          <button type="button" class="dropdown__trigger" id="notif-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="notif-panel" aria-label="Notifications">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2a5 5 0 0 1 5 5v3l1.5 2.5H2.5L4 10V7a5 5 0 0 1 5-5z"/><path d="M7 15a2 2 0 0 0 4 0"/></svg>
+          </button>
+          <div class="dropdown__panel" id="notif-panel" role="menu"><div class="dropdown__header">Notifications</div><div class="dropdown__empty">No new notifications</div></div>
+        </div>
+        <div class="dropdown" id="profile-dropdown">
+          <button type="button" class="dropdown__trigger profile-trigger" id="profile-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="profile-panel" aria-label="Account menu">
+            <span class="profile-trigger__avatar" aria-hidden="true"><span class="avatar-initials" id="nav-initials">?</span></span>
+            <span class="profile-trigger__name" id="nav-user-name"></span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5l4 4 4-4"/></svg>
+          </button>
+          <div class="dropdown__panel" id="profile-panel" role="menu">
+            <div class="dropdown__header" id="nav-user-email">Loading…</div>
+            <a href="profile.html" class="dropdown__item" role="menuitem"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="6" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg> Profile</a>
+            <div class="dropdown__divider" role="separator"></div>
+            <button type="button" class="dropdown__item dropdown__item--danger" id="logout-btn" role="menuitem"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4"/><polyline points="11,11 14,8 11,5"/><line x1="7" y1="8" x2="14" y2="8"/></svg> Log out</button>
+          </div>
+        </div>
+        <button type="button" class="app-menu-toggle" id="app-menu-toggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="app-nav">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><line x1="3" y1="6" x2="19" y2="6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><line x1="3" y1="11" x2="19" y2="11" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><line x1="3" y1="16" x2="19" y2="16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <a href="emergency.html" class="emergency-btn" id="emergency-btn" aria-label="Emergency map">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.5L1 14.5h14L8 1.5z"/><line x1="8" y1="7" x2="8" y2="10"/><circle cx="8" cy="12" r=".6" fill="currentColor" stroke="none"/></svg>
+      <span class="emergency-label">Emergency</span>
+    </a>
+  </header>
+
+  <!-- ===== MAIN ===== -->
+  <main id="main">
+    <div class="container maint-page">
+
+      <!-- Back link + title block -->
+      <div class="page-title-block details-title-block">
+        <a href="my-tasks.html" class="back-link" id="back-link">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4L5 9l6 5"/></svg>
+          Back to tasks
+        </a>
+        <div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;">
+          <h1 class="page-title" id="task-title">Loading task…</h1>
+          <div id="title-chips" style="display:flex;gap:var(--space-2);flex-wrap:wrap;"></div>
+        </div>
+      </div>
+
+      <!-- Main detail grid -->
+      <div class="task-detail-grid" id="task-detail-grid">
+
+        <!-- LEFT: photo + description + info -->
+        <div style="display:flex;flex-direction:column;gap:var(--space-5);">
+
+          <!-- Photo / issue mockup -->
+          <div class="task-photo-wrap" id="task-photo-wrap">
+            <div class="task-photo-placeholder">
+              <svg width="56" height="56" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="48" height="36" rx="4"/><circle cx="18" cy="22" r="5"/><path d="M4 36l12-10 10 8 8-6 18 16"/></svg>
+              <p>No photo attached to this report</p>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="task-info-card">
+            <div class="task-info-card__header">Description</div>
+            <div class="task-info-card__body">
+              <p id="task-description" style="font-size:var(--text-md);color:var(--color-ink);line-height:1.7;max-inline-size:none;margin:0;white-space:pre-wrap;"></p>
+            </div>
+          </div>
+
+          <!-- Details grid -->
+          <div class="task-info-card">
+            <div class="task-info-card__header">Task Information</div>
+            <div class="task-info-card__body" id="task-info-rows">
+              <!-- Rows injected by JS -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT sidebar: status panel + assign + activity log -->
+        <div style="display:flex;flex-direction:column;gap:var(--space-5);">
+
+          <!-- Status update panel -->
+          <div class="status-update-panel">
+            <div class="status-update-panel__header">Update Status</div>
+            <div class="status-update-panel__body">
+
+              <!-- Progress steps -->
+              <div class="status-progress-steps" id="status-steps" role="group" aria-label="Task status steps">
+                <!-- Steps injected by JS -->
+              </div>
+
+              <!-- Note textarea -->
+              <div class="form-group">
+                <label for="status-note" class="form-label">Update Note <span style="font-weight:400;color:var(--color-muted)">(optional)</span></label>
+                <textarea class="status-note-area" id="status-note" rows="3" placeholder="Add a note about this update…" aria-label="Status update note"></textarea>
+              </div>
+
+              <!-- Save button -->
+              <button type="button" class="btn btn-primary" id="save-status-btn" style="width:100%;">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3,9 6,12 13,5"/></svg>
+                Save Status
+              </button>
+
+            </div>
+          </div>
+
+          <!-- Assign technician panel -->
+          <div class="task-info-card">
+            <div class="task-info-card__header">Assigned Technician</div>
+            <div class="task-info-card__body">
+              <div id="assign-info" style="margin-block-end:var(--space-3);">
+                <!-- Filled by JS -->
+              </div>
+              <div class="form-group">
+                <label for="assign-select" class="form-label">Reassign to</label>
+                <select class="form-select" id="assign-select" aria-label="Assign or reassign technician">
+                  <option value="">— Unassigned —</option>
+                  <!-- Options filled by JS -->
+                </select>
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" id="save-assign-btn" style="margin-block-start:var(--space-3);">
+                Save Assignment
+              </button>
+            </div>
+          </div>
+
+          <!-- Activity log / timeline -->
+          <div class="activity-log">
+            <div class="activity-log__header">Activity Log</div>
+            <div class="activity-log__body">
+              <div class="maint-timeline" id="activity-timeline">
+                <!-- Items injected by JS -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /.task-detail-grid -->
+
+    </div><!-- /.container -->
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="../public/js/maintenance-data.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var session = initMaintNav();
+      if (!session) return;
+
+      /* Footer */
+      (function () {
+        var el = document.getElementById('site-footer');
+        if (el) el.innerHTML = '<div class="container"><div class="footer-inner"><div><div class="footer-brand"><img src="../public/images/logo.png" alt="MIU logo" loading="lazy"><span class="footer-brand-name">CampusOne</span></div><p class="footer-tagline">The campus web app for MIU students and staff.</p></div></div><div class="footer-bottom"><p>&copy; ' + new Date().getFullYear() + ' Misr International University. All rights reserved.</p></div></div>';
+      })();
+
+      /* ------------------------------------------------------------------ */
+      /* LOAD TASK                                                            */
+      /* ------------------------------------------------------------------ */
+      var taskId = new URLSearchParams(window.location.search).get('id');
+
+      /* If no ID, redirect to tasks list */
+      if (!taskId) { window.location.replace('my-tasks.html'); return; }
+
+      var task = getTaskById(taskId);
+
+      if (!task) {
+        document.getElementById('task-title').textContent = 'Task not found';
+        document.getElementById('task-description').textContent = 'The task you are looking for does not exist or has been removed.';
+        return;
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* RENDER TASK DETAILS                                                 */
+      /* ------------------------------------------------------------------ */
+
+      /* Title + chips */
+      document.title = task.title + ' – CampusOne Maintenance';
+      document.getElementById('task-title').textContent = task.title;
+      document.getElementById('title-chips').innerHTML = priorityChip(task.priority) + ' ' + statusChip(task.status);
+
+      /* Description */
+      document.getElementById('task-description').textContent = task.description;
+
+      /* Photo */
+      if (task.photoUrl) {
+        var wrap = document.getElementById('task-photo-wrap');
+        wrap.innerHTML = '<img src="' + task.photoUrl + '" alt="Photo of issue: ' + task.title + '">';
+      }
+
+      /* Info rows */
+      var infoRows = [
+        { label: 'Task ID',      value: task.id },
+        { label: 'Category',     value: task.category },
+        { label: 'Building',     value: task.building },
+        { label: 'Room / Area',  value: task.room },
+        { label: 'Reported by',  value: task.reportedBy },
+        { label: 'Reported on',  value: fmtDateTime(task.reportedAt) },
+        { label: 'Priority',     value: priorityChip(task.priority) },
+        { label: 'Status',       value: statusChip(task.status), id: 'info-status-value' }
+      ];
+      document.getElementById('task-info-rows').innerHTML = infoRows.map(function (row) {
+        return '<div class="task-info-row"' + (row.id ? ' id="' + row.id + '"' : '') + '>' +
+          '<span class="task-info-row__label">' + row.label + '</span>' +
+          '<span class="task-info-row__value">' + row.value + '</span>' +
+        '</div>';
+      }).join('');
+
+      /* ------------------------------------------------------------------ */
+      /* STATUS PROGRESS STEPS                                               */
+      /* ------------------------------------------------------------------ */
+      var STATUS_FLOW = [
+        { value: 'pending',     label: 'Pending' },
+        { value: 'in_progress', label: 'In Progress' },
+        { value: 'on_hold',     label: 'On Hold' },
+        { value: 'resolved',    label: 'Resolved' }
+      ];
+
+      var pendingStatus = task.status; /* tracks what will be saved */
+
+      function renderStatusSteps(activeStatus) {
+        var currentIdx = STATUS_FLOW.findIndex(function (s) { return s.value === activeStatus; });
+        var stepsEl = document.getElementById('status-steps');
+
+        stepsEl.innerHTML = STATUS_FLOW.map(function (step, idx) {
+          var isCompleted = idx < currentIdx;
+          var isActive    = idx === currentIdx;
+          var cls = 'status-step' + (isCompleted ? ' is-completed' : '') + (isActive ? ' is-active' : '');
+          /* Checkmark SVG for completed steps */
+          var dotContent = isCompleted
+            ? '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="2,6 5,9 10,3"/></svg>'
+            : (isActive ? '<svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor" aria-hidden="true"><circle cx="4" cy="4" r="4"/></svg>' : '');
+          return '<div class="' + cls + '" data-status="' + step.value + '" role="button" tabindex="0" aria-label="Set status to ' + step.label + '" aria-pressed="' + String(isActive) + '">' +
+            '<div class="status-step__dot">' + dotContent + '</div>' +
+            '<span class="status-step__label">' + step.label + '</span>' +
+          '</div>';
+        }).join('');
+
+        /* Wire step clicks */
+        stepsEl.querySelectorAll('.status-step').forEach(function (stepEl) {
+          function activate() {
+            pendingStatus = stepEl.dataset.status;
+            renderStatusSteps(pendingStatus);
+          }
+          stepEl.addEventListener('click', activate);
+          stepEl.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); } });
+        });
+      }
+
+      renderStatusSteps(task.status);
+
+      /* Save status */
+      document.getElementById('save-status-btn').addEventListener('click', function () {
+        var note   = (document.getElementById('status-note').value || '').trim();
+        var actor  = session.name + (session.role ? ' (' + session.role + ')' : '');
+        var prevSt = task.status;
+
+        task.status = pendingStatus;
+        task.log = task.log || [];
+        task.log.push({
+          actor:  actor,
+          action: 'Status → ' + (STATUS_FLOW.find(function (s) { return s.value === pendingStatus; }) || { label: pendingStatus }).label,
+          note:   note || 'Status updated.',
+          ts:     new Date().toISOString()
+        });
+
+        if (updateTask(task)) {
+          /* Refresh UI */
+          document.getElementById('title-chips').innerHTML = priorityChip(task.priority) + ' ' + statusChip(task.status);
+          var infoStatusRow = document.getElementById('info-status-value');
+          if (infoStatusRow) infoStatusRow.querySelector('.task-info-row__value').innerHTML = statusChip(task.status);
+          renderStatusSteps(task.status);
+          renderTimeline();
+          document.getElementById('status-note').value = '';
+          showToast('Status updated to ' + (STATUS_FLOW.find(function (s) { return s.value === task.status; }) || { label: task.status }).label + '.', 'success');
+        } else {
+          showToast('Failed to save status. Please try again.', 'error');
+        }
+      });
+
+      /* ------------------------------------------------------------------ */
+      /* ASSIGN TECHNICIAN                                                   */
+      /* ------------------------------------------------------------------ */
+      function renderAssignPanel() {
+        var techs  = getTechs();
+        var select = document.getElementById('assign-select');
+        var info   = document.getElementById('assign-info');
+        if (!select || !info) return;
+
+        /* Build options */
+        select.innerHTML = '<option value="">— Unassigned —</option>' +
+          techs.map(function (t) {
+            return '<option value="' + t.id + '"' + (t.id === task.assignedTo ? ' selected' : '') + '>' + t.name + ' (' + t.role + ')</option>';
+          }).join('');
+
+        /* Show current assignee info */
+        if (task.assignedTo) {
+          var tech = getTechById(task.assignedTo);
+          if (tech) {
+            var ini = (tech.name || '?').trim().split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+            info.innerHTML = '<div class="assigned-block">' +
+              '<div class="assigned-block__avatar">' + ini + '</div>' +
+              '<div class="assigned-block__info">' +
+                '<div class="assigned-block__name">' + tech.name + '</div>' +
+                '<div class="assigned-block__role">' + tech.role + ' · ' + availChip(tech.availability) + '</div>' +
+              '</div>' +
+            '</div>';
+          }
+        } else {
+          info.innerHTML = '<p class="not-assigned">No technician assigned yet.</p>';
+        }
+      }
+
+      renderAssignPanel();
+
+      document.getElementById('save-assign-btn').addEventListener('click', function () {
+        var techId = document.getElementById('assign-select').value;
+        var prevTech = task.assignedTo;
+        task.assignedTo = techId;
+        var actor = session.name + (session.role ? ' (' + session.role + ')' : '');
+        var tech  = techId ? getTechById(techId) : null;
+        task.log = task.log || [];
+        task.log.push({
+          actor:  actor,
+          action: tech ? 'Assigned to ' + tech.name : 'Technician unassigned',
+          note:   tech ? tech.name + ' assigned to this task.' : 'Task unassigned.',
+          ts:     new Date().toISOString()
+        });
+
+        /* Update active task counts on technicians */
+        var techs = getTechs();
+        if (prevTech) {
+          var pt = techs.find(function (t) { return t.id === prevTech; });
+          if (pt && pt.activeTasks > 0) pt.activeTasks--;
+        }
+        if (techId) {
+          var nt = techs.find(function (t) { return t.id === techId; });
+          if (nt) nt.activeTasks = (nt.activeTasks || 0) + 1;
+        }
+        saveTechs(techs);
+
+        if (updateTask(task)) {
+          renderAssignPanel();
+          renderTimeline();
+          showToast(tech ? 'Assigned to ' + tech.name + '.' : 'Technician unassigned.', 'success');
+        } else {
+          showToast('Failed to save assignment.', 'error');
+        }
+      });
+
+      /* ------------------------------------------------------------------ */
+      /* ACTIVITY TIMELINE                                                   */
+      /* ------------------------------------------------------------------ */
+      var DOT_SVG = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="4"/></svg>';
+      var CHECK_SVG = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="2,6 5,9 10,3"/></svg>';
+
+      function renderTimeline() {
+        var timeline = document.getElementById('activity-timeline');
+        if (!timeline) return;
+        var log = (task.log || []).slice().reverse(); /* newest first */
+
+        if (!log.length) {
+          timeline.innerHTML = '<p style="font-size:var(--text-sm);color:var(--color-muted);">No activity yet.</p>';
+          return;
+        }
+
+        timeline.innerHTML = log.map(function (entry, idx) {
+          var isLatest = idx === 0;
+          return '<div class="maint-timeline-item">' +
+            '<div class="maint-timeline-dot">' + (isLatest ? CHECK_SVG : DOT_SVG) + '</div>' +
+            '<div class="maint-timeline-content">' +
+              '<div class="maint-timeline-action">' + entry.action + '</div>' +
+              (entry.note ? '<div class="maint-timeline-note">' + entry.note + '</div>' : '') +
+              '<div class="maint-timeline-meta">' +
+                '<span>' + entry.actor + '</span>' +
+                '<span>·</span>' +
+                '<span>' + fmtDateTime(entry.ts) + '</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      }
+
+      renderTimeline();
+
+    })();
+  </script>
+</body>
+</html>

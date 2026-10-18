@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maintenance Team – CampusOne</title>
+  <meta name="description" content="View the MIU maintenance team, technician availability status, and active task counts.">
+  <meta name="theme-color" content="#B80008">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
+  <link rel="stylesheet" href="../public/css/style.css">
+  <link rel="stylesheet" href="../public/css/profile.css">
+  <link rel="stylesheet" href="../public/css/student.css">
+  <link rel="stylesheet" href="../public/css/maintenance.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ===== APP HEADER ===== -->
+  <header class="app-header" id="app-header">
+    <div class="container">
+      <a href="home.html" class="app-header__logo" aria-label="Go to CampusOne home">
+        <img src="../public/images/logo.png" alt="MIU logo" width="36" height="36">
+        <div class="app-header__logo-text">
+          <span class="app-header__logo-abbr">MIU</span>
+          <span class="app-header__logo-sub">Misr International University</span>
+        </div>
+        <span class="app-header__logo-divider" aria-hidden="true"></span>
+        <span class="app-header__logo-brand">CampusOne</span>
+      </a>
+      <nav class="app-nav" id="app-nav" aria-label="Main navigation">
+        <a href="supervisor-dashboard.html" class="app-nav__link" id="nav-dashboard">Dashboard</a>
+        <a href="maintenance-team.html"     class="app-nav__link" aria-current="page" id="nav-team">Team</a>
+        <a href="my-tasks.html"             class="app-nav__link" id="nav-tasks">My Tasks</a>
+      </nav>
+      <div class="app-header__actions">
+        <div class="dropdown" id="notif-dropdown">
+          <button type="button" class="dropdown__trigger" id="notif-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="notif-panel" aria-label="Notifications">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2a5 5 0 0 1 5 5v3l1.5 2.5H2.5L4 10V7a5 5 0 0 1 5-5z"/><path d="M7 15a2 2 0 0 0 4 0"/></svg>
+          </button>
+          <div class="dropdown__panel" id="notif-panel" role="menu"><div class="dropdown__header">Notifications</div><div class="dropdown__empty">No new notifications</div></div>
+        </div>
+        <div class="dropdown" id="profile-dropdown">
+          <button type="button" class="dropdown__trigger profile-trigger" id="profile-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="profile-panel" aria-label="Account menu">
+            <span class="profile-trigger__avatar" aria-hidden="true"><span class="avatar-initials" id="nav-initials">?</span></span>
+            <span class="profile-trigger__name" id="nav-user-name"></span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5l4 4 4-4"/></svg>
+          </button>
+          <div class="dropdown__panel" id="profile-panel" role="menu">
+            <div class="dropdown__header" id="nav-user-email">Loading…</div>
+            <a href="profile.html" class="dropdown__item" role="menuitem"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="6" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg> Profile</a>
+            <div class="dropdown__divider" role="separator"></div>
+            <button type="button" class="dropdown__item dropdown__item--danger" id="logout-btn" role="menuitem"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4"/><polyline points="11,11 14,8 11,5"/><line x1="7" y1="8" x2="14" y2="8"/></svg> Log out</button>
+          </div>
+        </div>
+        <button type="button" class="app-menu-toggle" id="app-menu-toggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="app-nav">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><line x1="3" y1="6" x2="19" y2="6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><line x1="3" y1="11" x2="19" y2="11" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><line x1="3" y1="16" x2="19" y2="16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <a href="emergency.html" class="emergency-btn" id="emergency-btn" aria-label="Emergency map">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.5L1 14.5h14L8 1.5z"/><line x1="8" y1="7" x2="8" y2="10"/><circle cx="8" cy="12" r=".6" fill="currentColor" stroke="none"/></svg>
+      <span class="emergency-label">Emergency</span>
+    </a>
+  </header>
+
+  <!-- ===== MAIN ===== -->
+  <main id="main">
+    <div class="container maint-page">
+
+      <!-- Page header -->
+      <div class="page-header-row">
+        <div class="page-title-block">
+          <h1 class="page-title">Maintenance Team</h1>
+          <p class="page-subtitle">View all maintenance technicians, their availability status, and active task load.</p>
+        </div>
+      </div>
+
+      <!-- Sub-nav tabs -->
+      <nav class="maint-nav-tabs" aria-label="Maintenance section navigation">
+        <a href="supervisor-dashboard.html" class="maint-nav-tab" id="tab-dashboard">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+          Dashboard
+        </a>
+        <a href="maintenance-team.html" class="maint-nav-tab is-active" aria-current="page" id="tab-team">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="5" r="3"/><path d="M1 14c0-3.3 2.7-5 5-5"/><circle cx="13" cy="5" r="2"/><path d="M11 14c0-2.2 1-4 2-4"/></svg>
+          Team
+        </a>
+        <a href="my-tasks.html" class="maint-nav-tab" id="tab-tasks">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="2" width="10" height="12" rx="1"/><line x1="6" y1="5" x2="10" y2="5"/><line x1="6" y1="8" x2="10" y2="8"/><line x1="6" y1="11" x2="8" y2="11"/></svg>
+          My Tasks
+        </a>
+      </nav>
+
+      <!-- Controls row -->
+      <div class="team-controls">
+        <div class="team-controls__search-wrap">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="6"/><line x1="13.5" y1="13.5" x2="18" y2="18"/></svg>
+          <input type="search" class="team-search" id="team-search" placeholder="Search technicians…" aria-label="Search technicians" autocomplete="off">
+        </div>
+        <select class="data-table-filter" id="team-filter-avail" aria-label="Filter by availability">
+          <option value="">All Availabilities</option>
+          <option value="available">Available</option>
+          <option value="on_duty">On Duty</option>
+          <option value="busy">Busy</option>
+          <option value="off_shift">Off Shift</option>
+        </select>
+        <select class="data-table-filter" id="team-filter-role" aria-label="Filter by role">
+          <option value="">All Roles</option>
+          <option value="Plumber">Plumber</option>
+          <option value="Electrician">Electrician</option>
+          <option value="HVAC Technician">HVAC Technician</option>
+          <option value="General Maint.">General Maint.</option>
+          <option value="Carpenter">Carpenter</option>
+          <option value="Painter">Painter</option>
+        </select>
+      </div>
+
+      <!-- Team count -->
+      <p class="list-count" id="team-count" aria-live="polite" aria-atomic="true"></p>
+
+      <!-- Team grid -->
+      <section aria-labelledby="team-heading">
+        <h2 class="visually-hidden" id="team-heading">Technician Cards</h2>
+        <div class="team-grid" id="team-grid" aria-live="polite" aria-atomic="true">
+          <!-- Cards injected by JS -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="../public/js/maintenance-data.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var session = initMaintNav();
+      if (!session) return;
+
+      /* Footer */
+      (function () {
+        var el = document.getElementById('site-footer');
+        if (el) el.innerHTML = '<div class="container"><div class="footer-inner"><div><div class="footer-brand"><img src="../public/images/logo.png" alt="MIU logo" loading="lazy"><span class="footer-brand-name">CampusOne</span></div><p class="footer-tagline">The campus web app for MIU students and staff.</p></div></div><div class="footer-bottom"><p>&copy; ' + new Date().getFullYear() + ' Misr International University. All rights reserved.</p></div></div>';
+      })();
+
+      var filterState = { search: '', avail: '', role: '' };
+
+      /* Initials helper */
+      function initials(name) {
+        return (name || '?').trim().split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+      }
+
+      /* Get tasks assigned to a tech */
+      function techTaskCount(techId) {
+        return getTasks().filter(function (t) { return t.assignedTo === techId && t.status !== 'resolved'; }).length;
+      }
+
+      /* Render team grid */
+      function renderTeam() {
+        var techs   = getTechs();
+        var q       = filterState.search.toLowerCase();
+        var avail   = filterState.avail;
+        var role    = filterState.role;
+
+        var filtered = techs.filter(function (t) {
+          var matchQ    = !q    || (t.name + t.role + t.email).toLowerCase().indexOf(q) !== -1;
+          var matchA    = !avail || t.availability === avail;
+          var matchR    = !role  || t.role === role;
+          return matchQ && matchA && matchR;
+        });
+
+        var grid  = document.getElementById('team-grid');
+        var count = document.getElementById('team-count');
+        if (count) count.textContent = filtered.length + ' of ' + techs.length + ' technician' + (techs.length !== 1 ? 's' : '');
+
+        if (!filtered.length) {
+          grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1">' +
+            '<div class="empty-state__icon"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="10"/><path d="M2 42c0-8.8 7.2-16 16-16"/><circle cx="36" cy="18" r="6"/><path d="M30 42c0-5.5 2.7-10 6-10"/></svg></div>' +
+            '<p class="empty-state__title">No technicians found</p>' +
+            '<p class="empty-state__text">Try adjusting your search or filters.</p></div>';
+          return;
+        }
+
+        grid.innerHTML = filtered.map(function (tech) {
+          var activeCount = techTaskCount(tech.id);
+          /* Availability select options */
+          var availOpts = ['available','on_duty','busy','off_shift'].map(function (a) {
+            var labels = { available: 'Available', on_duty: 'On Duty', busy: 'Busy', off_shift: 'Off Shift' };
+            return '<option value="' + a + '"' + (tech.availability === a ? ' selected' : '') + '>' + labels[a] + '</option>';
+          }).join('');
+
+          return '<div class="team-card" id="tech-card-' + tech.id + '">' +
+            '<div class="team-card__top">' +
+              '<div class="team-card__avatar">' + initials(tech.name) + '</div>' +
+              '<div class="team-card__info">' +
+                '<div class="team-card__name">' + tech.name + '</div>' +
+                '<div class="team-card__role">' + tech.role + '</div>' +
+              '</div>' +
+            '</div>' +
+
+            '<div class="team-card__meta">' +
+              '<div class="team-card__meta-row">' +
+                '<span class="team-card__meta-label">Availability</span>' +
+                '<select class="assign-select" data-tech-id="' + tech.id + '" aria-label="Change availability for ' + tech.name + '">' + availOpts + '</select>' +
+              '</div>' +
+              '<div class="team-card__meta-row">' +
+                '<span class="team-card__meta-label">Active tasks</span>' +
+                '<span class="team-card__meta-value" id="task-count-' + tech.id + '">' + activeCount + '</span>' +
+              '</div>' +
+              '<div class="team-card__meta-row">' +
+                '<span class="team-card__meta-label">Phone</span>' +
+                '<span class="team-card__meta-value">' + tech.phone + '</span>' +
+              '</div>' +
+              '<div class="team-card__meta-row">' +
+                '<span class="team-card__meta-label">Email</span>' +
+                '<span class="team-card__meta-value" style="font-size:var(--text-xs)">' + tech.email + '</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div class="team-card__footer">' +
+              '<span class="task-count-badge">' +
+                '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="2" width="10" height="12" rx="1"/><line x1="6" y1="5" x2="10" y2="5"/><line x1="6" y1="8" x2="10" y2="8"/></svg>' +
+                'Tasks: <span class="task-count-badge__num">' + activeCount + '</span>' +
+              '</span>' +
+              '<a href="supervisor-dashboard.html?tech=' + tech.id + '" class="btn btn-sm btn-outline" style="text-decoration:none;">View Tasks</a>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+
+        /* Wire availability changes */
+        grid.querySelectorAll('.assign-select[data-tech-id]').forEach(function (sel) {
+          sel.addEventListener('change', function () {
+            var techId = sel.dataset.techId;
+            var techs  = getTechs();
+            var tech   = techs.find(function (t) { return t.id === techId; });
+            if (!tech) return;
+            tech.availability = sel.value;
+            saveTechs(techs);
+            /* Refresh chip label in parent card header */
+            var card = document.getElementById('tech-card-' + techId);
+            if (card) {
+              /* Re-read availability chip to update visually if needed */
+            }
+            showToast(tech.name + '\'s status updated to ' + sel.options[sel.selectedIndex].text + '.', 'success');
+          });
+        });
+      }
+
+      renderTeam();
+
+      /* Wire filters */
+      document.getElementById('team-search').addEventListener('input', function () {
+        filterState.search = this.value;
+        renderTeam();
+      });
+      document.getElementById('team-filter-avail').addEventListener('change', function () {
+        filterState.avail = this.value;
+        renderTeam();
+      });
+      document.getElementById('team-filter-role').addEventListener('change', function () {
+        filterState.role = this.value;
+        renderTeam();
+      });
+
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supervisor Dashboard – CampusOne Maintenance</title>
+  <meta name="description" content="Supervisor view of all maintenance requests across MIU campus. Track, filter, sort and assign tasks.">
+  <meta name="theme-color" content="#B80008">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
+  <link rel="stylesheet" href="../public/css/style.css">
+  <link rel="stylesheet" href="../public/css/profile.css">
+  <link rel="stylesheet" href="../public/css/student.css">
+  <link rel="stylesheet" href="../public/css/maintenance.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ===== APP HEADER (exact same as other pages) ===== -->
+  <header class="app-header" id="app-header">
+    <div class="container">
+      <a href="home.html" class="app-header__logo" aria-label="Go to CampusOne home">
+        <img src="../public/images/logo.png" alt="MIU logo" width="36" height="36">
+        <div class="app-header__logo-text">
+          <span class="app-header__logo-abbr">MIU</span>
+          <span class="app-header__logo-sub">Misr International University</span>
+        </div>
+        <span class="app-header__logo-divider" aria-hidden="true"></span>
+        <span class="app-header__logo-brand">CampusOne</span>
+      </a>
+
+      <nav class="app-nav" id="app-nav" aria-label="Main navigation">
+        <a href="supervisor-dashboard.html" class="app-nav__link" aria-current="page" id="nav-dashboard">Dashboard</a>
+        <a href="maintenance-team.html"     class="app-nav__link" id="nav-team">Team</a>
+        <a href="my-tasks.html"             class="app-nav__link" id="nav-tasks">My Tasks</a>
+      </nav>
+
+      <div class="app-header__actions">
+        <!-- Notifications -->
+        <div class="dropdown" id="notif-dropdown">
+          <button type="button" class="dropdown__trigger" id="notif-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="notif-panel" aria-label="Notifications">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2a5 5 0 0 1 5 5v3l1.5 2.5H2.5L4 10V7a5 5 0 0 1 5-5z"/><path d="M7 15a2 2 0 0 0 4 0"/></svg>
+          </button>
+          <div class="dropdown__panel" id="notif-panel" role="menu">
+            <div class="dropdown__header">Notifications</div>
+            <div class="dropdown__empty">No new notifications</div>
+          </div>
+        </div>
+        <!-- Profile -->
+        <div class="dropdown" id="profile-dropdown">
+          <button type="button" class="dropdown__trigger profile-trigger" id="profile-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="profile-panel" aria-label="Account menu">
+            <span class="profile-trigger__avatar" aria-hidden="true"><span class="avatar-initials" id="nav-initials">?</span></span>
+            <span class="profile-trigger__name" id="nav-user-name"></span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5l4 4 4-4"/></svg>
+          </button>
+          <div class="dropdown__panel" id="profile-panel" role="menu">
+            <div class="dropdown__header" id="nav-user-email">Loading…</div>
+            <a href="profile.html" class="dropdown__item" role="menuitem">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="6" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+              Profile
+            </a>
+            <div class="dropdown__divider" role="separator"></div>
+            <button type="button" class="dropdown__item dropdown__item--danger" id="logout-btn" role="menuitem">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4"/><polyline points="11,11 14,8 11,5"/><line x1="7" y1="8" x2="14" y2="8"/></svg>
+              Log out
+            </button>
+          </div>
+        </div>
+        <!-- Mobile hamburger -->
+        <button type="button" class="app-menu-toggle" id="app-menu-toggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="app-nav">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><line x1="3" y1="6" x2="19" y2="6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><line x1="3" y1="11" x2="19" y2="11" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><line x1="3" y1="16" x2="19" y2="16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <a href="emergency.html" class="emergency-btn" id="emergency-btn" aria-label="Emergency map">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.5L1 14.5h14L8 1.5z"/><line x1="8" y1="7" x2="8" y2="10"/><circle cx="8" cy="12" r=".6" fill="currentColor" stroke="none"/></svg>
+      <span class="emergency-label">Emergency</span>
+    </a>
+  </header>
+
+  <!-- ===== MAIN ===== -->
+  <main id="main">
+    <div class="container maint-page">
+
+      <!-- Page header -->
+      <div class="page-header-row">
+        <div class="page-title-block">
+          <h1 class="page-title">Supervisor Dashboard</h1>
+          <p class="page-subtitle">Overview of all campus maintenance requests. Assign, track, and manage tasks.</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap;">
+          <a href="home.html" class="btn btn-secondary" id="home-btn" style="text-decoration:none;">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8.5L8 2l7 6.5"/><path d="M3 7v7h3.5v-4h3v4H13V7"/></svg>
+            Home
+          </a>
+          <a href="task-details.html" class="btn btn-primary" id="new-task-btn" style="text-decoration:none;">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="3" x2="8" y2="13"/><line x1="3" y1="8" x2="13" y2="8"/></svg>
+            New Task
+          </a>
+        </div>
+      </div>
+
+      <!-- Maintenance sub-nav tabs -->
+      <nav class="maint-nav-tabs" aria-label="Maintenance section navigation">
+        <a href="supervisor-dashboard.html" class="maint-nav-tab is-active" aria-current="page" id="tab-dashboard">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+          Dashboard
+        </a>
+        <a href="maintenance-team.html" class="maint-nav-tab" id="tab-team">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="5" r="3"/><path d="M1 14c0-3.3 2.7-5 5-5"/><circle cx="13" cy="5" r="2"/><path d="M11 14c0-2.2 1-4 2-4"/></svg>
+          Team
+        </a>
+        <a href="my-tasks.html" class="maint-nav-tab" id="tab-tasks">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="2" width="10" height="12" rx="1"/><line x1="6" y1="5" x2="10" y2="5"/><line x1="6" y1="8" x2="10" y2="8"/><line x1="6" y1="11" x2="8" y2="11"/></svg>
+          My Tasks
+        </a>
+      </nav>
+
+      <!-- ── STAT COUNTERS ── -->
+      <section aria-labelledby="stats-heading">
+        <h2 class="visually-hidden" id="stats-heading">Summary statistics</h2>
+        <div class="stat-grid" id="stat-grid">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <!-- ── DATA TABLE ── -->
+      <section aria-labelledby="table-heading">
+        <div class="data-table-wrap">
+          <div class="data-table-toolbar">
+            <span class="data-table-toolbar__title" id="table-heading">Recent Maintenance Requests</span>
+            <!-- Search -->
+            <div class="data-table-search-wrap">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="6"/><line x1="13.5" y1="13.5" x2="18" y2="18"/></svg>
+              <input type="search" class="data-table-search" id="tbl-search" placeholder="Search requests…" aria-label="Search maintenance requests" autocomplete="off">
+            </div>
+            <!-- Category filter -->
+            <select class="data-table-filter" id="tbl-filter-cat" aria-label="Filter by category">
+              <option value="">All Categories</option>
+              <option value="HVAC">HVAC</option>
+              <option value="Plumbing">Plumbing</option>
+              <option value="Electrical">Electrical</option>
+              <option value="Carpentry">Carpentry</option>
+              <option value="Elevator">Elevator</option>
+              <option value="Painting">Painting</option>
+            </select>
+            <!-- Status filter -->
+            <select class="data-table-filter" id="tbl-filter-status" aria-label="Filter by status">
+              <option value="">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="resolved">Resolved</option>
+              <option value="on_hold">On Hold</option>
+            </select>
+            <!-- Priority filter -->
+            <select class="data-table-filter" id="tbl-filter-priority" aria-label="Filter by priority">
+              <option value="">All Priorities</option>
+              <option value="emergency">Emergency</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+
+          <div class="data-table-scroller" role="region" aria-label="Maintenance requests table" tabindex="0">
+            <table class="data-table" id="main-table" aria-live="polite" aria-atomic="true">
+              <thead>
+                <tr>
+                  <th data-col="id"         id="th-id">ID <span class="sort-icon" aria-hidden="true">↕</span></th>
+                  <th data-col="title"      id="th-title">Title <span class="sort-icon" aria-hidden="true">↕</span></th>
+                  <th data-col="category"   id="th-cat">Category <span class="sort-icon" aria-hidden="true">↕</span></th>
+                  <th data-col="building"   id="th-building">Location <span class="sort-icon" aria-hidden="true">↕</span></th>
+                  <th data-col="priority"   id="th-priority">Priority <span class="sort-icon" aria-hidden="true">↕</span></th>
+                  <th data-col="status"     id="th-status">Status <span class="sort-icon" aria-hidden="true">↕</span></th>
+                  <th data-col="assignedTo" id="th-assign">Assigned To</th>
+                  <th data-col="reportedAt" id="th-date">Reported <span class="sort-icon" aria-hidden="true">↕</span></th>
+                </tr>
+              </thead>
+              <tbody id="tbl-body">
+                <!-- Rows injected by JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="data-table-footer">
+            <span id="tbl-count">Loading…</span>
+            <span id="tbl-sort-label"></span>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /.container -->
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <!-- Toast container (appended by JS when needed) -->
+
+  <!-- ===== SCRIPTS ===== -->
+  <script src="../public/js/maintenance-data.js"></script>
+  <script>
+    /* -----------------------------------------------------------------------
+       supervisor-dashboard.js (inline)
+       --------------------------------------------------------------------- */
+    (function () {
+      'use strict';
+
+      /* -- Session & nav -------------------------------------------------- */
+      var session = initMaintNav();
+      if (!session) return;
+
+      /* -- Footer --------------------------------------------------------- */
+      (function renderFooter() {
+        var el = document.getElementById('site-footer');
+        if (!el) return;
+        el.innerHTML = '<div class="container"><div class="footer-inner"><div><div class="footer-brand"><img src="../public/images/logo.png" alt="MIU logo" loading="lazy"><span class="footer-brand-name">CampusOne</span></div><p class="footer-tagline">The campus web app for MIU students and staff.</p></div></div><div class="footer-bottom"><p>&copy; ' + new Date().getFullYear() + ' Misr International University. All rights reserved.</p></div></div>';
+      })();
+
+      /* ------------------------------------------------------------------ */
+      /* STAT COUNTERS                                                        */
+      /* ------------------------------------------------------------------ */
+      var statDefs = [
+        { key: 'total',      label: 'Total Requests', cls: 'stat-card--total',      icon: '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="14" height="14" rx="2"/><line x1="7" y1="8" x2="13" y2="8"/><line x1="7" y1="11" x2="11" y2="11"/></svg>' },
+        { key: 'pending',    label: 'Pending',         cls: 'stat-card--pending',    icon: '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><line x1="10" y1="6" x2="10" y2="10"/><circle cx="10" cy="14" r=".5" fill="currentColor" stroke="none"/></svg>' },
+        { key: 'inProgress', label: 'In Progress',     cls: 'stat-card--inprogress', icon: '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10a8 8 0 1 1-4-6.93"/><polyline points="18,2 18,10 12,10"/></svg>' },
+        { key: 'resolved',   label: 'Resolved',        cls: 'stat-card--resolved',   icon: '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><polyline points="7,10 9,12 13,8"/></svg>' },
+        { key: 'emergency',  label: 'Emergency',       cls: 'stat-card--emergency',  icon: '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2L2 18h16L10 2z"/><line x1="10" y1="9" x2="10" y2="13"/><circle cx="10" cy="16" r=".6" fill="currentColor" stroke="none"/></svg>' }
+      ];
+
+      /* Maps stat card key → what it should filter */
+      var STAT_FILTER_MAP = {
+        total:      { status: '',           priority: '' },
+        pending:    { status: 'pending',     priority: '' },
+        inProgress: { status: 'in_progress', priority: '' },
+        resolved:   { status: 'resolved',    priority: '' },
+        emergency:  { status: '',            priority: 'emergency' }
+      };
+
+      var activeStatKey = 'total'; /* which card is currently selected */
+
+      function renderStats() {
+        var stats  = getStats();
+        var grid   = document.getElementById('stat-grid');
+        if (!grid) return;
+        grid.innerHTML = statDefs.map(function (def) {
+          var val     = stats[def.key] || 0;
+          var isActive = def.key === activeStatKey;
+          var activeStyle = isActive
+            ? 'outline:3px solid var(--color-primary);outline-offset:2px;transform:translateY(-3px);box-shadow:var(--shadow-md);'
+            : '';
+          return '<div class="stat-card ' + def.cls + '" role="button" tabindex="0" ' +
+            'data-stat-key="' + def.key + '" ' +
+            'style="cursor:pointer;' + activeStyle + '" ' +
+            'aria-label="Filter by ' + def.label + ' (' + val + ' tasks)" ' +
+            'aria-pressed="' + String(isActive) + '">' +
+            '<div class="stat-card__icon">' + def.icon + '</div>' +
+            '<div class="stat-card__value" data-stat-key="' + def.key + '">0</div>' +
+            '<div class="stat-card__label">' + def.label + '</div>' +
+            (isActive ? '<div style="position:absolute;inset-block-end:8px;inset-inline-end:10px;font-size:10px;font-weight:700;color:var(--color-primary);text-transform:uppercase;letter-spacing:0.06em;">Active</div>' : '') +
+          '</div>';
+        }).join('');
+
+        /* Animate each counter */
+        grid.querySelectorAll('.stat-card__value').forEach(function (el) {
+          var key = el.dataset.statKey;
+          animateCounter(el, stats[key] || 0, 900);
+        });
+
+        /* Wire click on each card */
+        grid.querySelectorAll('.stat-card[data-stat-key]').forEach(function (card) {
+          function activateCard() {
+            var key = card.dataset.statKey;
+            activeStatKey = key;
+            var f = STAT_FILTER_MAP[key] || { status: '', priority: '' };
+            /* Apply to currentFilter */
+            currentFilter.status   = f.status;
+            currentFilter.priority = f.priority;
+            /* Sync the dropdown UI to match */
+            var statusSel = document.getElementById('tbl-filter-status');
+            var prioSel   = document.getElementById('tbl-filter-priority');
+            if (statusSel) statusSel.value = f.status;
+            if (prioSel)   prioSel.value   = f.priority;
+            renderStats();
+            renderTable();
+            /* Scroll to table */
+            var wrap = document.querySelector('.data-table-wrap');
+            if (wrap) wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+          card.addEventListener('click', activateCard);
+          card.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activateCard(); }
+          });
+        });
+      }
+      renderStats();
+
+      /* ------------------------------------------------------------------ */
+      /* DATA TABLE                                                           */
+      /* ------------------------------------------------------------------ */
+      var sortCol = 'reportedAt';
+      var sortAsc = false;   /* newest first */
+      var currentFilter = { search: '', cat: '', status: '', priority: '' };
+
+      /* Build technician options for assign dropdown */
+      function buildTechOptions(selectedId) {
+        var techs = getTechs();
+        var opts  = '<option value="">— Unassigned —</option>';
+        techs.forEach(function (t) {
+          opts += '<option value="' + t.id + '"' + (t.id === selectedId ? ' selected' : '') + '>' + t.name + '</option>';
+        });
+        return opts;
+      }
+
+      /* Priority sort order helper */
+      var PRIO_ORDER = { emergency: 0, high: 1, medium: 2, low: 3 };
+
+      function sortTasks(tasks, col, asc) {
+        return tasks.slice().sort(function (a, b) {
+          var va = a[col] || '';
+          var vb = b[col] || '';
+          if (col === 'priority') {
+            va = PRIO_ORDER[va] !== undefined ? PRIO_ORDER[va] : 99;
+            vb = PRIO_ORDER[vb] !== undefined ? PRIO_ORDER[vb] : 99;
+            return asc ? va - vb : vb - va;
+          }
+          if (col === 'reportedAt') {
+            va = new Date(va).getTime() || 0;
+            vb = new Date(vb).getTime() || 0;
+            return asc ? va - vb : vb - va;
+          }
+          va = String(va).toLowerCase();
+          vb = String(vb).toLowerCase();
+          if (va < vb) return asc ? -1 : 1;
+          if (va > vb) return asc ? 1 : -1;
+          return 0;
+        });
+      }
+
+      function filterTasks(tasks, f) {
+        var q = f.search.toLowerCase();
+        return tasks.filter(function (t) {
+          var matchSearch = !q || (t.id + t.title + t.building + t.room + t.reportedBy).toLowerCase().indexOf(q) !== -1;
+          var matchCat    = !f.cat      || t.category === f.cat;
+          var matchStatus = !f.status   || t.status   === f.status;
+          var matchPrio   = !f.priority || t.priority === f.priority;
+          return matchSearch && matchCat && matchStatus && matchPrio;
+        });
+      }
+
+      function renderTable() {
+        var allTasks  = getTasks();
+        var filtered  = filterTasks(allTasks, currentFilter);
+        var sorted    = sortTasks(filtered, sortCol, sortAsc);
+        var tbody     = document.getElementById('tbl-body');
+        var countEl   = document.getElementById('tbl-count');
+        var sortLabel = document.getElementById('tbl-sort-label');
+        if (!tbody) return;
+
+        /* Update sort header indicators */
+        document.querySelectorAll('.data-table th').forEach(function (th) {
+          th.classList.toggle('is-sorted', th.dataset.col === sortCol);
+          var icon = th.querySelector('.sort-icon');
+          if (icon && th.dataset.col === sortCol) icon.textContent = sortAsc ? '↑' : '↓';
+          else if (icon) icon.textContent = '↕';
+        });
+
+        if (countEl) countEl.textContent = sorted.length + ' of ' + allTasks.length + ' request' + (allTasks.length !== 1 ? 's' : '');
+        if (sortLabel) sortLabel.textContent = 'Sorted by: ' + sortCol;
+
+        if (!sorted.length) {
+          tbody.innerHTML = '<tr><td colspan="8" class="data-table__empty">No requests match your filters. Try adjusting the search or filters above.</td></tr>';
+          return;
+        }
+
+        var techs = getTechs();
+        tbody.innerHTML = sorted.map(function (task) {
+          var techName = '—';
+          if (task.assignedTo) {
+            var tech = techs.find(function (t) { return t.id === task.assignedTo; });
+            if (tech) techName = tech.name;
+          }
+          return '<tr data-task-id="' + task.id + '" role="row">' +
+            '<td class="td-id">' + task.id + '</td>' +
+            '<td><a href="task-details.html?id=' + encodeURIComponent(task.id) + '" style="color:var(--color-ink);font-weight:600;text-decoration:none;" onmouseover="this.style.color=\'var(--color-primary)\'" onmouseout="this.style.color=\'var(--color-ink)\'">' + task.title + '</a></td>' +
+            '<td class="td-muted">' + task.category + '</td>' +
+            '<td class="td-muted">' + task.building + ' · ' + task.room + '</td>' +
+            '<td>' + priorityChip(task.priority) + '</td>' +
+            '<td>' + statusChip(task.status) + '</td>' +
+            '<td>' +
+              '<select class="assign-select" data-task-id="' + task.id + '" aria-label="Assign technician for ' + task.id + '">' +
+                buildTechOptions(task.assignedTo) +
+              '</select>' +
+            '</td>' +
+            '<td class="td-muted">' + fmtDate(task.reportedAt) + '</td>' +
+          '</tr>';
+        }).join('');
+
+        /* Wire assign select changes */
+        tbody.querySelectorAll('.assign-select').forEach(function (sel) {
+          sel.addEventListener('change', function (e) {
+            e.stopPropagation();
+            var taskId  = sel.dataset.taskId;
+            var techId  = sel.value;
+            var tasks   = getTasks();
+            var task    = tasks.find(function (t) { return t.id === taskId; });
+            if (!task) return;
+            var prevTech = task.assignedTo;
+            task.assignedTo = techId;
+            /* If assigning from unassigned and status is still pending → keep pending */
+            var actor = (session && session.name) ? session.name + ' (Supervisor)' : 'Supervisor';
+            var tech  = getTechById(techId);
+            var note  = tech ? 'Assigned to ' + tech.name + '.' : 'Unassigned.';
+            task.log = task.log || [];
+            task.log.push({ actor: actor, action: 'Technician ' + (techId ? 'assigned' : 'unassigned'), note: note, ts: new Date().toISOString() });
+            updateTask(task);
+            /* Update active task counts */
+            var techs = getTechs();
+            if (prevTech) {
+              var pt = techs.find(function (t) { return t.id === prevTech; });
+              if (pt && pt.activeTasks > 0) pt.activeTasks--;
+            }
+            if (techId) {
+              var nt = techs.find(function (t) { return t.id === techId; });
+              if (nt) nt.activeTasks = (nt.activeTasks || 0) + 1;
+            }
+            saveTechs(techs);
+            showToast(tech ? 'Assigned to ' + tech.name : 'Technician unassigned.', 'success');
+            renderStats();
+          });
+        });
+
+        /* Row click → task details (ignore clicks on select) */
+        tbody.querySelectorAll('tr[data-task-id]').forEach(function (row) {
+          row.addEventListener('click', function (e) {
+            if (e.target.tagName === 'SELECT' || e.target.tagName === 'OPTION' || e.target.tagName === 'A') return;
+            var id = row.dataset.taskId;
+            if (id) window.location.href = 'task-details.html?id=' + encodeURIComponent(id);
+          });
+        });
+      }
+
+      renderTable();
+
+      /* Sort on header click */
+      document.querySelectorAll('.data-table th[data-col]').forEach(function (th) {
+        th.addEventListener('click', function () {
+          var col = th.dataset.col;
+          if (!col || col === 'assignedTo') return; /* assign col not sortable */
+          if (sortCol === col) sortAsc = !sortAsc;
+          else { sortCol = col; sortAsc = true; }
+          renderTable();
+        });
+      });
+
+      /* Filter controls */
+      document.getElementById('tbl-search').addEventListener('input', function () {
+        currentFilter.search = this.value;
+        renderTable();
+      });
+      document.getElementById('tbl-filter-cat').addEventListener('change', function () {
+        currentFilter.cat = this.value;
+        renderTable();
+      });
+      document.getElementById('tbl-filter-status').addEventListener('change', function () {
+        currentFilter.status = this.value;
+        /* Reset active stat card to 'total' if user manually changes dropdown */
+        activeStatKey = 'total';
+        renderStats();
+        renderTable();
+      });
+      document.getElementById('tbl-filter-priority').addEventListener('change', function () {
+        currentFilter.priority = this.value;
+        activeStatKey = 'total';
+        renderStats();
+        renderTable();
+      });
+
+    })();
+  </script>
+</body>
+</html>
