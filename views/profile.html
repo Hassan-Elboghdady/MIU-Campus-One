@@ -32,7 +32,7 @@
         <a href="map.html"        class="app-nav__link" id="nav-map">Campus Map</a>
         <a href="emergency.html"  class="app-nav__link" id="nav-emergency">Emergency Map</a>
         <a href="my-reports.html" class="app-nav__link" id="nav-maintenance">My Reports</a>
-        <a href="lost-found.html" class="app-nav__link" id="nav-lostfound">Lost &amp; Found</a>
+        <a href="lost-and-found.html" class="app-nav__link" id="nav-lostfound">Lost &amp; Found</a>
         <a href="report.html"     class="app-nav__link app-nav__report-link" id="nav-report">Report an Issue</a>
       </nav>
 
@@ -111,7 +111,15 @@
                 <div class="avatar-img" id="avatar-circle" style="width:96px;height:96px;border-radius:50%;background:var(--color-primary-tint);border:3px solid var(--color-border);display:flex;align-items:center;justify-content:center;">
                   <span id="avatar-big-initials" style="font-size:2rem;font-weight:800;color:var(--color-primary);">?</span>
                 </div>
+                <label for="avatar-file-input" class="avatar-upload-label" aria-label="Change profile photo">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M2 5h2l1.2-2h5.6L12 5h2v8H2z"/><circle cx="8" cy="9" r="2.5"/>
+                  </svg>
+                </label>
+                <input id="avatar-file-input" class="visually-hidden" type="file" accept="image/*" aria-label="Choose a profile photo">
               </div>
+              <button type="button" id="avatar-remove-btn" class="btn btn-outline btn-sm" hidden>Remove photo</button>
+              <span id="avatar-error" class="avatar-upload-status" role="status" aria-live="polite"></span>
               <p id="avatar-name" class="avatar-name"></p>
               <span id="avatar-role-badge" class="avatar-role"></span>
               <p id="avatar-email" class="avatar-email"></p>
@@ -237,6 +245,7 @@
 
   <footer id="site-footer"></footer>
 
+  <script src="../public/js/avatar.js" defer></script>
   <script>
     (function () {
       // ── Read session ───────────────────────────────────────────────────
@@ -304,6 +313,24 @@
       // ── Change password form ───────────────────────────────────────────
       var cpForm = el('change-password-form');
       if (cpForm) {
+        function showPasswordError(fieldId, message) {
+          var field = el(fieldId);
+          var error = el(fieldId + '-error');
+          field.classList.add('is-error');
+          field.setAttribute('aria-invalid', 'true');
+          error.textContent = message;
+          error.classList.add('is-visible');
+        }
+
+        function clearPasswordError(fieldId) {
+          var field = el(fieldId);
+          var error = el(fieldId + '-error');
+          field.classList.remove('is-error');
+          field.removeAttribute('aria-invalid');
+          error.textContent = '';
+          error.classList.remove('is-visible');
+        }
+
         cpForm.addEventListener('submit', function (e) {
           e.preventDefault();
           var current = el('cp-current').value;
@@ -311,24 +338,56 @@
           var confirm = el('cp-confirm').value;
           var errEl   = el('cp-error');
           var okEl    = el('cp-success');
-          errEl.textContent = ''; okEl.style.display = 'none';
+          ['cp-current', 'cp-new', 'cp-confirm'].forEach(clearPasswordError);
+          errEl.textContent = '';
+          errEl.classList.remove('is-visible');
+          okEl.style.display = 'none';
 
           // Find user's stored password to verify current one
           var registered = [];
           try { registered = JSON.parse(localStorage.getItem('campusone_registered_users') || '[]'); } catch (e) {}
-          var stored = registered.find(function (u) { return u.email === session.email; });
-          var mockPasswords = { 'student@miu.edu.eg':'student123','supervisor@miu.edu.eg':'super123','tech@miu.edu.eg':'tech123','lostandfound@miu.edu.eg':'lf123','admin@miu.edu.eg':'admin123' };
+          var stored = registered.find(function (u) { return u.email.toLowerCase() === session.email.toLowerCase(); });
+          var mockPasswords = { 'student@miuegypt.edu.eg':'student123','supervisor@miuegypt.edu.eg':'super123','tech@miuegypt.edu.eg':'tech123','lostandfound@miuegypt.edu.eg':'lf123','admin@miuegypt.edu.eg':'admin123' };
           var knownPassword = stored ? stored.password : mockPasswords[session.email];
 
-          if (!current)                    { errEl.textContent = 'Enter your current password.'; return; }
-          if (knownPassword && current !== knownPassword) { errEl.textContent = 'Current password is incorrect.'; return; }
-          if (newPw.length < 8)            { errEl.textContent = 'New password must be at least 8 characters.'; return; }
-          if (newPw !== confirm)           { errEl.textContent = 'New passwords do not match.'; return; }
+          var hasError = false;
+          if (!current) {
+            showPasswordError('cp-current', 'Enter your current password.');
+            hasError = true;
+          } else if (!knownPassword) {
+            errEl.textContent = 'Unable to verify your current password. Please sign in again.';
+            errEl.classList.add('is-visible');
+            hasError = true;
+          } else if (current !== knownPassword) {
+            showPasswordError('cp-current', 'Current password is incorrect.');
+            hasError = true;
+          }
+          if (!newPw) {
+            showPasswordError('cp-new', 'Enter a new password.');
+            hasError = true;
+          } else if (newPw.length < 8) {
+            showPasswordError('cp-new', 'New password must be at least 8 characters.');
+            hasError = true;
+          }
+          if (!confirm) {
+            showPasswordError('cp-confirm', 'Confirm your new password.');
+            hasError = true;
+          } else if (newPw && newPw !== confirm) {
+            showPasswordError('cp-confirm', 'New passwords do not match.');
+            hasError = true;
+          }
+          if (hasError) return;
 
           // Update password in registered users
           if (stored) {
             stored.password = newPw;
-            localStorage.setItem('campusone_registered_users', JSON.stringify(registered));
+            try {
+              localStorage.setItem('campusone_registered_users', JSON.stringify(registered));
+            } catch (e) {
+              errEl.textContent = 'Could not save your new password. Please try again.';
+              errEl.classList.add('is-visible');
+              return;
+            }
           }
           okEl.style.display = '';
           cpForm.reset();

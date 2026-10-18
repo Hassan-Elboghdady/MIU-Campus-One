@@ -223,6 +223,7 @@ main { flex: 1; }
 
 .password-wrapper { position: relative; display: flex; align-items: center; }
 .password-wrapper .form-input { padding-inline-end: 48px; }
+.password-wrapper input[type="password"]::-ms-reveal { display: none; }
 .password-toggle {
   position: absolute; inset-inline-end: 0; inset-block: 0; inline-size: 48px;
   display: flex; align-items: center; justify-content: center;

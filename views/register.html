@@ -120,7 +120,7 @@
               autocomplete="email"
               required
               aria-describedby="reg-email-error"
-              placeholder="yourname@miu.edu.eg">
+              placeholder="yourname@miuegypt.edu.eg">
             <span id="reg-email-error" class="form-error" role="alert"></span>
           </div>
 
@@ -137,8 +137,11 @@
               class="form-input"
               autocomplete="off"
               required
+              pattern="[0-9]{4}-[0-9]{5}"
+              maxlength="10"
+              inputmode="numeric"
               aria-describedby="reg-student-id-error"
-              placeholder="e.g. MIU-20220001">
+              placeholder="e.g. 2022-00001">
             <span id="reg-student-id-error" class="form-error" role="alert"></span>
           </div>
 
@@ -157,8 +160,6 @@
               <option value="Pharmacy">Pharmacy</option>
               <option value="Dentistry">Dentistry</option>
               <option value="Language & Translation">Language &amp; Translation</option>
-              <option value="Law">Law</option>
-              <option value="Other">Other</option>
             </select>
             <span id="reg-faculty-error" class="form-error" role="alert"></span>
           </div>
@@ -307,9 +308,11 @@
 
         if (!name)    { showErr(nameInput,     'reg-name-error',       'Full name is required.');        hasError = true; }
         if (!email)   { showErr(emailInput,    'reg-email-error',      'Email is required.');             hasError = true; }
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-                        showErr(emailInput,    'reg-email-error',      'Enter a valid email address.');   hasError = true; }
+        else if (!/^[^\s@]+@miuegypt\.edu\.eg$/i.test(email)) {
+                        showErr(emailInput,    'reg-email-error',      'Use your @miuegypt.edu.eg email address.'); hasError = true; }
         if (!id)      { showErr(idInput,       'reg-student-id-error', 'Student ID is required.');       hasError = true; }
+        else if (!/^\d{4}-\d{5}$/.test(id)) {
+                        showErr(idInput,       'reg-student-id-error', 'Enter your student ID as year-5 numbers (e.g. 2022-00001).'); hasError = true; }
         if (!faculty) { showErr(facultySelect, 'reg-faculty-error',    'Please select your faculty.');   hasError = true; }
         if (!pass)    { showErr(passInput,     'reg-password-error',   'Password is required.');         hasError = true; }
         else if (pass.length < 8) {

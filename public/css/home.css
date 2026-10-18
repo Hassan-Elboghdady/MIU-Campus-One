@@ -235,6 +235,29 @@
   border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
+.portal-media-card__location {
+  color: inherit;
+  text-decoration: none;
+  transition: transform var(--transition), box-shadow var(--transition), background-color var(--transition);
+}
+
+.portal-media-card__location:hover {
+  background-color: #fff;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.portal-media-card__location:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.badge-external {
+  color: var(--color-primary);
+  flex-shrink: 0;
+  margin-inline-start: 2px;
+}
+
 .badge-pin {
   inline-size: 32px;
   block-size: 32px;

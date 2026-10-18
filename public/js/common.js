@@ -31,11 +31,11 @@ export const CONFIG = Object.freeze({
 /** @type {MockUser[]} */
 export const MOCK_USERS = [
   /* MOCK DATA - replace with real server auth before launch */
-  { id: 'u1', name: 'Ahmed Nasser',      email: 'student@miu.edu.eg',      password: 'student123',  role: 'student',          studentId: 'MIU-20220001', faculty: 'Engineering' },
-  { id: 'u2', name: 'Sara Mahmoud',      email: 'supervisor@miu.edu.eg',   password: 'super123',    role: 'supervisor',       studentId: null,           faculty: null },
-  { id: 'u3', name: 'Omar Khaled',       email: 'tech@miu.edu.eg',         password: 'tech123',     role: 'technician',       studentId: null,           faculty: null },
-  { id: 'u4', name: 'Nour El-Din Fawzy', email: 'lostandfound@miu.edu.eg', password: 'lf123',       role: 'lost-found-staff', studentId: null,           faculty: null },
-  { id: 'u5', name: 'Admin User',        email: 'admin@miu.edu.eg',        password: 'admin123',    role: 'admin',            studentId: null,           faculty: null },
+  { id: 'u1', name: 'Ahmed Nasser',      email: 'student@miuegypt.edu.eg',      password: 'student123',  role: 'student',          studentId: '2022-00001', faculty: 'Engineering' },
+  { id: 'u2', name: 'Sara Mahmoud',      email: 'supervisor@miuegypt.edu.eg',   password: 'super123',    role: 'supervisor',       studentId: null,           faculty: null },
+  { id: 'u3', name: 'Omar Khaled',       email: 'tech@miuegypt.edu.eg',         password: 'tech123',     role: 'technician',       studentId: null,           faculty: null },
+  { id: 'u4', name: 'Nour El-Din Fawzy', email: 'lostandfound@miuegypt.edu.eg', password: 'lf123',       role: 'lost-found-staff', studentId: null,           faculty: null },
+  { id: 'u5', name: 'Admin User',        email: 'admin@miuegypt.edu.eg',        password: 'admin123',    role: 'admin',            studentId: null,           faculty: null },
 ];
 
 // --------------------------------------------------------------------------

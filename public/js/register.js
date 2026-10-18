@@ -12,7 +12,6 @@ import {
   setSession,
   ROLE_HOME,
   validateRequired,
-  validateEmail,
   validatePasswordLength,
   validateMatch,
   showError,
@@ -47,14 +46,21 @@ document.addEventListener('DOMContentLoaded', () => {
   emailInput.addEventListener('blur', () => {
     const r = validateRequired(emailInput.value, 'Email');
     if (r) { showError(emailInput, emailError, r); return; }
-    const f = validateEmail(emailInput.value);
-    if (f) { showError(emailInput, emailError, f); return; }
+    if (!/^[^\s@]+@miuegypt\.edu\.eg$/i.test(emailInput.value.trim())) {
+      showError(emailInput, emailError, 'Use your @miuegypt.edu.eg email address.');
+      return;
+    }
     clearError(emailInput, emailError);
   });
 
   idInput.addEventListener('blur', () => {
     const e = validateRequired(idInput.value, 'Student ID');
-    e ? showError(idInput, idError, e) : clearError(idInput, idError);
+    if (e) { showError(idInput, idError, e); return; }
+    if (!/^\d{4}-\d{5}$/.test(idInput.value.trim())) {
+      showError(idInput, idError, 'Enter your student ID as year-5 numbers (e.g. 2022-00001).');
+      return;
+    }
+    clearError(idInput, idError);
   });
 
   facultySelect.addEventListener('change', () => {
@@ -78,7 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Password show/hide
   setupToggle('reg-pass-toggle', passInput);
-  setupToggle('reg-confirm-toggle', confirmInput);
 
   // Clear summary on any input
   [nameInput, emailInput, idInput, passInput, confirmInput].forEach((el) => {
@@ -109,13 +114,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const r2 = validateRequired(emailInput.value, 'Email');
     if (r2) { showError(emailInput, emailError, r2); hasError = true; }
-    else {
-      const f = validateEmail(emailInput.value);
-      if (f) { showError(emailInput, emailError, f); hasError = true; }
+    else if (!/^[^\s@]+@miuegypt\.edu\.eg$/i.test(emailInput.value.trim())) {
+      showError(emailInput, emailError, 'Use your @miuegypt.edu.eg email address.');
+      hasError = true;
     }
 
     const r3 = validateRequired(idInput.value, 'Student ID');
     if (r3) { showError(idInput, idError, r3); hasError = true; }
+    else if (!/^\d{4}-\d{5}$/.test(idInput.value.trim())) {
+      showError(idInput, idError, 'Enter your student ID as year-5 numbers (e.g. 2022-00001).');
+      hasError = true;
+    }
 
     const r4 = validateRequired(facultySelect.value, 'Faculty');
     if (r4) { showError(facultySelect, facultyError, r4); hasError = true; }

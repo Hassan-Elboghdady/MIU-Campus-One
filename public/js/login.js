@@ -11,7 +11,6 @@ import {
   findUserByEmail,
   setSession,
   validateRequired,
-  validateEmail,
   showError,
   clearError,
 } from './common.js';
@@ -44,8 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
   emailInput.addEventListener('blur', () => {
     const r = validateRequired(emailInput.value, 'Email');
     if (r) { showError(emailInput, emailError, r); return; }
-    const f = validateEmail(emailInput.value);
-    if (f)  { showError(emailInput, emailError, f); return; }
+    if (!/^[^\s@]+@miuegypt\.edu\.eg$/i.test(emailInput.value.trim())) {
+      showError(emailInput, emailError, 'Use your @miuegypt.edu.eg email address.');
+      return;
+    }
     clearError(emailInput, emailError);
   });
 
@@ -84,9 +85,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let hasError = false;
     const r1 = validateRequired(emailInput.value, 'Email');
     if (r1) { showError(emailInput, emailError, r1); hasError = true; }
-    else {
-      const f = validateEmail(emailInput.value);
-      if (f) { showError(emailInput, emailError, f); hasError = true; }
+    else if (!/^[^\s@]+@miuegypt\.edu\.eg$/i.test(emailInput.value.trim())) {
+      showError(emailInput, emailError, 'Use your @miuegypt.edu.eg email address.');
+      hasError = true;
     }
     const r2 = validateRequired(passInput.value, 'Password');
     if (r2) { showError(passInput, passError, r2); hasError = true; }

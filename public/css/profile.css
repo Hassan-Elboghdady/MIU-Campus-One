@@ -456,6 +456,15 @@
   border-color: var(--color-primary);
 }
 
+.avatar-upload-status {
+  display: none;
+  font-size: var(--text-xs);
+}
+
+.avatar-upload-status.is-visible { display: block; }
+.avatar-upload-status.is-error { color: var(--color-danger); }
+.avatar-upload-status.is-success { color: var(--color-success); }
+
 .avatar-name {
   font-size: var(--text-lg);
   font-weight: 700;

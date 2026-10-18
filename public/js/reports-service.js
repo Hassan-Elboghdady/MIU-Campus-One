@@ -207,12 +207,12 @@ export async function getReportById(id) {
 export async function createReport(data) {
   let user = getUser();
   if (!user) {
-    user = { email: 'student@miu.edu.eg', name: 'Student', role: 'student' };
+    user = { email: 'student@miuegypt.edu.eg', name: 'Student', role: 'student' };
   }
 
   const all       = storageGet();
   const now       = new Date().toISOString();
-  const safeEmail = (user.email || 'student@miu.edu.eg').trim().toLowerCase();
+  const safeEmail = (user.email || 'student@miuegypt.edu.eg').trim().toLowerCase();
   const safeName  = (user.name || 'Student').trim();
 
   const newReport = {

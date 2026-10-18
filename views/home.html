@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="../public/css/profile.css">
   <link rel="stylesheet" href="../public/css/student.css">
   <link rel="stylesheet" href="../public/css/home.css">
+  <script src="../public/js/avatar.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -36,7 +37,7 @@
         <a href="map.html"          class="app-nav__link" id="nav-map">Campus Map</a>
         <a href="emergency.html"    class="app-nav__link" id="nav-emergency">Emergency Map</a>
         <a href="my-reports.html"   class="app-nav__link" id="nav-maintenance">My Reports</a>
-        <a href="lost-found.html"   class="app-nav__link" id="nav-lostfound">Lost &amp; Found</a>
+        <a href="lost-and-found.html"   class="app-nav__link" id="nav-lostfound">Lost &amp; Found</a>
         <a href="report.html"       class="app-nav__link app-nav__report-link" id="nav-report">Report an Issue</a>
       </nav>
 
@@ -171,7 +172,10 @@
               <img src="../public/images/campus_hero.png"
                    alt="Misr International University campus grounds"
                    class="portal-media-card__img" width="640" height="400">
-              <div class="portal-media-card__badge">
+              <a class="portal-media-card__badge portal-media-card__location"
+                 href="https://www.google.com/maps/place/Misr+International+University+(MIU)/@30.1667369,31.2117468,11z/data=!4m10!1m2!2m1!1smiu+location!3m6!1s0x14581bab30f3291d:0x1b138aefe2d8bedb!8m2!3d30.1667369!4d31.4918982!15sCgxtaXUgbG9jYXRpb25aBSIDbWl1kgEKdW5pdmVyc2l0eZoBRENpOURRVWxSUVVOdlpFTm9kSGxqUmpsdlQycG5kMk5ZWnpKVmJWWk1UVWhXY21OSFVtdFNNRkkwVTBjMU5WZ3lZeEFC4AEA-gEECAAQHA!16s%2Fm%2F027d70q?entry=ttu&amp;g_ep=EgoyMDI2MTAxMy4wIKXMDSoASAFQAw%3D%3D"
+                 target="_blank" rel="noopener noreferrer"
+                 aria-label="Open Misr International University in Google Maps (opens in a new tab)">
                 <span class="badge-pin" aria-hidden="true">
                   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="9" cy="8" r="3"/>
@@ -180,9 +184,12 @@
                 </span>
                 <div class="badge-text">
                   <strong class="badge-title">Misr International University</strong>
-                  <span class="badge-sub">Your campus. Your community.</span>
+                  <span class="badge-sub">View campus location</span>
                 </div>
-              </div>
+                <svg class="badge-external" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M9 2h5v5"/><path d="M14 2 7 9"/><path d="M12 9v4a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h4"/>
+                </svg>
+              </a>
             </div>
           </div>
 
@@ -246,7 +253,7 @@
           </a>
 
           <!-- AI Lost & Found -->
-          <a href="lost-found.html" class="essential-card" id="essential-lost-found">
+          <a href="lost-and-found.html" class="essential-card" id="essential-lost-found">
             <span class="essential-card__icon" aria-hidden="true">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11" cy="11" r="8"/>
