@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Map - CampusOne</title>
+  <meta name="description" content="Interactive map of Misr International University (MIU) campus. Find university buildings, food outlets, supermarkets, and campus facilities.">
+  <meta name="theme-color" content="#B80008">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
+  <link rel="apple-touch-icon" href="../public/apple-touch-icon.png">
+  <link rel="stylesheet" href="../public/css/style.css">
+  <link rel="stylesheet" href="../public/css/profile.css">
+  <link rel="stylesheet" href="../public/css/student.css">
+  <link rel="stylesheet" href="../public/css/map.css">
+</head>
+<body>
+  <a class="skip-link" href="#map-root">Skip to content</a>
+
+  <!-- Header is hydrated by student-nav.js -->
+  <header></header>
+
+  <!-- Interactive Map container -->
+  <main id="map-root" class="map-page" aria-label="Campus Map"></main>
+
+  <script type="module">
+    import { renderNav } from '../public/js/student-nav.js';
+    import { CampusMapApp } from '../public/js/campus-map.js';
+
+    // Hydrate shared navigation header
+    renderNav();
+
+    // Initialize Campus Map App with real aerial image
+    try {
+      new CampusMapApp('#map-root', {
+        imageSrc: '../public/images/campus_aerial.png',
+      });
+    } catch (err) {
+      console.error('Failed to initialize CampusMapApp:', err);
+      const root = document.getElementById('map-root');
+      if (root) {
+        root.innerHTML = `
+          <div style="display:flex;align-items:center;justify-content:center;height:100%;padding:2rem;text-align:center;">
+            <div>
+              <h2 style="font-size:1.5rem;font-weight:700;color:var(--color-ink);margin-bottom:0.5rem;">Unable to load Campus Map</h2>
+              <p style="color:var(--color-muted);">${err.message}</p>
+            </div>
+          </div>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>
