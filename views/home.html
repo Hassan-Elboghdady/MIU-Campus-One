@@ -35,7 +35,7 @@
       <nav class="app-nav" id="app-nav" aria-label="Main navigation">
         <a href="map.html"          class="app-nav__link" id="nav-map">Campus Map</a>
         <a href="emergency.html"    class="app-nav__link" id="nav-emergency">Emergency Map</a>
-        <a href="maintenance.html"   class="app-nav__link" id="nav-maintenance">Maintenance</a>
+        <a href="my-reports.html"   class="app-nav__link" id="nav-maintenance">My Reports</a>
         <a href="lost-found.html"   class="app-nav__link" id="nav-lostfound">Lost &amp; Found</a>
         <a href="report.html"       class="app-nav__link app-nav__report-link" id="nav-report">Report an Issue</a>
       </nav>
@@ -78,6 +78,12 @@
                 <circle cx="8" cy="6" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
               </svg>
               Profile
+            </a>
+            <a href="my-reports.html" class="dropdown__item" role="menuitem" id="nav-reports-link">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="2" width="10" height="12" rx="1"/><line x1="6" y1="5" x2="10" y2="5"/><line x1="6" y1="8" x2="10" y2="8"/><line x1="6" y1="11" x2="8" y2="11"/>
+              </svg>
+              My Reports
             </a>
             <div class="dropdown__divider" role="separator"></div>
             <button type="button" class="dropdown__item dropdown__item--danger" id="logout-btn" role="menuitem">
@@ -296,83 +302,46 @@
   <!-- ===== INLINE SCRIPT (works on file://, no module needed) ===== -->
   <script>
     (function () {
-      // ── Read session from localStorage ──────────────────────────────────
-      var session = null;
-      try { session = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
-
-      if (!session) {
-        // Not logged in → go to login
-        window.location.replace('login.html');
-        return;
-      }
-
-      // ── Fill profile info ───────────────────────────────────────────────
-      var initials = (session.name || '?').trim().split(/\s+/)
-                       .map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+      var s = null;
+      try { s = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
+      if (!s) { window.location.replace('login.html'); return; }
 
       var el = function (id) { return document.getElementById(id); };
-      if (el('nav-initials'))  el('nav-initials').textContent  = initials;
-      if (el('nav-user-name')) el('nav-user-name').textContent = session.name || '';
-      if (el('nav-user-email'))el('nav-user-email').textContent= session.email || '';
+      var ini = (s.name || '?').trim().split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+      if (el('nav-initials'))   el('nav-initials').textContent = ini;
+      if (el('nav-user-name'))  el('nav-user-name').textContent = s.name || '';
+      if (el('nav-user-email')) el('nav-user-email').textContent = s.email || '';
 
-      // ── Greeting ────────────────────────────────────────────────────────
       var greetEl = el('portal-hero-greeting');
       if (greetEl) {
         var h = new Date().getHours();
         var g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-        greetEl.textContent = g + ', ' + (session.name || 'there') + ' 👋';
+        greetEl.textContent = g + ', ' + (s.name || 'there') + ' 👋';
       }
 
-      // ── Dropdowns ───────────────────────────────────────────────────────
-      function initDropdown(triggerId, panelId) {
-        var trigger = el(triggerId);
-        var panel   = el(panelId);
-        if (!trigger || !panel) return;
-        trigger.addEventListener('click', function (e) {
+      function initDrop(tid, pid) {
+        var t = el(tid), p = el(pid);
+        if (!t || !p) return;
+        t.addEventListener('click', function (e) {
           e.stopPropagation();
-          var open = panel.classList.toggle('is-open');
-          trigger.setAttribute('aria-expanded', String(open));
-          // close the other
-          ['notif-panel','profile-panel'].forEach(function (pid) {
-            if (pid !== panelId) {
-              var p = el(pid);
-              if (p) p.classList.remove('is-open');
-            }
-          });
+          var o = p.classList.toggle('is-open');
+          t.setAttribute('aria-expanded', String(o));
+          ['notif-panel', 'profile-panel'].forEach(function (x) { if (x !== pid && el(x)) el(x).classList.remove('is-open'); });
         });
       }
-      initDropdown('notif-trigger',   'notif-panel');
-      initDropdown('profile-trigger', 'profile-panel');
+      initDrop('notif-trigger', 'notif-panel');
+      initDrop('profile-trigger', 'profile-panel');
 
       document.addEventListener('click', function () {
-        ['notif-panel','profile-panel'].forEach(function (pid) {
-          var p = el(pid);
-          if (p) p.classList.remove('is-open');
-        });
-        ['notif-trigger','profile-trigger'].forEach(function (tid) {
-          var t = el(tid);
-          if (t) t.setAttribute('aria-expanded','false');
-        });
+        ['notif-panel', 'profile-panel'].forEach(function (pid) { if (el(pid)) el(pid).classList.remove('is-open'); });
+        ['notif-trigger', 'profile-trigger'].forEach(function (tid) { if (el(tid)) el(tid).setAttribute('aria-expanded', 'false'); });
       });
 
-      // ── Logout ──────────────────────────────────────────────────────────
-      var logoutBtn = el('logout-btn');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', function () {
-          localStorage.removeItem('campusone_session');
-          window.location.replace('login.html');
-        });
-      }
+      var lb = el('logout-btn');
+      if (lb) lb.addEventListener('click', function () { localStorage.removeItem('campusone_session'); window.location.replace('login.html'); });
 
-      // ── Mobile hamburger ────────────────────────────────────────────────
-      var toggle = el('app-menu-toggle');
-      var nav    = el('app-nav');
-      if (toggle && nav) {
-        toggle.addEventListener('click', function () {
-          var open = nav.classList.toggle('is-open');
-          toggle.setAttribute('aria-expanded', String(open));
-        });
-      }
+      var tog = el('app-menu-toggle'), nav = el('app-nav');
+      if (tog && nav) tog.addEventListener('click', function () { tog.setAttribute('aria-expanded', String(nav.classList.toggle('is-open'))); });
     })();
   </script>
 </body>

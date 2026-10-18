@@ -464,6 +464,10 @@
   border-radius: var(--radius-card);
 }
 
+.report-success[hidden] {
+  display: none !important;
+}
+
 .success-icon {
   inline-size: 72px;
   block-size: 72px;

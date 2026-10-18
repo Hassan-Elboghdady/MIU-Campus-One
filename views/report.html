@@ -31,7 +31,7 @@
       <nav class="app-nav" id="app-nav" aria-label="Main navigation">
         <a href="map.html"        class="app-nav__link" id="nav-map">Campus Map</a>
         <a href="emergency.html"  class="app-nav__link" id="nav-emergency">Emergency Map</a>
-        <a href="maintenance.html" class="app-nav__link" id="nav-maintenance">Maintenance</a>
+        <a href="my-reports.html" class="app-nav__link" id="nav-maintenance">My Reports</a>
         <a href="lost-found.html" class="app-nav__link" id="nav-lostfound">Lost &amp; Found</a>
         <a href="report.html"     class="app-nav__link app-nav__report-link" aria-current="page" id="nav-report">Report an Issue</a>
       </nav>
@@ -51,6 +51,7 @@
           <div class="dropdown__panel" id="profile-panel" role="menu">
             <div class="dropdown__header" id="nav-user-email"></div>
             <a href="profile.html" class="dropdown__item" role="menuitem"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="6" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg> Profile</a>
+            <a href="my-reports.html" class="dropdown__item" role="menuitem"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="2" width="10" height="12" rx="1"/><line x1="6" y1="5" x2="10" y2="5"/><line x1="6" y1="8" x2="10" y2="8"/><line x1="6" y1="11" x2="8" y2="11"/></svg> My Reports</a>
             <div class="dropdown__divider" role="separator"></div>
             <button type="button" class="dropdown__item dropdown__item--danger" id="logout-btn" role="menuitem"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4"/><polyline points="11,11 14,8 11,5"/><line x1="7" y1="8" x2="14" y2="8"/></svg> Log out</button>
           </div>
@@ -150,6 +151,11 @@
                       aria-describedby="error-building"
                     >
                       <option value="">Select a building</option>
+                      <option value="Building R">Building R</option>
+                      <option value="Building N">Building N</option>
+                      <option value="MAIN">MAIN</option>
+                      <option value="Building P">Building P</option>
+                      <option value="Building S">Building S</option>
                     </select>
                     <span id="error-building" class="form-error" aria-live="polite"></span>
                   </div>
@@ -314,7 +320,7 @@
       </div>
 
       <!-- Success screen -->
-      <div id="report-success" hidden class="report-success">
+      <div id="report-success" hidden style="display: none;" class="report-success">
         <div class="success-icon" aria-hidden="true">
           <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
             <path d="M7 18l7 7 15-14"/>
@@ -336,25 +342,201 @@
   </main>
   <footer id="site-footer"></footer>
   <script>
-    (function(){
-      var s=null; try{s=JSON.parse(localStorage.getItem('campusone_session'));}catch(e){}
-      if(!s){window.location.replace('login.html');return;}
-      var el=function(id){return document.getElementById(id);};
-      var ini=(s.name||'?').trim().split(/\s+/).map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();
-      if(el('nav-initials'))  el('nav-initials').textContent  =ini;
-      if(el('nav-user-name')) el('nav-user-name').textContent =s.name||'';
-      if(el('nav-user-email'))el('nav-user-email').textContent=s.email||'';
-      function initDrop(tid,pid){
-        var t=el(tid),p=el(pid);if(!t||!p)return;
-        t.addEventListener('click',function(e){e.stopPropagation();var o=p.classList.toggle('is-open');t.setAttribute('aria-expanded',String(o));['notif-panel','profile-panel'].forEach(function(x){if(x!==pid){var q=el(x);if(q)q.classList.remove('is-open');}});});
+    (function () {
+      var s = null; try { s = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
+      if (!s) { window.location.replace('login.html'); return; }
+
+      var el = function (id) { return document.getElementById(id); };
+      var ini = (s.name || '?').trim().split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+      if (el('nav-initials'))   el('nav-initials').textContent = ini;
+      if (el('nav-user-name'))  el('nav-user-name').textContent = s.name || '';
+      if (el('nav-user-email')) el('nav-user-email').textContent = s.email || '';
+
+      function initDrop(tid, pid) {
+        var t = el(tid), p = el(pid);
+        if (!t || !p) return;
+        t.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var o = p.classList.toggle('is-open');
+          t.setAttribute('aria-expanded', String(o));
+          ['notif-panel', 'profile-panel'].forEach(function (x) { if (x !== pid && el(x)) el(x).classList.remove('is-open'); });
+        });
       }
-      initDrop('notif-trigger','notif-panel');initDrop('profile-trigger','profile-panel');
-      document.addEventListener('click',function(){['notif-panel','profile-panel'].forEach(function(pid){var p=el(pid);if(p)p.classList.remove('is-open');});});
-      var lb=el('logout-btn');if(lb)lb.addEventListener('click',function(){localStorage.removeItem('campusone_session');window.location.replace('login.html');});
-      var tog=el('app-menu-toggle'),nav=el('app-nav');
-      if(tog&&nav)tog.addEventListener('click',function(){var o=nav.classList.toggle('is-open');tog.setAttribute('aria-expanded',String(o));});
+      initDrop('notif-trigger', 'notif-panel');
+      initDrop('profile-trigger', 'profile-panel');
+
+      document.addEventListener('click', function () {
+        ['notif-panel', 'profile-panel'].forEach(function (pid) { if (el(pid)) el(pid).classList.remove('is-open'); });
+        ['notif-trigger', 'profile-trigger'].forEach(function (tid) { if (el(tid)) el(tid).setAttribute('aria-expanded', 'false'); });
+      });
+
+      var lb = el('logout-btn');
+      if (lb) lb.addEventListener('click', function () { localStorage.removeItem('campusone_session'); window.location.replace('login.html'); });
+
+      var tog = el('app-menu-toggle'), nav = el('app-nav');
+      if (tog && nav) tog.addEventListener('click', function () { tog.setAttribute('aria-expanded', String(nav.classList.toggle('is-open'))); });
     })();
   </script>
   <script type="module" src="../public/js/report.js"></script>
+  <script>
+    /* Compact fallback for file:// protocol */
+    window.addEventListener('DOMContentLoaded', function () {
+      setTimeout(function () {
+        var form = document.getElementById('report-form');
+        if (!form || form.dataset.ready) return;
+        form.dataset.ready = 'true';
+
+        var imgs = [], upload = document.getElementById('image-upload-area'), fi = document.getElementById('field-images');
+        var thumbs = document.getElementById('image-thumbnails'), desc = document.getElementById('field-description');
+        var cnt = document.getElementById('desc-counter'), fw = document.getElementById('report-form-wrapper');
+        var sc = document.getElementById('report-success'), another = document.getElementById('success-another-btn');
+
+        if (desc && cnt) desc.addEventListener('input', function () { cnt.textContent = desc.value.length + ' / 500'; });
+
+        function renderThumbs() {
+          if (!thumbs) return;
+          thumbs.innerHTML = imgs.map(function (src, i) {
+            return '<div class="thumb-item"><img src="' + src + '" alt="Selected image ' + (i + 1) + '">' +
+              '<button type="button" class="thumb-remove" data-idx="' + i + '" aria-label="Remove image">' +
+              '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg></button></div>';
+          }).join('');
+          thumbs.querySelectorAll('.thumb-remove').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+              e.stopPropagation();
+              imgs.splice(Number(btn.dataset.idx), 1);
+              renderThumbs();
+            });
+          });
+        }
+
+        function handleFiles(files) {
+          var remaining = 3 - imgs.length;
+          Array.from(files).slice(0, remaining).forEach(function (f) {
+            if (f.size > 5 * 1024 * 1024) return alert('"' + f.name + '" exceeds 5 MB.');
+            var r = new FileReader();
+            r.onload = function (e) { imgs.push(e.target.result); renderThumbs(); };
+            r.readAsDataURL(f);
+          });
+        }
+
+        if (upload) {
+          ['dragenter', 'dragover'].forEach(function (ev) {
+            upload.addEventListener(ev, function (e) { e.preventDefault(); e.stopPropagation(); upload.classList.add('is-dragover'); });
+          });
+          ['dragleave', 'dragend'].forEach(function (ev) {
+            upload.addEventListener(ev, function (e) { e.preventDefault(); if (!upload.contains(e.relatedTarget)) upload.classList.remove('is-dragover'); });
+          });
+          upload.addEventListener('drop', function (e) {
+            e.preventDefault(); e.stopPropagation(); upload.classList.remove('is-dragover');
+            if (e.dataTransfer && e.dataTransfer.files) handleFiles(e.dataTransfer.files);
+          });
+        }
+
+        if (fi) fi.addEventListener('change', function () { if (fi.files) handleFiles(fi.files); fi.value = ''; });
+
+        var fTitle = document.getElementById('field-title');
+        var fDesc  = document.getElementById('field-description');
+        var fBldg  = document.getElementById('field-building');
+        var fRoom  = document.getElementById('field-room');
+        var errTitle = document.getElementById('error-title');
+        var errDesc  = document.getElementById('error-description');
+        var errBldg  = document.getElementById('error-building');
+        var errRoom  = document.getElementById('error-room');
+        var formAlert = document.getElementById('report-form-alert');
+
+        function setErr(field, errEl, msg) {
+          if (field) { field.classList.add('is-error'); field.setAttribute('aria-invalid', 'true'); }
+          if (errEl) { errEl.textContent = msg; errEl.classList.add('is-visible'); }
+        }
+
+        function clrErr(field, errEl) {
+          if (field) { field.classList.remove('is-error'); field.removeAttribute('aria-invalid'); }
+          if (errEl) { errEl.textContent = ''; errEl.classList.remove('is-visible'); }
+        }
+
+        [fTitle, fRoom].forEach(function (f) {
+          if (f) f.addEventListener('input', function () {
+            clrErr(f, f === fTitle ? errTitle : errRoom);
+            if (formAlert) formAlert.classList.remove('is-visible');
+          });
+        });
+        if (fDesc) fDesc.addEventListener('input', function () {
+          clrErr(fDesc, errDesc);
+          if (formAlert) formAlert.classList.remove('is-visible');
+        });
+        if (fBldg) fBldg.addEventListener('change', function () {
+          clrErr(fBldg, errBldg);
+          if (formAlert) formAlert.classList.remove('is-visible');
+        });
+
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var title = (fTitle ? fTitle.value : '').trim();
+          var description = (fDesc ? fDesc.value : '').trim();
+          var building = fBldg ? fBldg.value : '';
+          var room = (fRoom ? fRoom.value : '').trim();
+
+          var hasErr = false, firstErr = null;
+
+          if (!title) { setErr(fTitle, errTitle, 'Please enter an issue title.'); hasErr = true; if (!firstErr) firstErr = fTitle; }
+          else clrErr(fTitle, errTitle);
+
+          if (!description) { setErr(fDesc, errDesc, 'Please enter a description of the issue.'); hasErr = true; if (!firstErr) firstErr = fDesc; }
+          else clrErr(fDesc, errDesc);
+
+          if (!building) { setErr(fBldg, errBldg, 'Please select a building.'); hasErr = true; if (!firstErr) firstErr = fBldg; }
+          else clrErr(fBldg, errBldg);
+
+          if (!room) { setErr(fRoom, errRoom, 'Please enter a room or area.'); hasErr = true; if (!firstErr) firstErr = fRoom; }
+          else clrErr(fRoom, errRoom);
+
+          if (hasErr) {
+            if (formAlert) {
+              formAlert.textContent = 'Please complete all required fields highlighted in red below.';
+              formAlert.classList.add('is-visible');
+            }
+            if (firstErr) {
+              firstErr.focus();
+              firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return;
+          }
+
+          if (formAlert) { formAlert.textContent = ''; formAlert.classList.remove('is-visible'); }
+
+          var session = null; try { session = JSON.parse(localStorage.getItem('campusone_session')); } catch (err) {}
+          var reports = [];   try { reports = JSON.parse(localStorage.getItem('campusone_reports')) || []; } catch (err) {}
+
+          var nextId = 'RPT-' + new Date().getFullYear() + '-' + String(reports.length + 1).padStart(4, '0');
+          var now = new Date().toISOString();
+
+          reports.unshift({
+            id: nextId, studentEmail: (session?.email || 'student@miu.edu.eg').toLowerCase(),
+            studentName: session?.name || 'Student', title: title, description: description,
+            building: building, room: room, images: imgs.slice(), status: 'submitted',
+            createdAt: now, updatedAt: now, assignedTo: null,
+            timeline: [{ status: 'submitted', timestamp: now, note: 'Report submitted' }]
+          });
+          try { localStorage.setItem('campusone_reports', JSON.stringify(reports)); } catch (err) {}
+
+          var idEl = document.getElementById('success-report-id'), vb = document.getElementById('success-view-btn');
+          if (idEl) idEl.textContent = nextId;
+          if (vb) vb.href = 'my-reports.html?id=' + encodeURIComponent(nextId);
+          if (fw) { fw.hidden = true; fw.style.display = 'none'; }
+          if (sc) { sc.hidden = false; sc.style.display = 'flex'; }
+        });
+
+        if (another) another.addEventListener('click', function () {
+          form.reset(); imgs = []; renderThumbs();
+          clrErr(fTitle, errTitle); clrErr(fDesc, errDesc); clrErr(fBldg, errBldg); clrErr(fRoom, errRoom);
+          if (formAlert) { formAlert.textContent = ''; formAlert.classList.remove('is-visible'); }
+          if (cnt) cnt.textContent = '0 / 500';
+          if (sc) { sc.hidden = true; sc.style.display = 'none'; }
+          if (fw) { fw.hidden = false; fw.style.display = ''; }
+          if (fTitle) fTitle.focus();
+        });
+      }, 150);
+    });
+  </script>
 </body>
 </html>

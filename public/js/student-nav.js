@@ -52,7 +52,7 @@ export function renderNav() {
   const navLinks = [
     { href: 'map.html',        label: 'Campus Map',     file: 'map.html'        },
     { href: 'emergency.html',  label: 'Emergency Map',  file: 'emergency.html'  },
-    { href: 'my-reports.html', label: 'Maintenance',    file: 'my-reports.html' },
+    { href: 'my-reports.html', label: 'My Reports',     file: 'my-reports.html' },
     { href: 'lost-found.html', label: 'Lost & Found',   file: 'lost-found.html' },
   ];
 
@@ -141,6 +141,10 @@ export function renderNav() {
             <a href="profile.html" class="dropdown__item" role="menuitem">
               ${ICONS.profile}
               Profile
+            </a>
+            <a href="my-reports.html" class="dropdown__item" role="menuitem">
+              ${ICONS.reports}
+              My Reports
             </a>
             <div class="dropdown__divider" role="separator"></div>
             <button type="button" class="dropdown__item dropdown__item--danger" id="logout-btn" role="menuitem">

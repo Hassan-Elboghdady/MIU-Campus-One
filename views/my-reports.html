@@ -31,9 +31,9 @@
       <nav class="app-nav" id="app-nav" aria-label="Main navigation">
         <a href="map.html"        class="app-nav__link" id="nav-map">Campus Map</a>
         <a href="emergency.html"  class="app-nav__link" id="nav-emergency">Emergency Map</a>
-        <a href="maintenance.html" class="app-nav__link" id="nav-maintenance">Maintenance</a>
+        <a href="my-reports.html" class="app-nav__link" id="nav-maintenance" aria-current="page">My Reports</a>
         <a href="lost-found.html" class="app-nav__link" id="nav-lostfound">Lost &amp; Found</a>
-        <a href="report.html"     class="app-nav__link" id="nav-report" aria-current="page">Report an Issue</a>
+        <a href="report.html"     class="app-nav__link" id="nav-report">Report an Issue</a>
       </nav>
       <div class="app-header__actions">
         <div class="dropdown" id="notif-dropdown">
@@ -51,6 +51,7 @@
           <div class="dropdown__panel" id="profile-panel" role="menu">
             <div class="dropdown__header" id="nav-user-email"></div>
             <a href="profile.html" class="dropdown__item" role="menuitem"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="6" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg> Profile</a>
+            <a href="my-reports.html" class="dropdown__item" role="menuitem"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="2" width="10" height="12" rx="1"/><line x1="6" y1="5" x2="10" y2="5"/><line x1="6" y1="8" x2="10" y2="8"/><line x1="6" y1="11" x2="8" y2="11"/></svg> My Reports</a>
             <div class="dropdown__divider" role="separator"></div>
             <button type="button" class="dropdown__item dropdown__item--danger" id="logout-btn" role="menuitem"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4"/><polyline points="11,11 14,8 11,5"/><line x1="7" y1="8" x2="14" y2="8"/></svg> Log out</button>
           </div>
@@ -125,25 +126,128 @@
   </dialog>
 
   <script>
-    (function(){
-      var s=null; try{s=JSON.parse(localStorage.getItem('campusone_session'));}catch(e){}
-      if(!s){window.location.replace('login.html');return;}
-      var el=function(id){return document.getElementById(id);};
-      var ini=(s.name||'?').trim().split(/\s+/).map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();
-      if(el('nav-initials'))  el('nav-initials').textContent  =ini;
-      if(el('nav-user-name')) el('nav-user-name').textContent =s.name||'';
-      if(el('nav-user-email'))el('nav-user-email').textContent=s.email||'';
-      function initDrop(tid,pid){
-        var t=el(tid),p=el(pid);if(!t||!p)return;
-        t.addEventListener('click',function(e){e.stopPropagation();var o=p.classList.toggle('is-open');t.setAttribute('aria-expanded',String(o));['notif-panel','profile-panel'].forEach(function(x){if(x!==pid){var q=el(x);if(q)q.classList.remove('is-open');}});});
+    (function () {
+      var s = null; try { s = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
+      if (!s) { window.location.replace('login.html'); return; }
+
+      var el = function (id) { return document.getElementById(id); };
+      var ini = (s.name || '?').trim().split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+      if (el('nav-initials'))   el('nav-initials').textContent = ini;
+      if (el('nav-user-name'))  el('nav-user-name').textContent = s.name || '';
+      if (el('nav-user-email')) el('nav-user-email').textContent = s.email || '';
+
+      function initDrop(tid, pid) {
+        var t = el(tid), p = el(pid);
+        if (!t || !p) return;
+        t.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var o = p.classList.toggle('is-open');
+          t.setAttribute('aria-expanded', String(o));
+          ['notif-panel', 'profile-panel'].forEach(function (x) { if (x !== pid && el(x)) el(x).classList.remove('is-open'); });
+        });
       }
-      initDrop('notif-trigger','notif-panel');initDrop('profile-trigger','profile-panel');
-      document.addEventListener('click',function(){['notif-panel','profile-panel'].forEach(function(pid){var p=el(pid);if(p)p.classList.remove('is-open');});});
-      var lb=el('logout-btn');if(lb)lb.addEventListener('click',function(){localStorage.removeItem('campusone_session');window.location.replace('login.html');});
-      var tog=el('app-menu-toggle'),nav=el('app-nav');
-      if(tog&&nav)tog.addEventListener('click',function(){var o=nav.classList.toggle('is-open');tog.setAttribute('aria-expanded',String(o));});
+      initDrop('notif-trigger', 'notif-panel');
+      initDrop('profile-trigger', 'profile-panel');
+
+      document.addEventListener('click', function () {
+        ['notif-panel', 'profile-panel'].forEach(function (pid) { if (el(pid)) el(pid).classList.remove('is-open'); });
+        ['notif-trigger', 'profile-trigger'].forEach(function (tid) { if (el(tid)) el(tid).setAttribute('aria-expanded', 'false'); });
+      });
+
+      var lb = el('logout-btn');
+      if (lb) lb.addEventListener('click', function () { localStorage.removeItem('campusone_session'); window.location.replace('login.html'); });
+
+      var tog = el('app-menu-toggle'), nav = el('app-nav');
+      if (tog && nav) tog.addEventListener('click', function () { tog.setAttribute('aria-expanded', String(nav.classList.toggle('is-open'))); });
     })();
   </script>
   <script type="module" src="../public/js/my-reports.js"></script>
+  <script>
+    /* Compact fallback for file:// protocol */
+    window.addEventListener('DOMContentLoaded', function () {
+      setTimeout(function () {
+        var id = new URLSearchParams(window.location.search).get('id');
+        var listView = document.getElementById('list-view'), detailsView = document.getElementById('details-view');
+        var listCont = document.getElementById('reports-list-container'), detailsCont = document.getElementById('details-container');
+        if ((listCont && listCont.children.length) || (detailsCont && detailsCont.children.length)) return;
+
+        var reports = []; try { reports = JSON.parse(localStorage.getItem('campusone_reports')) || []; } catch (e) {}
+        var s = null;     try { s = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
+        var email = (s?.email || '').toLowerCase();
+        var myReports = reports.filter(function (r) { return !email || !r.studentEmail || r.studentEmail.toLowerCase() === email; });
+        if (!myReports.length && reports.length) myReports = reports;
+
+        if (id && detailsCont) {
+          if (listView) listView.hidden = true;
+          if (detailsView) detailsView.hidden = false;
+          var found = myReports.find(function (r) { return r.id === id; }) || reports.find(function (r) { return r.id === id; }) || reports[0];
+          if (found) {
+            var dt = document.getElementById('details-title'); if (dt) dt.textContent = found.title;
+            var st = found.status || 'submitted';
+            var imgs = (found.images && found.images.length)
+              ? '<div style="margin-top:16px;border-top:1px solid #f4f4f5;padding-top:16px;"><strong style="display:block;margin-bottom:8px;color:#71717a;">Attached Images:</strong><div style="display:flex;gap:12px;flex-wrap:wrap;">' +
+                found.images.map(function (src, i) { return '<img src="' + src + '" alt="Report image ' + (i+1) + '" style="width:100px;height:100px;object-fit:cover;border-radius:6px;border:1px solid #e4e4e7;cursor:pointer;" onclick="window.open(this.src)">'; }).join('') + '</div></div>' : '';
+            detailsCont.innerHTML =
+              '<div class="card" style="padding:24px;margin-bottom:20px;">' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">' +
+                  '<h2 style="font-size:1.25rem;font-weight:700;color:#18181b;margin:0;">' + found.title + '</h2>' +
+                  '<span class="status-badge status-badge--' + st + '">' + st.replace('_',' ').toUpperCase() + '</span>' +
+                '</div>' +
+                '<p style="color:#52525b;line-height:1.6;margin-bottom:16px;">' + (found.description || '') + '</p>' +
+                '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;font-size:.9rem;border-top:1px solid #f4f4f5;padding-top:16px;">' +
+                  '<div><strong style="color:#71717a;">Building:</strong> ' + (found.building || '—') + '</div>' +
+                  '<div><strong style="color:#71717a;">Room/Area:</strong> ' + (found.room || '—') + '</div>' +
+                  '<div><strong style="color:#71717a;">Report ID:</strong> ' + found.id + '</div>' +
+                  '<div><strong style="color:#71717a;">Submitted:</strong> ' + new Date(found.createdAt).toLocaleDateString('en-GB') + '</div>' +
+                '</div>' + imgs +
+              '</div>';
+          }
+          return;
+        }
+
+        if (listCont) {
+          if (listView) listView.hidden = false;
+          if (detailsView) detailsView.hidden = true;
+
+          function render(f) {
+            document.querySelectorAll('.filter-btn').forEach(function (btn) {
+              var on = btn.dataset.filter === f;
+              btn.classList.toggle('is-active', on);
+              btn.setAttribute('aria-pressed', String(on));
+            });
+            var list = f === 'all' ? myReports : myReports.filter(function (r) {
+              return (r.status || 'submitted').toLowerCase().replace(/\s+/g, '_') === f;
+            });
+            if (!list.length) {
+              listCont.innerHTML =
+                '<div class="empty-state">' +
+                  '<div class="empty-state__icon"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="32" height="36" rx="2"/><line x1="16" y1="18" x2="32" y2="18"/><line x1="16" y1="24" x2="32" y2="24"/><line x1="16" y1="30" x2="24" y2="30"/></svg></div>' +
+                  '<p class="empty-state__title">' + (f === 'all' ? 'No reports yet' : 'No ' + f.replace('_',' ') + ' reports') + '</p>' +
+                  '<p class="empty-state__text">' + (f === 'all' ? 'You have not submitted any maintenance reports.' : 'You have no reports with this status.') + '</p>' +
+                  (f === 'all' ? '<a href="report.html" class="btn btn-primary">Report an issue</a>' : '') +
+                '</div>';
+              return;
+            }
+            listCont.innerHTML =
+              '<p class="list-count">' + list.length + ' report' + (list.length === 1 ? '' : 's') + (f !== 'all' ? ' (' + f.replace('_',' ') + ')' : '') + '</p>' +
+              '<div class="reports-list">' +
+                list.map(function (r) {
+                  var st = r.status || 'submitted';
+                  return '<a href="my-reports.html?id=' + encodeURIComponent(r.id) + '" class="report-card" data-status="' + st + '">' +
+                    '<div class="report-card__header"><span class="report-card__title">' + r.title + '</span><span class="status-badge status-badge--' + st + '">' + st.replace('_',' ').toUpperCase() + '</span></div>' +
+                    '<div class="report-card__meta"><span class="report-card__meta-item">' + r.id + '</span><span class="report-card__meta-item">' + (r.building || '') + ' - ' + (r.room || '') + '</span><span class="report-card__meta-item">' + new Date(r.createdAt).toLocaleDateString('en-GB') + '</span></div>' +
+                  '</a>';
+                }).join('') +
+              '</div>';
+          }
+
+          document.querySelectorAll('.filter-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () { render(btn.dataset.filter); });
+          });
+          render('all');
+        }
+      }, 200);
+    });
+  </script>
 </body>
 </html>

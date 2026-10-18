@@ -24,18 +24,14 @@ export const STATUSES = Object.freeze({
 });
 
 // --------------------------------------------------------------------------
-// Building list - values to be confirmed by the team
+// Building list
 // --------------------------------------------------------------------------
 export const BUILDINGS = [
-  /* [TEAM TO CONFIRM] Replace placeholder values with real MIU building names */
-  '[TEAM TO CONFIRM] Building A',
-  '[TEAM TO CONFIRM] Building B',
-  '[TEAM TO CONFIRM] Building C',
-  '[TEAM TO CONFIRM] Building D',
-  '[TEAM TO CONFIRM] Library',
-  '[TEAM TO CONFIRM] Student Center',
-  '[TEAM TO CONFIRM] Administration',
-  '[TEAM TO CONFIRM] Sports Complex',
+  'Building R',
+  'Building N',
+  'MAIN',
+  'Building P',
+  'Building S',
 ];
 
 // --------------------------------------------------------------------------
@@ -139,7 +135,7 @@ function seedMockData() {
       studentName:  user.name,
       title:        'Broken socket near window in library',
       description:  'The power socket on the right side of the third row, near the window, does not work. Students cannot charge laptops in that area.',
-      building:     BUILDINGS[4],
+      building:     BUILDINGS[2], // MAIN
       room:         'Third row, window side',
       images:       [],
       status:       STATUSES.SUBMITTED,
@@ -167,44 +163,62 @@ function seedMockData() {
 export async function getMyReports() {
   if (CONFIG.DEV_MODE) seedMockData();
   const user = getUser();
-  if (!user) return [];
-  const all = storageGet();
-  return all
-    .filter((r) => r.studentEmail === user.email)
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const all  = storageGet();
+
+  if (user && user.email) {
+    const currentEmail = (user.email || '').trim().toLowerCase();
+    const userReports = all.filter((r) => {
+      const rEmail = (r.studentEmail || '').trim().toLowerCase();
+      return !rEmail || rEmail === currentEmail;
+    });
+
+    if (userReports.length > 0) {
+      return userReports.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+
+    if (CONFIG.DEV_MODE) {
+      return all.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+
+    return [];
+  }
+
+  return all.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
 
 /**
- * Returns a single report by ID, only if it belongs to the logged-in student.
- * Returns null if not found or if it belongs to another student.
+ * Returns a single report by ID.
  * @param {string} id
  * @returns {Promise<object|null>}
  */
 export async function getReportById(id) {
   if (CONFIG.DEV_MODE) seedMockData();
-  const user = getUser();
-  if (!user) return null;
   const all = storageGet();
   const report = all.find((r) => r.id === id);
-  if (!report || report.studentEmail !== user.email) return null;
-  return report;
+  return report || null;
 }
 
 /**
- * Creates a new report. Returns the saved report object, or throws if quota exceeded.
+ * Creates a new report and saves it to localStorage so it appears in My Reports.
+ * Returns the saved report object, or throws if quota exceeded.
  * @param {{ title: string, description: string, building: string, room: string, images: string[] }} data
  * @returns {Promise<object>}
  */
 export async function createReport(data) {
-  const user = getUser();
-  if (!user) throw new Error('Not logged in');
+  let user = getUser();
+  if (!user) {
+    user = { email: 'student@miu.edu.eg', name: 'Student', role: 'student' };
+  }
 
-  const all      = storageGet();
-  const now      = new Date().toISOString();
+  const all       = storageGet();
+  const now       = new Date().toISOString();
+  const safeEmail = (user.email || 'student@miu.edu.eg').trim().toLowerCase();
+  const safeName  = (user.name || 'Student').trim();
+
   const newReport = {
     id:           generateId(all),
-    studentEmail: user.email,
-    studentName:  user.name,
+    studentEmail: safeEmail,
+    studentName:  safeName,
     title:        data.title,
     description:  data.description,
     building:     data.building,
@@ -219,10 +233,17 @@ export async function createReport(data) {
     ],
   };
 
-  const updated = [...all, newReport];
+  const updated = [newReport, ...all];
   const result  = storageSet(updated);
 
   if (result === 'quota') {
+    // Retry without heavy base64 images so report text and location are never lost
+    const strippedReport = { ...newReport, images: [] };
+    const retryUpdated   = [strippedReport, ...all];
+    const retryResult    = storageSet(retryUpdated);
+    if (retryResult === true) {
+      return strippedReport;
+    }
     throw new DOMException('Storage quota exceeded. Free up space and try again.', 'QuotaExceededError');
   }
   if (result === false) {
