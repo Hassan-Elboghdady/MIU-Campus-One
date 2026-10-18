@@ -269,34 +269,70 @@
    2. Essentials Section (A little help for every campus day)
    -------------------------------------------------------------------------- */
 .essentials-section {
-  padding-block: var(--space-12) var(--space-14);
+  padding-block: var(--space-14) var(--space-16);
   background-color: #F8F9FA;
   border-block-end: 1px solid var(--color-border);
 }
 
 .essentials-header {
   display: flex;
-  align-items: baseline;
+  align-items: flex-end;
   justify-content: space-between;
   gap: var(--space-4);
   flex-wrap: wrap;
   margin-block-end: var(--space-8);
-  border-block-end: 1px dashed #D1D5DB;
-  padding-block-end: var(--space-4);
+  padding-block-end: var(--space-6);
+  border-block-end: 1px solid #E5E7EB;
+}
+
+.essentials-header__left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-inline-start: var(--space-4);
+  border-inline-start: 3px solid var(--color-primary);
 }
 
 .essentials-header__title {
-  font-size: clamp(var(--text-xl), 3vw, var(--text-2xl));
+  font-size: clamp(var(--text-xl), 2.5vw, 28px);
   font-weight: 800;
   color: #111827;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
   margin: 0;
 }
 
 .essentials-header__caption {
   font-size: var(--text-sm);
   color: #6B7280;
-  font-weight: 500;
+  font-weight: 400;
+}
+
+.essentials-header__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.essentials-view-reports {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  border: 1px solid rgba(184,0,8,0.25);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition), border-color var(--transition);
+}
+
+.essentials-view-reports:hover {
+  background-color: var(--color-primary-tint);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 /* 4-card grid */
@@ -315,6 +351,15 @@
 @media (min-width: 1024px) {
   .essentials-grid {
     grid-template-columns: repeat(4, 1fr);
+  }
+  .essentials-grid--five {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .essentials-grid--five {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
@@ -390,6 +435,8 @@
 .essential-card:hover .essential-card__link {
   transform: translateX(4px);
 }
+
+/* Accent variant removed — Report an Issue card now matches the others */
 
 /* --------------------------------------------------------------------------
    3. Recent Reports Section
