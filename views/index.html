@@ -3,184 +3,226 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CampusOne - Find Rooms, Report Problems, Recover Lost Items at MIU</title>
-  <meta name="description" content="CampusOne is the campus web app for Misr International University. Find any room, report campus problems and track lost items.">
+  <title>CampusOne — Your MIU Campus Companion</title>
+  <meta name="description" content="CampusOne is the all-in-one campus web app for Misr International University. Navigate campus, report problems, and recover lost items.">
   <meta name="theme-color" content="#B80008">
   <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
   <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
   <link rel="apple-touch-icon" href="../public/apple-touch-icon.png">
-  <meta property="og:title" content="CampusOne - The MIU Campus App">
+  <meta property="og:title" content="CampusOne — The MIU Campus App">
   <meta property="og:description" content="Find any room, report campus problems and recover lost items at Misr International University.">
-  <meta property="og:image" content="../public/images/logo.png">
-  <link rel="stylesheet" href="../public/css/style.css">
+  <meta property="og:image" content="../public/images/campus_aerial.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../public/css/landing.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <header class="site-header">
+  <!-- ===== HEADER ===== -->
+  <header class="site-header" id="site-header">
     <div class="container">
       <a href="index.html" class="site-header__logo" aria-label="CampusOne home">
-        <img src="../public/images/logo.png" alt="Misr International University logo" width="44" height="44">
+        <img src="../public/images/logo.png" alt="MIU logo" width="38" height="38">
         <div class="site-header__logo-text">
-          <span class="logo-name">CampusOne</span>
-          <span class="logo-sub">Misr International University</span>
+          <span class="logo-brand">CampusOne</span>
+          <span class="logo-uni">Misr International University</span>
         </div>
       </a>
 
+      <nav class="site-header__nav" id="header-nav" aria-label="Main navigation">
+        <a href="#features" class="nav-link" id="nav-features">Features</a>
+        <a href="#how-it-works" class="nav-link" id="nav-how">How it works</a>
+      </nav>
+
+      <div class="site-header__actions">
+        <a href="login.html" class="btn-outline" id="header-login-btn">Log In</a>
+        <a href="register.html" class="btn-solid" id="header-register-btn">Get Started</a>
+      </div>
+
       <button id="menu-toggle" class="menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="header-nav" type="button">
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true" focusable="false">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
           <line x1="3" y1="6"  x2="19" y2="6"  stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
           <line x1="3" y1="11" x2="19" y2="11" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
           <line x1="3" y1="16" x2="19" y2="16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
         </svg>
       </button>
-
-      <nav id="header-nav" class="site-header__nav" aria-label="Main navigation">
-        <a href="login.html" class="btn btn-ghost btn-sm" id="header-login-btn">Log In</a>
-        <a href="register.html" class="btn btn-primary btn-sm" id="header-register-btn">Get Started</a>
-      </nav>
     </div>
   </header>
 
   <main id="main">
 
-    <!-- Hero -->
+    <!-- ===== HERO ===== -->
     <section class="hero" aria-labelledby="hero-heading">
-      <img src="../public/images/campus_hero.png" alt="" class="hero__bg" aria-hidden="true">
-      <div class="container">
-        <div class="hero__inner">
-          <span class="hero__eyebrow">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-              <circle cx="6" cy="6" r="5"/>
-              <line x1="6" y1="4" x2="6" y2="6.5"/>
-              <circle cx="6" cy="8" r="0.5" fill="currentColor" stroke="none"/>
-            </svg>
+      <div class="hero__bg-wrap">
+        <img src="../public/images/campus_aerial.png" alt="" class="hero__bg" aria-hidden="true">
+        <div class="hero__overlay" aria-hidden="true"></div>
+      </div>
+
+      <div class="container hero__container">
+        <div class="hero__content">
+
+          <div class="hero__badge" aria-hidden="true">
+            <span class="hero__badge-dot"></span>
             Misr International University
-          </span>
+          </div>
+
           <h1 id="hero-heading" class="hero__heading">
-            Find any room, report problems,<br>
-            and recover <em>lost items</em> at MIU.
+            Your campus,<br>
+            <span class="hero__heading-accent">all in one place.</span>
           </h1>
-          <p class="hero__subtext">CampusOne gives students and staff one place to navigate the campus, submit maintenance requests and manage the Lost &amp; Found.</p>
+
+          <p class="hero__subtext">
+            Navigate rooms, report problems and recover lost belongings —
+            CampusOne connects every student and staff member to the MIU campus.
+          </p>
+
           <div class="hero__actions">
-            <a href="login.html" class="btn btn-primary btn-lg" id="hero-login-btn">Login to get started</a>
-            <a href="register.html" class="btn btn-white btn-lg" id="hero-register-btn">Create account</a>
+            <a href="login.html" class="hero-btn-primary" id="hero-login-btn">
+              Log in to get started
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+            </a>
+            <a href="register.html" class="hero-btn-ghost" id="hero-register-btn">Create an account</a>
+          </div>
+
+          <div class="hero__pills" aria-label="Key features">
+            <span class="hero__pill">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+              Live campus map
+            </span>
+            <span class="hero__pill">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.5L1 14.5h14L8 1.5z"/><line x1="8" y1="7" x2="8" y2="10"/></svg>
+              Emergency alerts
+            </span>
+            <span class="hero__pill">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7" cy="7" r="5"/><line x1="11" y1="11" x2="15" y2="15"/></svg>
+              AI Lost &amp; Found
+            </span>
+          </div>
+        </div>
+
+        <!-- Floating stat cards -->
+        <div class="hero__stat-cards" aria-hidden="true">
+          <div class="stat-card stat-card--top">
+            <span class="stat-card__num">4</span>
+            <span class="stat-card__label">Campus tools</span>
+          </div>
+          <div class="stat-card stat-card--mid">
+            <span class="stat-card__icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="9" r="4"/><path d="M10 2C6.13 2 3 5.13 3 9c0 6 7 10 7 10s7-4 7-10c0-3.87-3.13-7-7-7z"/></svg>
+            </span>
+            <span class="stat-card__label">Navigate campus</span>
+          </div>
+          <div class="stat-card stat-card--bot">
+            <span class="stat-card__icon stat-card__icon--green">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l4 4 8-8"/></svg>
+            </span>
+            <span class="stat-card__label">Report resolved</span>
           </div>
         </div>
       </div>
+
+      <!-- Scroll indicator -->
+      
     </section>
 
-    <!-- Stats bar -->
-    <div class="stats-bar" aria-hidden="true">
-      <div class="container">
-        <div class="stat-item">
-          <span class="stat-item__icon">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="9" cy="8" r="4"/><path d="M9 1C5.13 1 2 4.13 2 8c0 6 7 11 7 11s7-5 7-11c0-3.87-3.13-7-7-7z"/>
-            </svg>
-          </span>
-          <span class="stat-item__label">Interactive campus map</span>
+    <!-- ===== TRUST BAR ===== -->
+    <div class="trust-bar" aria-hidden="true">
+      <div class="container trust-bar__inner">
+        <div class="trust-item">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M9 1C5.13 1 2 4.13 2 8c0 6 7 11 7 11s7-5 7-11c0-3.87-3.13-7-7-7z"/></svg>
+          <span>Interactive campus map</span>
         </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-item__icon">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 2L1 16h16L9 2z"/><line x1="9" y1="8" x2="9" y2="11"/><circle cx="9" cy="13.5" r=".5" fill="currentColor" stroke="none"/>
-            </svg>
-          </span>
-          <span class="stat-item__label">Emergency map</span>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2L1 16h16L9 2z"/><line x1="9" y1="8" x2="9" y2="11"/></svg>
+          <span>Emergency map</span>
         </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-item__icon">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 4a5 5 0 0 1-7 7L2 16a2 2 0 0 0 2.83 2.83L10 13a5 5 0 1 1 4-9z"/>
-            </svg>
-          </span>
-          <span class="stat-item__label">Maintenance reports</span>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4a5 5 0 0 1-7 7L2 16a2 2 0 0 0 2.83 2.83L10 13a5 5 0 1 1 4-9z"/></svg>
+          <span>Maintenance reports</span>
         </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-item__icon">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="8" cy="8" r="6"/><line x1="13" y1="13" x2="17" y2="17"/>
-            </svg>
-          </span>
-          <span class="stat-item__label">AI-powered Lost &amp; Found</span>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><line x1="13" y1="13" x2="17" y2="17"/><line x1="8" y1="5" x2="8" y2="11"/><line x1="5" y1="8" x2="11" y2="8"/></svg>
+          <span>AI-powered Lost &amp; Found</span>
         </div>
       </div>
     </div>
 
-    <!-- Features -->
-    <section class="features" aria-labelledby="features-heading">
+    <!-- ===== FEATURES ===== -->
+    <section class="features" id="features" aria-labelledby="features-heading">
       <div class="container">
-        <div class="section-header">
-          <span class="section-eyebrow">What CampusOne includes</span>
-          <h2 id="features-heading" class="section-title">Four tools built for MIU</h2>
-          <p class="section-desc">Each feature solves a real campus problem that students and staff face every day.</p>
-        </div>
+
+        <div class="section-label">What CampusOne includes</div>
+        <h2 id="features-heading" class="section-title">Four tools built<br><span class="section-title-accent">for MIU students</span></h2>
+        <p class="section-desc">Each feature solves a real campus problem that students and staff face every single day.</p>
 
         <div class="features-grid">
 
-          <article class="feature-card" id="feature-map">
-            <div class="feature-card__img-wrap">
-              <img src="../public/images/feature_map.png" alt="Campus map illustration" loading="lazy">
+          <article class="fcard" id="feature-map">
+            <div class="fcard__img-wrap">
+              <img src="../public/images/feature_map.png" alt="Campus map" loading="lazy">
+              <div class="fcard__img-overlay"></div>
             </div>
-            <div class="feature-card__body">
-              <div class="feature-card__icon" aria-hidden="true">
-                <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="20" cy="18" r="5"/><path d="M20 4C13 4 7 10 7 18c0 9.5 13 22 13 22s13-12.5 13-22c0-8-6-14-13-14z"/>
-                </svg>
+            <div class="fcard__body">
+              <div class="fcard__icon fcard__icon--red">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 7.5 7 13 7 13s7-5.5 7-13c0-3.87-3.13-7-7-7z"/></svg>
               </div>
-              <h3 class="feature-card__title">Campus map</h3>
-              <p class="feature-card__desc">Find any building, room or facility on the MIU campus. Search by name or browse interactive floor plans.</p>
+              <h3 class="fcard__title">Campus Map</h3>
+              <p class="fcard__desc">Find any building, room or facility on the MIU campus. Search by name or browse floor plans.</p>
+              <a href="login.html" class="fcard__link" id="fcard-map-link">Explore the map →</a>
             </div>
           </article>
 
-          <article class="feature-card" id="feature-emergency">
-            <div class="feature-card__img-wrap" style="background-color:#1C1C1C;">
-              <img src="../public/images/campus_hero.png" alt="Emergency exits map" loading="lazy" style="opacity:.5;">
-            </div>
-            <div class="feature-card__body">
-              <div class="feature-card__icon" aria-hidden="true">
-                <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 4L4 36h32L20 4z"/><line x1="20" y1="18" x2="20" y2="26"/><circle cx="20" cy="30" r="1" fill="currentColor" stroke="none"/>
-                </svg>
+          <article class="fcard" id="feature-emergency">
+            <div class="fcard__img-wrap fcard__img-wrap--dark">
+              <img src="../public/images/campus_hero.png" alt="Emergency map" loading="lazy" style="opacity:.45;">
+              <div class="fcard__img-overlay"></div>
+              <div class="fcard__emergency-badge">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.5L1 14.5h14L8 1.5z"/><line x1="8" y1="7" x2="8" y2="10"/></svg>
+                Emergency
               </div>
-              <h3 class="feature-card__title">Emergency map</h3>
-              <p class="feature-card__desc">Locate the nearest emergency exit, first-aid station, fire extinguisher and AED on campus. Works offline.</p>
+            </div>
+            <div class="fcard__body">
+              <div class="fcard__icon fcard__icon--dark">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="1.5" fill="currentColor"/></svg>
+              </div>
+              <h3 class="fcard__title">Emergency Map</h3>
+              <p class="fcard__desc">Locate the nearest emergency exit, first-aid station, fire extinguisher and AED on campus.</p>
+              <a href="login.html" class="fcard__link" id="fcard-emergency-link">View emergency map →</a>
             </div>
           </article>
 
-          <article class="feature-card" id="feature-maintenance">
-            <div class="feature-card__img-wrap">
-              <img src="../public/images/feature_maintenance.png" alt="Maintenance report illustration" loading="lazy">
+          <article class="fcard" id="feature-maintenance">
+            <div class="fcard__img-wrap">
+              <img src="../public/images/feature_maintenance.png" alt="Maintenance report" loading="lazy">
+              <div class="fcard__img-overlay"></div>
             </div>
-            <div class="feature-card__body">
-              <div class="feature-card__icon" aria-hidden="true">
-                <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M28 8a7 7 0 0 1-10 10L8 28a3 3 0 1 0 4.24 4.24l10-10A7 7 0 1 1 28 8z"/>
-                </svg>
+            <div class="fcard__body">
+              <div class="fcard__icon fcard__icon--red">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
               </div>
-              <h3 class="feature-card__title">Maintenance reports</h3>
-              <p class="feature-card__desc">Report a broken light or faulty equipment. Track the status of your report until it is resolved.</p>
+              <h3 class="fcard__title">Maintenance Reports</h3>
+              <p class="fcard__desc">Report a broken light or faulty equipment. Track the status of your request until it's resolved.</p>
+              <a href="login.html" class="fcard__link" id="fcard-maintenance-link">Report an issue →</a>
             </div>
           </article>
 
-          <article class="feature-card" id="feature-lost-found">
-            <div class="feature-card__img-wrap">
-              <img src="../public/images/feature_lost_found.png" alt="Lost and found illustration" loading="lazy">
+          <article class="fcard" id="feature-lost-found">
+            <div class="fcard__img-wrap">
+              <img src="../public/images/feature_lost_found.png" alt="Lost and found" loading="lazy">
+              <div class="fcard__img-overlay"></div>
             </div>
-            <div class="feature-card__body">
-              <div class="feature-card__icon" aria-hidden="true">
-                <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="18" cy="18" r="11"/><line x1="26" y1="26" x2="36" y2="36"/>
-                  <line x1="18" y1="13" x2="18" y2="23"/><line x1="13" y1="18" x2="23" y2="18"/>
-                </svg>
+            <div class="fcard__body">
+              <div class="fcard__icon fcard__icon--red">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
               </div>
-              <h3 class="feature-card__title">Lost &amp; Found</h3>
-              <p class="feature-card__desc">Post a lost item or browse found items. AI matching suggests likely connections between lost and found reports.</p>
+              <h3 class="fcard__title">AI Lost &amp; Found</h3>
+              <p class="fcard__desc">Post a lost item or browse found ones. AI matching suggests the most likely connections.</p>
+              <a href="login.html" class="fcard__link" id="fcard-lostfound-link">Browse lost items →</a>
             </div>
           </article>
 
@@ -188,48 +230,123 @@
       </div>
     </section>
 
-    <!-- How it works -->
-    <section class="how-it-works" aria-labelledby="how-heading">
+    <!-- ===== HOW IT WORKS ===== -->
+    <section class="how-it-works" id="how-it-works" aria-labelledby="how-heading">
       <div class="container">
-        <span class="section-eyebrow">Getting started</span>
-        <h2 id="how-heading" class="section-title">Three steps to use CampusOne</h2>
+
+        <div class="how-it-works__header">
+          <div>
+            <div class="section-label">Getting started</div>
+            <h2 id="how-heading" class="section-title">Three steps to<br><span class="section-title-accent">use CampusOne</span></h2>
+          </div>
+          <a href="register.html" class="btn-solid" id="how-register-btn">Create account</a>
+        </div>
 
         <ol class="steps-list">
           <li class="step" id="step-1">
-            <span class="step__number" aria-hidden="true">1</span>
-            <h3 class="step__title">Log in</h3>
-            <p class="step__desc">Use your MIU university email to log in. Staff accounts are provided by the admin.</p>
+            <div class="step__num">01</div>
+            <div class="step__content">
+              <h3 class="step__title">Create your account</h3>
+              <p class="step__desc">Sign up with your MIU email in seconds. Staff accounts are provisioned by the campus admin.</p>
+            </div>
+            <div class="step__icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
           </li>
           <li class="step" id="step-2">
-            <span class="step__number" aria-hidden="true">2</span>
-            <h3 class="step__title">Find or report</h3>
-            <p class="step__desc">Search the campus map, submit a maintenance request or post a lost or found item.</p>
+            <div class="step__num">02</div>
+            <div class="step__content">
+              <h3 class="step__title">Find or report</h3>
+              <p class="step__desc">Search the campus map, submit a maintenance request, or post a lost or found item — all in one place.</p>
+            </div>
+            <div class="step__icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </div>
           </li>
           <li class="step" id="step-3">
-            <span class="step__number" aria-hidden="true">3</span>
-            <h3 class="step__title">Get updates</h3>
-            <p class="step__desc">Receive notifications when your report changes status or a match is found for your lost item.</p>
+            <div class="step__num">03</div>
+            <div class="step__content">
+              <h3 class="step__title">Get real-time updates</h3>
+              <p class="step__desc">Receive instant notifications when your report changes status or a match is found for your lost item.</p>
+            </div>
+            <div class="step__icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            </div>
           </li>
         </ol>
       </div>
     </section>
 
-    <!-- CTA -->
+    <!-- ===== CTA ===== -->
     <section class="cta-strip" aria-labelledby="cta-heading">
-      <img src="../public/images/campus_hero.png" alt="" class="cta-strip__bg" aria-hidden="true">
-      <div class="container">
-        <h2 id="cta-heading" class="cta-strip__heading">Ready to use CampusOne?</h2>
-        <p class="cta-strip__sub">Log in with your MIU email to access the full campus experience.</p>
-        <div class="cta-strip__actions">
-          <a href="login.html" class="btn btn-primary btn-lg" id="cta-login-btn">Login now</a>
+      <div class="cta-strip__bg-wrap">
+        <img src="../public/images/campus_aerial.png" alt="" class="cta-strip__bg" aria-hidden="true">
+        <div class="cta-strip__overlay" aria-hidden="true"></div>
+      </div>
+      <div class="container cta-strip__container">
+        <div class="cta-strip__content">
+          <div class="section-label cta-strip__label">Ready to start?</div>
+          <h2 id="cta-heading" class="cta-strip__heading">Join MIU students<br>on CampusOne</h2>
+          <p class="cta-strip__sub">Log in with your MIU email to access all campus tools in one place.</p>
+          <div class="cta-strip__actions">
+            <a href="login.html" class="hero-btn-primary" id="cta-login-btn">Log in now</a>
+            <a href="register.html" class="hero-btn-ghost" id="cta-register-btn">Create account</a>
+          </div>
         </div>
       </div>
     </section>
 
   </main>
 
-  <footer id="site-footer"></footer>
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer" id="site-footer">
+    <div class="container site-footer__inner">
+      <div class="site-footer__brand">
+        <img src="../public/images/logo.png" alt="MIU logo" width="32" height="32">
+        <div>
+          <span class="logo-brand">CampusOne</span>
+          <span class="logo-uni">Misr International University</span>
+        </div>
+      </div>
+      <p class="site-footer__copy">© 2026 Misr International University. All rights reserved.</p>
+    </div>
+  </footer>
 
-  <script type="module" src="../public/js/landing.js"></script>
+  <script>
+    /* smooth scroll for anchor links */
+    document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+      a.addEventListener('click', function(e) {
+        var target = document.querySelector(a.getAttribute('href'));
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+      });
+    });
+
+    /* header scroll shadow */
+    var hdr = document.getElementById('site-header');
+    window.addEventListener('scroll', function() {
+      hdr.classList.toggle('scrolled', window.scrollY > 40);
+    }, { passive: true });
+
+    /* mobile menu */
+    var toggle = document.getElementById('menu-toggle');
+    var nav    = document.getElementById('header-nav');
+    if (toggle && nav) {
+      toggle.addEventListener('click', function() {
+        var open = nav.classList.toggle('is-open');
+        toggle.setAttribute('aria-expanded', String(open));
+      });
+    }
+
+    /* animate steps on scroll */
+    var steps = document.querySelectorAll('.step');
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) entry.target.classList.add('in-view');
+        });
+      }, { threshold: 0.15 });
+      steps.forEach(function(s) { io.observe(s); });
+    }
+  </script>
 </body>
 </html>

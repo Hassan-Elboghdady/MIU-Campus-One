@@ -375,16 +375,8 @@
   .essentials-grid {
     grid-template-columns: repeat(4, 1fr);
   }
-  .essentials-grid--five {
-    grid-template-columns: repeat(5, 1fr);
-  }
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
-  .essentials-grid--five {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
 
 /* Essential Card */
 .essential-card {

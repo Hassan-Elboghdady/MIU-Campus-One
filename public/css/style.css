@@ -292,3 +292,76 @@ p  { max-inline-size: 70ch; }
 }
 .section-title { margin-block-end: var(--space-3); }
 .section-desc  { color: var(--color-muted); font-size: var(--text-lg); }
+
+/* --------------------------------------------------------------------------
+   16. App footer (all authenticated / auth pages)
+   -------------------------------------------------------------------------- */
+.app-footer {
+  background-color: #0F172A;
+  padding-block: var(--space-6);
+  margin-block-start: auto;
+}
+
+.app-footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.app-footer__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.app-footer__brand img {
+  opacity: .75;
+  flex-shrink: 0;
+}
+
+.app-footer__brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.app-footer__brand-name {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: #F1F5F9;
+}
+
+.app-footer__brand-uni {
+  font-size: 11px;
+  color: #64748B;
+}
+
+.app-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+}
+
+.app-footer__links a {
+  font-size: var(--text-sm);
+  color: #94A3B8;
+  text-decoration: none;
+  transition: color .15s;
+}
+
+.app-footer__links a:hover {
+  color: #F1F5F9;
+}
+
+.app-footer__copy {
+  font-size: 12px;
+  color: #475569;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .app-footer__inner { flex-direction: column; align-items: flex-start; }
+  .app-footer__copy  { margin-block-start: var(--space-2); }
+}

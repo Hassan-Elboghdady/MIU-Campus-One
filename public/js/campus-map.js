@@ -15,18 +15,8 @@
  *  - Full persistence via localStorage
  */
 
-import {
-  CATEGORIES,
-  loadLocations,
-  saveLocations,
-  resetLocations,
-  filterByCategory,
-  searchLocations,
-  sortLocations,
-  getPlacedLocations,
-  generateId,
-  findById,
-} from './map-data.js';
+// (map-data.js globals: CATEGORIES, loadLocations, saveLocations, resetLocations,
+//  filterByCategory, searchLocations, sortLocations, getPlacedLocations, generateId, findById)
 
 // --------------------------------------------------------------------------
 // Category SVGs
@@ -52,7 +42,7 @@ function clamp(value, min, max) {
 // --------------------------------------------------------------------------
 // CampusMapApp Class
 // --------------------------------------------------------------------------
-export class CampusMapApp {
+class CampusMapApp {
   constructor(rootSelector, options = {}) {
     this._root =
       typeof rootSelector === 'string'

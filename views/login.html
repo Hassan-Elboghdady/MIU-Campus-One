@@ -118,7 +118,12 @@
           <a href="register.html" id="go-to-register-link">New student? Create an account</a>
         </div>
 
-        <div id="dev-hint" class="dev-hint" aria-label="Developer test accounts"></div>
+        <div id="dev-hint" class="dev-hint" aria-label="Developer test accounts">
+          <p class="dev-hint__title"> Test Accounts</p>
+          <div class="dev-hint__row"><span class="dev-hint__badge dev-hint__badge--student">Student</span><code>student@miuegypt.edu.eg</code> / <code>student123</code></div>
+          <div class="dev-hint__row"><span class="dev-hint__badge dev-hint__badge--staff">Staff</span><code>supervisor@miuegypt.edu.eg</code> / <code>super123</code></div>
+          <div class="dev-hint__row"><span class="dev-hint__badge dev-hint__badge--staff">Admin</span><code>admin@miuegypt.edu.eg</code> / <code>admin123</code></div>
+        </div>
 
       </div>
     </div>
@@ -136,7 +141,7 @@
         { id:'u4', name:'Nour El-Din Fawzy', email:'lostandfound@miuegypt.edu.eg', password:'lf123',       role:'lost-found-staff', studentId:null, faculty:null },
         { id:'u5', name:'Admin User',        email:'admin@miuegypt.edu.eg',        password:'admin123',    role:'admin',            studentId:null, faculty:null },
       ];
-      var ROLE_HOME = { student:'home.html', supervisor:'staff.html', technician:'maintenance.html', 'lost-found-staff':'staff-lost-found.html', admin:'admin.html' };
+      var ROLE_HOME = { student:'home.html', supervisor:'supervisor-dashboard.html', technician:'supervisor-dashboard.html', 'lost-found-staff':'home.html', admin:'supervisor-dashboard.html' };
 
       function findUser(email, password) {
         var lower = email.toLowerCase().trim();
@@ -256,5 +261,6 @@
       }
     })();
   </script>
+
 </body>
 </html>
