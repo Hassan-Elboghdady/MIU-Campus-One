@@ -29,11 +29,12 @@
       </a>
 
       <nav class="app-nav" id="app-nav" aria-label="Main navigation">
-        <a href="map.html"        class="app-nav__link" id="nav-map">Campus Map</a>
-        <a href="emergency.html"  class="app-nav__link" id="nav-emergency">Emergency Map</a>
-        <a href="my-reports.html" class="app-nav__link" id="nav-maintenance">My Reports</a>
-        <a href="lost-and-found.html" class="app-nav__link" id="nav-lostfound">Lost &amp; Found</a>
-        <a href="report.html"     class="app-nav__link app-nav__report-link" id="nav-report">Report an Issue</a>
+        <!-- links rewritten by JS based on role -->
+        <a href="map.html"            class="app-nav__link" id="nav-link-1">Campus Map</a>
+        <a href="emergency.html"      class="app-nav__link" id="nav-link-2">Emergency Map</a>
+        <a href="my-reports.html"     class="app-nav__link" id="nav-link-3">My Reports</a>
+        <a href="lost-and-found.html" class="app-nav__link" id="nav-link-4">Lost &amp; Found</a>
+        <a href="report.html"         class="app-nav__link app-nav__report-link" id="nav-link-5">Report an Issue</a>
       </nav>
 
       <div class="app-header__actions">
@@ -243,7 +244,25 @@
     </div>
   </main>
 
-  <footer id="site-footer"></footer>
+  <footer class="app-footer">
+    <div class="container app-footer__inner">
+      <div class="app-footer__brand">
+        <img src="../public/images/logo.png" alt="MIU logo" width="28" height="28">
+        <div class="app-footer__brand-text">
+          <span class="app-footer__brand-name">CampusOne</span>
+          <span class="app-footer__brand-uni">Misr International University</span>
+        </div>
+      </div>
+      <nav class="app-footer__links" aria-label="Footer navigation">
+        <a href="home.html">Home</a>
+        <a href="map.html">Campus Map</a>
+        <a href="report.html">Report Issue</a>
+        <a href="lost-and-found.html">Lost &amp; Found</a>
+        <a href="profile.html">Profile</a>
+      </nav>
+      <span class="app-footer__copy">© 2026 Misr International University</span>
+    </div>
+  </footer>
 
   <script src="../public/js/avatar.js" defer></script>
   <script>
@@ -261,6 +280,48 @@
       if (el('nav-initials'))   el('nav-initials').textContent   = initials;
       if (el('nav-user-name'))  el('nav-user-name').textContent  = session.name  || '';
       if (el('nav-user-email')) el('nav-user-email').textContent = session.email || '';
+
+      // ── Role-aware header ───────────────────────────────────────────────
+      var STAFF_ROLES = ['supervisor', 'staff', 'admin', 'technician'];
+      var isStaff = STAFF_ROLES.indexOf(session.role) !== -1;
+
+      if (isStaff) {
+        // Logo → supervisor dashboard
+        var logo = document.querySelector('.app-header__logo');
+        if (logo) logo.href = 'supervisor-dashboard.html';
+
+        // Nav links → staff section
+        var staffLinks = [
+          { id: 'nav-link-1', href: 'supervisor-dashboard.html', label: 'Dashboard' },
+          { id: 'nav-link-2', href: 'maintenance-team.html',     label: 'Team'      },
+          { id: 'nav-link-3', href: 'my-tasks.html',             label: 'My Tasks'  },
+          { id: 'nav-link-4', href: 'profile.html',              label: 'Profile'   },
+        ];
+        // hide the 5th link (Report an Issue)
+        var fifth = el('nav-link-5');
+        if (fifth) fifth.style.display = 'none';
+
+        staffLinks.forEach(function (cfg) {
+          var a = el(cfg.id);
+          if (!a) return;
+          a.href = cfg.href;
+          a.textContent = cfg.label;
+          a.classList.remove('app-nav__report-link');
+          if (cfg.href === 'profile.html') a.setAttribute('aria-current', 'page');
+        });
+
+        // Dropdown: replace "My Reports" with "Dashboard"
+        var reportsLink = el('nav-reports-link');
+        if (reportsLink) {
+          reportsLink.href = 'supervisor-dashboard.html';
+          reportsLink.querySelector('svg').outerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>';
+          reportsLink.childNodes[reportsLink.childNodes.length - 1].textContent = ' Dashboard';
+        }
+
+        // Hide emergency button (not relevant for staff)
+        var emergencyBtn = el('emergency-btn');
+        if (emergencyBtn) emergencyBtn.style.display = 'none';
+      }
 
       // ── Avatar card ────────────────────────────────────────────────────
       if (el('avatar-big-initials')) el('avatar-big-initials').textContent = initials;

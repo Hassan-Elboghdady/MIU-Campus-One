@@ -13,12 +13,12 @@
 // --------------------------------------------------------------------------
 // Storage key (v4: complete 22-location dataset)
 // --------------------------------------------------------------------------
-export const STORAGE_KEY = 'campusone_map_locations_v4';
+const STORAGE_KEY = 'campusone_map_locations_v4';
 
 // --------------------------------------------------------------------------
 // Category definitions
 // --------------------------------------------------------------------------
-export const CATEGORIES = {
+const CATEGORIES = {
   building:    { id: 'building',    label: 'Buildings',          icon: 'building'    },
   restaurant:  { id: 'restaurant',  label: 'Food & Restaurants', icon: 'restaurant'  },
   supermarket: { id: 'supermarket', label: 'Supermarkets',       icon: 'supermarket' },
@@ -32,7 +32,7 @@ export const CATEGORIES = {
 // Verified buildings and structures keep their aerial coordinates.
 // New food, supermarket, and pharmacy locations start unplaced (placed: false).
 // --------------------------------------------------------------------------
-export const SEED_LOCATIONS = [
+const SEED_LOCATIONS = [
   // ==================== BUILDINGS ====================
   {
     id: 'loc-main-building',
@@ -249,7 +249,7 @@ export const SEED_LOCATIONS = [
  * with the full canonical seed list so that unplaced locations are never missed.
  * @returns {Array<object>}
  */
-export function loadLocations() {
+function loadLocations() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     let saved = [];
@@ -308,7 +308,7 @@ export function loadLocations() {
  * Save locations array to localStorage.
  * @param {Array<object>} locations
  */
-export function saveLocations(locations) {
+function saveLocations(locations) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(locations));
   } catch (err) {
@@ -320,7 +320,7 @@ export function saveLocations(locations) {
  * Reset locations back to the initial seed dataset.
  * @returns {Array<object>}
  */
-export function resetLocations() {
+function resetLocations() {
   saveLocations(SEED_LOCATIONS);
   return structuredClone(SEED_LOCATIONS);
 }
@@ -335,7 +335,7 @@ export function resetLocations() {
  * @param {string} category
  * @returns {Array}
  */
-export function filterByCategory(locations, category) {
+function filterByCategory(locations, category) {
   if (!category || category === 'all') return locations;
   return locations.filter((l) => l.category === category);
 }
@@ -346,7 +346,7 @@ export function filterByCategory(locations, category) {
  * @param {string} query
  * @returns {Array}
  */
-export function searchLocations(locations, query) {
+function searchLocations(locations, query) {
   const q = (query || '').trim().toLowerCase();
   if (!q) return locations;
   return locations.filter((l) =>
@@ -362,7 +362,7 @@ export function searchLocations(locations, query) {
  * @param {'name'|'category'} field
  * @returns {Array} new sorted array
  */
-export function sortLocations(locations, field = 'name') {
+function sortLocations(locations, field = 'name') {
   return [...locations].sort((a, b) => {
     const av = (a[field] || '').toLowerCase();
     const bv = (b[field] || '').toLowerCase();
@@ -374,7 +374,7 @@ export function sortLocations(locations, field = 'name') {
  * Generate a unique id for a new location.
  * @returns {string}
  */
-export function generateId() {
+function generateId() {
   return 'loc-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
 }
 
@@ -383,7 +383,7 @@ export function generateId() {
  * @param {Array} locations
  * @returns {Array}
  */
-export function getPlacedLocations(locations) {
+function getPlacedLocations(locations) {
   return locations.filter((l) => l.placed && l.x !== null && l.y !== null);
 }
 
@@ -393,6 +393,6 @@ export function getPlacedLocations(locations) {
  * @param {string} id
  * @returns {object|undefined}
  */
-export function findById(locations, id) {
+function findById(locations, id) {
   return locations.find((l) => l.id === id);
 }

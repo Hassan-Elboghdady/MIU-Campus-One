@@ -245,6 +245,13 @@ function initMaintNav() {
   try { s = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
   if (!s) { window.location.replace('login.html'); return null; }
 
+  /* Staff-only pages: redirect students away */
+  var STAFF_ROLES = ['supervisor', 'staff', 'admin', 'technician'];
+  if (STAFF_ROLES.indexOf(s.role) === -1) {
+    window.location.replace('home.html');
+    return null;
+  }
+
   var el = function (id) { return document.getElementById(id); };
   var ini = (s.name || '?').trim().split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
   if (el('nav-initials'))   el('nav-initials').textContent   = ini;
