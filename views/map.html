@@ -161,7 +161,10 @@
   <script src="../public/js/campus-map.js"></script>
   <script>
     try {
+      var sessionUser = null;
+      try { sessionUser = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
       new CampusMapApp('#map-root', {
+        user: sessionUser,
         imageSrc: '../public/images/campus_aerial.png',
       });
     } catch (err) {

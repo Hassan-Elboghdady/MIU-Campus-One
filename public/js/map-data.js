@@ -247,6 +247,7 @@ const SEED_LOCATIONS = [
 /**
  * Load locations from localStorage, merging any previously saved user coordinates
  * with the full canonical seed list so that unplaced locations are never missed.
+ * Gracefully handles missing, corrupted, or invalid localStorage entries.
  * @returns {Array<object>}
  */
 function loadLocations() {
@@ -262,34 +263,44 @@ function loadLocations() {
     }
 
     if (Array.isArray(saved) && saved.length > 0) {
-      // Create a map of saved locations
+      // Validate saved items
+      const validSaved = saved.filter((item) => item && typeof item === 'object' && typeof item.id === 'string');
       const savedMap = new Map();
-      saved.forEach((item) => {
-        if (item && item.id) savedMap.set(item.id, item);
-      });
+      validSaved.forEach((item) => savedMap.set(item.id, item));
 
       // Build unified list based on canonical seeds
       const merged = SEED_LOCATIONS.map((seed) => {
         const existing = savedMap.get(seed.id);
         if (existing) {
-          // If the user placed this location, preserve their coordinates
+          const hasValidCoords = typeof existing.x === 'number' && typeof existing.y === 'number' &&
+            !isNaN(existing.x) && !isNaN(existing.y);
           return {
             ...seed,
-            name: existing.name || seed.name,
-            description: existing.description || seed.description,
-            category: existing.category || seed.category,
-            placed: existing.placed === true && existing.x !== null && existing.y !== null,
-            x: existing.x !== undefined ? existing.x : seed.x,
-            y: existing.y !== undefined ? existing.y : seed.y,
+            name: typeof existing.name === 'string' && existing.name.trim() ? existing.name.trim() : seed.name,
+            description: typeof existing.description === 'string' ? existing.description : seed.description,
+            category: typeof existing.category === 'string' && CATEGORIES[existing.category] ? existing.category : seed.category,
+            placed: existing.placed === true && hasValidCoords,
+            x: hasValidCoords ? Math.max(0, Math.min(1, parseFloat(Number(existing.x).toFixed(4)))) : seed.x,
+            y: hasValidCoords ? Math.max(0, Math.min(1, parseFloat(Number(existing.y).toFixed(4)))) : seed.y,
           };
         }
         return structuredClone(seed);
       });
 
       // Also append any custom user-created locations that aren't in SEED_LOCATIONS
-      saved.forEach((item) => {
-        if (item && item.id && !SEED_LOCATIONS.some((s) => s.id === item.id)) {
-          merged.push(item);
+      validSaved.forEach((item) => {
+        if (!SEED_LOCATIONS.some((s) => s.id === item.id)) {
+          const hasValidCoords = typeof item.x === 'number' && typeof item.y === 'number' &&
+            !isNaN(item.x) && !isNaN(item.y);
+          merged.push({
+            id: item.id,
+            name: (item.name || 'Untitled Location').trim(),
+            category: CATEGORIES[item.category] ? item.category : 'building',
+            description: item.description || '',
+            placed: item.placed === true && hasValidCoords,
+            x: hasValidCoords ? Math.max(0, Math.min(1, parseFloat(Number(item.x).toFixed(4)))) : null,
+            y: hasValidCoords ? Math.max(0, Math.min(1, parseFloat(Number(item.y).toFixed(4)))) : null,
+          });
         }
       });
 
@@ -307,12 +318,16 @@ function loadLocations() {
 /**
  * Save locations array to localStorage.
  * @param {Array<object>} locations
+ * @returns {boolean}
  */
 function saveLocations(locations) {
   try {
+    if (!Array.isArray(locations)) return false;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(locations));
+    return true;
   } catch (err) {
     console.warn('CampusOne: failed to save locations to localStorage.', err);
+    return false;
   }
 }
 
@@ -395,4 +410,26 @@ function getPlacedLocations(locations) {
  */
 function findById(locations, id) {
   return locations.find((l) => l.id === id);
+}
+
+// --------------------------------------------------------------------------
+// Role-based Editing Authorization
+// --------------------------------------------------------------------------
+
+/**
+ * Roles permitted to modify map locations.
+ * In CampusOne, editing is restricted to administrators and authorized staff (supervisors).
+ * Students and other staff are strictly view-only.
+ */
+const AUTHORIZED_MAP_ROLES = ['admin', 'supervisor'];
+
+/**
+ * Check if the given user is authorized to edit the campus map.
+ * @param {object|null} user
+ * @returns {boolean}
+ */
+function isAuthorizedMapEditor(user) {
+  if (!user || !user.role) return false;
+  const role = String(user.role).toLowerCase();
+  return AUTHORIZED_MAP_ROLES.includes(role);
 }

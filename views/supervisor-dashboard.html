@@ -33,6 +33,8 @@
         <a href="supervisor-dashboard.html" class="app-nav__link" aria-current="page" id="nav-dashboard">Dashboard</a>
         <a href="maintenance-team.html"     class="app-nav__link" id="nav-team">Team</a>
         <a href="my-tasks.html"             class="app-nav__link" id="nav-tasks">My Tasks</a>
+        <a href="map.html"                  class="app-nav__link" id="nav-map">Campus Map</a>
+        <a href="emergency.html"            class="app-nav__link" id="nav-emergency">Emergency Map</a>
       </nav>
 
       <div class="app-header__actions">
@@ -89,7 +91,14 @@
           <p class="page-subtitle">Overview of all campus maintenance requests. Assign, track, and manage tasks.</p>
         </div>
         <div style="display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap;">
-          
+          <a href="map.html" class="btn btn-outline" id="campus-map-btn" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+            Campus Map
+          </a>
+          <a href="emergency.html" class="btn btn-outline" id="emergency-map-btn" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.5L1 14.5h14L8 1.5z"/><line x1="8" y1="7" x2="8" y2="10"/><circle cx="8" cy="12" r=".6" fill="currentColor" stroke="none"/></svg>
+            Emergency Map
+          </a>
           <a href="task-details.html" class="btn btn-primary" id="new-task-btn" style="text-decoration:none;">
             <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="3" x2="8" y2="13"/><line x1="3" y1="8" x2="13" y2="8"/></svg>
             New Task
