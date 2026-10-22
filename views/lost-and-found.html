@@ -131,7 +131,8 @@
           <button data-type="lost" type="button">I lost something</button>
           <button data-type="found" type="button">I found something</button>
           <button class="browse-tab" type="button" data-route="browse">Browse lost items</button>
-          <button class="browse-tab" type="button" data-route="browse-found">Browse found items</button>
+          <button class="browse-tab" type="button" data-route="claim">Claim an item</button>
+          <button class="browse-tab" type="button" data-route="my-claims">My claims</button>
         </div>
         <form id="report-form" class="form-card">
           <h3>Tell us about the item</h3>
@@ -196,6 +197,63 @@
         <span class="visual-sticker">✦ Your community is looking out for you</span>
       </aside>
     </div>
+  </template>
+
+  <template id="claims-status-template">
+    <a class="back-link" href="#new">← Back to report</a>
+    <div class="browse-heading">
+      <div>
+        <p class="eyebrow">Your Lost &amp; Found requests</p>
+        <h1>My claims.</h1>
+        <p class="lead">Track verification here. Once staff approves your claim, your one-time pickup code will appear on this page.</p>
+      </div>
+    </div>
+    <section class="claims-status-list" data-my-claims></section>
+  </template>
+
+  <template id="claim-view-template">
+    <a class="back-link" href="#new">← Back to report</a>
+    <div class="browse-heading">
+      <div>
+        <p class="eyebrow">Secure return process</p>
+        <h1>Claim your item.</h1>
+        <p class="lead">Answer private questions about the item. Staff will review your answers before issuing a one-time pickup code.</p>
+      </div>
+    </div>
+    <form id="claim-form" class="form-card claim-form">
+      <h3>Tell us why this item belongs to you</h3>
+      <div class="field-grid">
+        <div class="field full">
+          <label for="claim-item">Found item <span>*</span></label>
+          <select id="claim-item" name="itemId" required></select>
+          <small class="claim-help">If you cannot see your item, ask Lost &amp; Found staff to add it to the inventory first.</small>
+        </div>
+        <div class="field">
+          <label for="claim-student-id">Student ID <span>*</span></label>
+          <input id="claim-student-id" name="studentId" required placeholder="e.g. 2022-00001">
+        </div>
+        <div class="field">
+          <label for="claim-location">Where did you lose it? <span>*</span></label>
+          <input id="claim-location" name="location" required placeholder="Building or location">
+        </div>
+        <div class="field full">
+          <label for="claim-unique-details">Private identifying details <span>*</span></label>
+          <textarea id="claim-unique-details" name="uniqueDetails" required placeholder="Describe details that are not visible in the inventory listing."></textarea>
+        </div>
+        <div class="field">
+          <label for="claim-question-one">What makes this item unique? <span>*</span></label>
+          <input id="claim-question-one" name="answerOne" required>
+        </div>
+        <div class="field">
+          <label for="claim-question-two">What was inside or attached to it? <span>*</span></label>
+          <input id="claim-question-two" name="answerTwo" required>
+        </div>
+      </div>
+      <div class="form-footer">
+        <span class="required-note">Staff will verify your answers and your student ID.</span>
+        <button class="button button-primary button-large" type="submit">Send for verification →</button>
+      </div>
+    </form>
   </template>
 
   <template id="browse-view-template">
