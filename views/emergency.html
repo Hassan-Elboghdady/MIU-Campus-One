@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emergency Map - CampusOne</title>
+  <meta name="description" content="Campus emergency evacuation map for Misr International University (MIU). View operational emergency exits, assembly areas, and emergency contact dispatch.">
+  <meta name="theme-color" content="#dc2626">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
+  <link rel="apple-touch-icon" href="../public/apple-touch-icon.png">
+  <link rel="stylesheet" href="../public/css/style.css">
+  <link rel="stylesheet" href="../public/css/profile.css">
+  <link rel="stylesheet" href="../public/css/student.css">
+  <link rel="stylesheet" href="../public/css/map.css">
+  <link rel="stylesheet" href="../public/css/emergency-map.css">
+</head>
+<body>
+  <a class="skip-link" href="#emergency-map-root">Skip to content</a>
+
+  <!-- ===== APP HEADER ===== -->
+  <header class="app-header" id="app-header">
+    <div class="container">
+
+      <a href="home.html" class="app-header__logo" aria-label="Go to CampusOne home">
+        <img src="../public/images/logo.png" alt="Misr International University logo" width="36" height="36">
+        <div class="app-header__logo-text">
+          <span class="app-header__logo-abbr">MIU</span>
+          <span class="app-header__logo-sub">Misr International University</span>
+        </div>
+        <span class="app-header__logo-divider" aria-hidden="true"></span>
+        <span class="app-header__logo-brand">CampusOne</span>
+      </a>
+
+      <nav class="app-nav" id="app-nav" aria-label="Main navigation">
+        <a href="map.html"           class="app-nav__link" id="nav-map">Campus Map</a>
+        <a href="emergency.html"     class="app-nav__link is-active" aria-current="page" id="nav-emergency">Emergency Map</a>
+        <a href="my-reports.html"    class="app-nav__link" id="nav-maintenance">Maintenance</a>
+        <a href="lost-and-found.html" class="app-nav__link" id="nav-lostfound">Lost &amp; Found</a>
+        <a href="report.html"        class="app-nav__link" id="nav-report">Report an Issue</a>
+      </nav>
+
+      <div class="app-header__actions">
+
+        <!-- Notifications -->
+        <div class="dropdown" id="notif-dropdown">
+          <button type="button" class="dropdown__trigger" id="notif-trigger"
+                  aria-haspopup="true" aria-expanded="false"
+                  aria-controls="notif-panel" aria-label="Notifications">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 2a5 5 0 0 1 5 5v3l1.5 2.5H2.5L4 10V7a5 5 0 0 1 5-5z"/>
+              <path d="M7 15a2 2 0 0 0 4 0"/>
+            </svg>
+          </button>
+          <div class="dropdown__panel" id="notif-panel" role="menu">
+            <div class="dropdown__header">Notifications</div>
+            <div class="dropdown__empty">No new notifications</div>
+          </div>
+        </div>
+
+        <!-- Profile -->
+        <div class="dropdown" id="profile-dropdown">
+          <button type="button" class="dropdown__trigger profile-trigger" id="profile-trigger"
+                  aria-haspopup="true" aria-expanded="false"
+                  aria-controls="profile-panel" aria-label="Account menu">
+            <span class="profile-trigger__avatar" aria-hidden="true">
+              <span class="avatar-initials" id="nav-initials">?</span>
+            </span>
+            <span class="profile-trigger__name" id="nav-user-name"></span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 5l4 4 4-4"/>
+            </svg>
+          </button>
+          <div class="dropdown__panel" id="profile-panel" role="menu">
+            <div class="dropdown__header" id="nav-user-email"></div>
+            <a href="profile.html" class="dropdown__item" role="menuitem">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="8" cy="6" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+              </svg>
+              Profile
+            </a>
+            <div class="dropdown__divider" role="separator"></div>
+            <button type="button" class="dropdown__item dropdown__item--danger" id="logout-btn" role="menuitem">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M7 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4"/>
+                <polyline points="11,11 14,8 11,5"/><line x1="7" y1="8" x2="14" y2="8"/>
+              </svg>
+              Log out
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile hamburger -->
+        <button type="button" class="app-menu-toggle" id="app-menu-toggle"
+                aria-label="Open navigation menu" aria-expanded="false" aria-controls="app-nav">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+            <line x1="3" y1="6"  x2="19" y2="6"  stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+            <line x1="3" y1="11" x2="19" y2="11" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+            <line x1="3" y1="16" x2="19" y2="16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Interactive Emergency Map container -->
+  <main id="emergency-map-root" class="map-page map-page--emergency" aria-label="Campus Emergency Map"></main>
+
+  <!-- Auth guard + header interactivity -->
+  <script>
+    (function () {
+      var s = null;
+      try { s = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
+      if (!s) { window.location.replace('login.html'); return; }
+
+      var el = function (id) { return document.getElementById(id); };
+      var ini = (s.name || '?').trim().split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+      if (el('nav-initials'))   el('nav-initials').textContent   = ini;
+      if (el('nav-user-name'))  el('nav-user-name').textContent  = s.name  || '';
+      if (el('nav-user-email')) el('nav-user-email').textContent = s.email || '';
+
+      function initDrop(tid, pid) {
+        var t = el(tid), p = el(pid);
+        if (!t || !p) return;
+        t.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var open = p.classList.toggle('is-open');
+          t.setAttribute('aria-expanded', String(open));
+          ['notif-panel', 'profile-panel'].forEach(function (x) {
+            if (x !== pid) { var q = el(x); if (q) q.classList.remove('is-open'); }
+          });
+        });
+      }
+      initDrop('notif-trigger', 'notif-panel');
+      initDrop('profile-trigger', 'profile-panel');
+
+      document.addEventListener('click', function () {
+        ['notif-panel', 'profile-panel'].forEach(function (pid) { var p = el(pid); if (p) p.classList.remove('is-open'); });
+        ['notif-trigger', 'profile-trigger'].forEach(function (tid) { var t = el(tid); if (t) t.setAttribute('aria-expanded', 'false'); });
+      });
+
+      var lb = el('logout-btn');
+      if (lb) lb.addEventListener('click', function () { localStorage.removeItem('campusone_session'); window.location.replace('login.html'); });
+
+      var tog = el('app-menu-toggle'), nav = el('app-nav');
+      if (tog && nav) tog.addEventListener('click', function () { var o = nav.classList.toggle('is-open'); tog.setAttribute('aria-expanded', String(o)); });
+    })();
+  </script>
+
+  <!-- Emergency map data first, then shared map application -->
+  <script src="../public/js/emergency-map-data.js"></script>
+  <script src="../public/js/campus-map.js"></script>
+  <script>
+    try {
+      var sessionUser = null;
+      try { sessionUser = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
+      new CampusMapApp('#emergency-map-root', {
+        mode: 'emergency',
+        user: sessionUser,
+        imageSrc: '../public/images/eme_campus_aerial.jpg',
+      });
+    } catch (err) {
+      console.error('Failed to initialize EmergencyMapApp:', err);
+      var root = document.getElementById('emergency-map-root');
+      if (root) {
+        root.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;padding:2rem;text-align:center;background:#050811;color:#f8fafc;">' +
+          '<div><h2 style="font-size:1.5rem;font-weight:700;color:#ef4444;margin-bottom:0.5rem;">Unable to load Emergency Map</h2>' +
+          '<p style="color:#94a3b8;">' + err.message + '</p></div></div>';
+      }
+    }
+  </script>
+
+  <footer class="app-footer">
+    <div class="container app-footer__inner">
+      <div class="app-footer__brand">
+        <img src="../public/images/logo.png" alt="MIU logo" width="28" height="28">
+        <div class="app-footer__brand-text">
+          <span class="app-footer__brand-name">CampusOne</span>
+          <span class="app-footer__brand-uni">Misr International University</span>
+        </div>
+      </div>
+      <nav class="app-footer__links" aria-label="Footer navigation">
+        <a href="home.html">Home</a>
+        <a href="map.html">Campus Map</a>
+        <a href="emergency.html">Emergency Map</a>
+        <a href="report.html">Report Issue</a>
+        <a href="lost-and-found.html">Lost &amp; Found</a>
+        <a href="profile.html">Profile</a>
+      </nav>
+      <span class="app-footer__copy">© 2026 Misr International University</span>
+    </div>
+  </footer>
+</body>
+</html>

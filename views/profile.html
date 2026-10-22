@@ -295,11 +295,9 @@
           { id: 'nav-link-1', href: 'supervisor-dashboard.html', label: 'Dashboard' },
           { id: 'nav-link-2', href: 'maintenance-team.html',     label: 'Team'      },
           { id: 'nav-link-3', href: 'my-tasks.html',             label: 'My Tasks'  },
-          { id: 'nav-link-4', href: 'profile.html',              label: 'Profile'   },
+          { id: 'nav-link-4', href: 'map.html',                  label: 'Campus Map'},
+          { id: 'nav-link-5', href: 'profile.html',              label: 'Profile'   },
         ];
-        // hide the 5th link (Report an Issue)
-        var fifth = el('nav-link-5');
-        if (fifth) fifth.style.display = 'none';
 
         staffLinks.forEach(function (cfg) {
           var a = el(cfg.id);

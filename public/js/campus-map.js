@@ -39,6 +39,16 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // --------------------------------------------------------------------------
 // CampusMapApp Class
 // --------------------------------------------------------------------------
@@ -51,15 +61,38 @@ class CampusMapApp {
 
     if (!this._root) throw new Error(`CampusMapApp: root element not found (${rootSelector})`);
 
+    this._isEmergency = options.mode === 'emergency';
+
+    const defaultImg = this._isEmergency
+      ? '../public/images/eme_campus_aerial.jpg'
+      : '../public/images/campus_aerial.png';
+
     this._opts = {
-      imageSrc:  options.imageSrc  || '../public/images/campus_aerial.png',
+      imageSrc:  options.imageSrc  || defaultImg,
       minZoom:   options.minZoom   ?? 0.45,
       maxZoom:   options.maxZoom   ?? 4.0,
       zoomStep:  options.zoomStep  ?? 0.3,
     };
 
+    // User & Permissions
+    this._currentUser = options.user || null;
+    if (!this._currentUser) {
+      try {
+        this._currentUser = JSON.parse(localStorage.getItem('campusone_session'));
+      } catch (e) {}
+    }
+    this._canEdit = this._isEmergency
+      ? (typeof isAuthorizedEmergencyMapEditor === 'function' ? isAuthorizedEmergencyMapEditor(this._currentUser) : (typeof isAuthorizedMapEditor === 'function' ? isAuthorizedMapEditor(this._currentUser) : false))
+      : (typeof isAuthorizedMapEditor === 'function' ? isAuthorizedMapEditor(this._currentUser) : false);
+
+    // Autosave state
+    this._saveTimer = null;
+    this._statusClearTimer = null;
+
     // State
-    this._locations          = loadLocations();
+    this._locations          = this._isEmergency
+      ? (typeof loadEmergencyExits === 'function' ? loadEmergencyExits() : [])
+      : (typeof loadLocations === 'function' ? loadLocations() : []);
     this._activeFilter       = 'all';
     this._searchQuery        = '';
     this._sortField          = 'name';
@@ -87,10 +120,28 @@ class CampusMapApp {
   }
 
   // --------------------------------------------------------------------------
+  // Location Lookup Helper
+  // --------------------------------------------------------------------------
+  _findLocation(id) {
+    if (this._isEmergency) {
+      if (typeof findEmergencyExitById === 'function') {
+        return findEmergencyExitById(this._locations, id);
+      }
+    }
+    if (typeof findById === 'function') {
+      return findById(this._locations, id);
+    }
+    return this._locations.find((l) => l.id === id);
+  }
+
+  // --------------------------------------------------------------------------
   // Build DOM
   // --------------------------------------------------------------------------
   _build() {
     this._root.innerHTML = this._tplPage();
+    if (this._isEmergency) {
+      this._root.classList.add('map-page--emergency');
+    }
 
     // Cache key DOM nodes
     this._canvasInner    = this._root.querySelector('.map-canvas-inner');
@@ -104,6 +155,7 @@ class CampusMapApp {
     this._editBanner     = this._root.querySelector('.map-edit-banner');
     this._editBannerText = this._root.querySelector('.map-edit-banner-text');
     this._editToggleBtn  = this._root.querySelector('#map-edit-toggle');
+    this._saveStatusEl   = this._root.querySelector('#map-save-status');
     this._popup          = this._root.querySelector('.map-popup');
     this._modalOverlay   = this._root.querySelector('.map-modal-overlay');
     this._modal          = this._root.querySelector('.map-modal');
@@ -172,13 +224,18 @@ class CampusMapApp {
       });
     });
 
-    // Edit toggle button
-    this._editToggleBtn.addEventListener('click', () => this._toggleEditMode());
+    // Edit toggle button (only rendered for authorized staff & admins)
+    if (this._editToggleBtn) {
+      this._editToggleBtn.addEventListener('click', () => this._toggleEditMode());
+    }
 
     // Edit banner cancel
-    this._root.querySelector('.map-edit-banner-cancel').addEventListener('click', () => {
-      this._setEditMode(false);
-    });
+    const cancelBtn = this._root.querySelector('.map-edit-banner-cancel');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        this._setEditMode(false);
+      });
+    }
 
     // Popup close
     this._popup.querySelector('.map-popup-close').addEventListener('click', () => this._closePopup());
@@ -196,14 +253,20 @@ class CampusMapApp {
     });
 
     // Modal delete button
-    this._modal.querySelector('#map-delete-location-btn').addEventListener('click', () => {
-      this._deleteLocation();
-    });
+    const deleteBtn = this._modal.querySelector('#map-delete-location-btn');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', () => {
+        this._deleteLocation();
+      });
+    }
 
     // Popup "Edit" button
-    this._popup.querySelector('.map-popup-edit-btn').addEventListener('click', () => {
-      if (this._selectedId) this._openEditModal(this._selectedId);
-    });
+    const popupEditBtn = this._popup.querySelector('.map-popup-edit-btn');
+    if (popupEditBtn) {
+      popupEditBtn.addEventListener('click', () => {
+        if (this._canEdit && this._selectedId) this._openEditModal(this._selectedId);
+      });
+    }
 
     // Window resize
     window.addEventListener('resize', () => {
@@ -246,7 +309,7 @@ class CampusMapApp {
     this._applyTransform();
     this._renderMarkers();
     if (this._selectedId) {
-      const loc = findById(this._locations, this._selectedId);
+      const loc = this._findLocation(this._selectedId);
       if (loc && loc.placed) this._showPopup(loc);
     }
   }
@@ -277,7 +340,7 @@ class CampusMapApp {
     this._applyTransform();
     this._renderMarkers();
     if (this._selectedId) {
-      const loc = findById(this._locations, this._selectedId);
+      const loc = this._findLocation(this._selectedId);
       if (loc && loc.placed) this._showPopup(loc);
     }
   }
@@ -310,7 +373,7 @@ class CampusMapApp {
     this._panY = this._panStartY + dy;
     this._applyTransform();
     if (this._selectedId) {
-      const loc = findById(this._locations, this._selectedId);
+      const loc = this._findLocation(this._selectedId);
       if (loc && loc.placed) this._showPopup(loc);
     }
   }
@@ -331,7 +394,7 @@ class CampusMapApp {
         const normX = clamp((e.clientX - rect.left) / rect.width, 0, 1);
         const normY = clamp((e.clientY - rect.top)  / rect.height, 0, 1);
 
-        if (this._editMode) {
+        if (this._canEdit && this._editMode) {
           // If a specific location was selected from the sidebar for placement
           if (this._pendingPlacementId) {
             this._placeLocationAt(this._pendingPlacementId, normX, normY);
@@ -383,7 +446,7 @@ class CampusMapApp {
       this._panY = this._panStartY + dy;
       this._applyTransform();
       if (this._selectedId) {
-        const loc = findById(this._locations, this._selectedId);
+        const loc = this._findLocation(this._selectedId);
         if (loc && loc.placed) this._showPopup(loc);
       }
     } else if (e.touches.length === 2 && this._lastPinchDist) {
@@ -400,7 +463,7 @@ class CampusMapApp {
     this._lastPinchDist = null;
     if (this._isDragging && !this._hasMoved && e.changedTouches.length === 1) {
       const t = e.changedTouches[0];
-      if (this._editMode) {
+      if (this._canEdit && this._editMode) {
         const rect = this._bgImage.getBoundingClientRect();
         if (t.clientX >= rect.left && t.clientX <= rect.right &&
             t.clientY >= rect.top  && t.clientY <= rect.bottom) {
@@ -454,6 +517,41 @@ class CampusMapApp {
   }
 
   _buildMarker(loc, markerScale) {
+    if (this._isEmergency) {
+      const el = document.createElement('div');
+      el.className = `map-marker map-marker--emergency-exit${this._selectedId === loc.id ? ' is-selected' : ''}`;
+      el.dataset.locationId = loc.id;
+      el.style.left = `${(loc.x * 100).toFixed(2)}%`;
+      el.style.top  = `${(loc.y * 100).toFixed(2)}%`;
+      el.style.setProperty('--marker-scale', markerScale.toFixed(2));
+
+      const displayLabel = escapeHtml(loc.label || loc.name || 'Emergency Exit');
+
+      el.innerHTML = `
+        <div class="emergency-marker-pin">
+          <div class="emergency-marker-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+              <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/>
+            </svg>
+          </div>
+          <div class="emergency-marker-label">${displayLabel}</div>
+        </div>
+      `;
+
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this._selectLocation(loc.id);
+      });
+
+      // Drag marker in edit mode (authorized staff & admins only)
+      if (this._canEdit && this._editMode) {
+        el.style.cursor = 'move';
+        el.addEventListener('mousedown', (e) => this._startMarkerDrag(e, loc));
+      }
+
+      return el;
+    }
+
     const el = document.createElement('div');
     el.className = `map-marker map-marker--${loc.category}${this._selectedId === loc.id ? ' is-selected' : ''}`;
     el.dataset.locationId = loc.id;
@@ -466,7 +564,7 @@ class CampusMapApp {
         <div class="map-marker-dot">
           ${ICON_SVG[loc.category] || ICON_SVG.building}
         </div>
-        <div class="map-marker-label">${loc.name}</div>
+        <div class="map-marker-label">${escapeHtml(loc.name)}</div>
       </div>
     `;
 
@@ -475,8 +573,8 @@ class CampusMapApp {
       this._selectLocation(loc.id);
     });
 
-    // Drag marker in edit mode
-    if (this._editMode) {
+    // Drag marker in edit mode (authorized staff & admins only)
+    if (this._canEdit && this._editMode) {
       el.style.cursor = 'move';
       el.addEventListener('mousedown', (e) => this._startMarkerDrag(e, loc));
     }
@@ -488,7 +586,7 @@ class CampusMapApp {
   // Marker Drag-to-Reposition (Manual Positioning)
   // --------------------------------------------------------------------------
   _startMarkerDrag(e, loc) {
-    if (!this._editMode) return;
+    if (!this._canEdit || !this._editMode) return;
     e.stopPropagation();
     e.preventDefault();
 
@@ -519,7 +617,8 @@ class CampusMapApp {
   // Place Location at Coordinates
   // --------------------------------------------------------------------------
   _placeLocationAt(id, normX, normY) {
-    const loc = findById(this._locations, id);
+    if (!this._canEdit) return;
+    const loc = this._findLocation(id);
     if (!loc) return;
 
     loc.x = parseFloat(normX.toFixed(4));
@@ -565,6 +664,31 @@ class CampusMapApp {
     if (isPending) stateClass = ' is-pending-placement';
     else if (isSelected) stateClass = ' is-active';
 
+    if (this._isEmergency) {
+      const statusClass = loc.status === 'operational'
+        ? 'emergency-status-badge--operational'
+        : 'emergency-status-badge--standby';
+      const statusText = loc.status === 'operational' ? 'Operational' : 'Standby';
+
+      return `
+        <button class="map-location-item${stateClass}" data-location-id="${loc.id}" type="button">
+          <div class="emergency-marker-icon" style="width:28px;height:28px;border-radius:6px;box-shadow:none;" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+              <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/>
+            </svg>
+          </div>
+          <div class="map-location-info">
+            <div class="map-location-name">${escapeHtml(loc.name)}</div>
+            <div class="map-location-cat">
+              <span>${escapeHtml(loc.zone || 'Campus Perimeter')}</span>
+              <span class="emergency-status-badge ${statusClass}">${statusText}</span>
+            </div>
+          </div>
+          <svg class="map-location-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l4 4-4 4"/></svg>
+        </button>
+      `;
+    }
+
     const catObj = CATEGORIES[loc.category];
     const catLabel = catObj ? catObj.label.replace(/s$/, '') : capFirst(loc.category);
     const unplacedBadge = !loc.placed
@@ -577,7 +701,7 @@ class CampusMapApp {
           ${ICON_SVG[loc.category] || ICON_SVG.building}
         </div>
         <div class="map-location-info">
-          <div class="map-location-name">${loc.name}</div>
+          <div class="map-location-name">${escapeHtml(loc.name)}</div>
           <div class="map-location-cat">${catLabel} ${unplacedBadge}</div>
         </div>
         <svg class="map-location-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l4 4-4 4"/></svg>
@@ -589,7 +713,7 @@ class CampusMapApp {
   // Sidebar Item Click Handler
   // --------------------------------------------------------------------------
   _onSidebarItemClick(id) {
-    const loc = findById(this._locations, id);
+    const loc = this._findLocation(id);
     if (!loc) return;
 
     this._selectedId = id;
@@ -622,7 +746,7 @@ class CampusMapApp {
   // --------------------------------------------------------------------------
   _selectLocation(id) {
     this._selectedId = id;
-    const loc = findById(this._locations, id);
+    const loc = this._findLocation(id);
     if (!loc) return;
 
     this._renderMarkers();
@@ -637,7 +761,7 @@ class CampusMapApp {
   // Pan to Location
   // --------------------------------------------------------------------------
   _panToLocation(id) {
-    const loc = findById(this._locations, id);
+    const loc = this._findLocation(id);
     if (!loc || !loc.placed || loc.x === null) return;
     const rect = this._canvasInner.getBoundingClientRect();
     this._panX = rect.width  / 2 - loc.x * this._imgW * this._scale;
@@ -651,21 +775,45 @@ class CampusMapApp {
   // --------------------------------------------------------------------------
   _showPopup(loc) {
     const { px, py } = this._normToCanvas(loc.x, loc.y);
-    const catObj = CATEGORIES[loc.category];
-    const catLabel = catObj ? catObj.label.replace(/s$/, '') : capFirst(loc.category);
 
-    this._popup.style.left = px + 'px';
-    this._popup.style.top  = (py - 12) + 'px';
-    this._popup.querySelector('.map-popup-cat').textContent  = catLabel;
-    this._popup.querySelector('.map-popup-name').textContent = loc.name;
-    this._popup.querySelector('.map-popup-desc').textContent = loc.description || 'Misr International University Campus';
+    if (this._isEmergency) {
+      this._popup.style.left = px + 'px';
+      this._popup.style.top  = (py - 12) + 'px';
+      this._popup.querySelector('.map-popup-cat').textContent  = (loc.zone || 'Emergency Exit').toUpperCase();
+      this._popup.querySelector('.map-popup-name').textContent = loc.name;
+      const statusNote = loc.status === 'operational'
+        ? '✓ Operational evacuation route'
+        : '⚠ Standby - maintenance check';
+      const desc = loc.description ? `${loc.description}\n(${statusNote})` : statusNote;
+      this._popup.querySelector('.map-popup-desc').textContent = desc;
+    } else {
+      const catObj = CATEGORIES[loc.category];
+      const catLabel = catObj ? catObj.label.replace(/s$/, '') : capFirst(loc.category);
+      this._popup.style.left = px + 'px';
+      this._popup.style.top  = (py - 12) + 'px';
+      this._popup.querySelector('.map-popup-cat').textContent  = catLabel;
+      this._popup.querySelector('.map-popup-name').textContent = loc.name;
+      this._popup.querySelector('.map-popup-desc').textContent = loc.description || 'Misr International University Campus';
+    }
+
+    const popupEditBtn = this._popup.querySelector('.map-popup-edit-btn');
+    if (popupEditBtn) {
+      popupEditBtn.style.display = this._canEdit ? '' : 'none';
+      if (this._isEmergency) {
+        popupEditBtn.textContent = 'Edit exit details';
+      }
+    }
     this._popup.style.display = 'block';
     this._popup.dataset.locationId = loc.id;
   }
 
   _showUnplacedNotice(loc) {
     // Show banner prompt to position location
-    this._updateEditBanner(`"${loc.name}" has not been placed yet. Turn on Edit Locations to position it on the map.`);
+    if (this._canEdit) {
+      this._updateEditBanner(`"${loc.name}" has not been placed yet. Turn on Edit Locations to position it on the map.`);
+    } else {
+      this._updateEditBanner(`"${loc.name}" has not been placed on the map yet.`);
+    }
     this._editBanner.classList.add('is-visible');
     setTimeout(() => {
       if (!this._editMode) this._editBanner.classList.remove('is-visible');
@@ -683,18 +831,23 @@ class CampusMapApp {
   // Edit Mode
   // --------------------------------------------------------------------------
   _toggleEditMode() {
+    if (!this._canEdit) return;
     this._setEditMode(!this._editMode);
   }
 
   _setEditMode(on) {
+    if (!this._canEdit) {
+      this._editMode = false;
+      return;
+    }
     this._editMode = on;
     this._canvasInner.classList.toggle('is-edit-mode', on);
-    this._editToggleBtn.classList.toggle('is-active', on);
+    if (this._editToggleBtn) this._editToggleBtn.classList.toggle('is-active', on);
     this._editBanner.classList.toggle('is-visible', on);
 
     if (on) {
       if (this._selectedId) {
-        const loc = findById(this._locations, this._selectedId);
+        const loc = this._findLocation(this._selectedId);
         if (loc && !loc.placed) {
           this._pendingPlacementId = loc.id;
           this._updateEditBanner(`📍 Click anywhere on the map to place "${loc.name}".`);
@@ -718,10 +871,14 @@ class CampusMapApp {
       return;
     }
     if (this._pendingPlacementId) {
-      const loc = findById(this._locations, this._pendingPlacementId);
+      const loc = this._findLocation(this._pendingPlacementId);
       this._editBannerText.textContent = `📍 Click on the map to place "${loc ? loc.name : 'location'}".`;
     } else {
-      this._editBannerText.textContent = 'Edit mode active — select a location in the sidebar to place it, or drag any marker to reposition.';
+      if (this._isEmergency) {
+        this._editBannerText.textContent = 'Edit mode active — drag any red exit marker to reposition or click on the map to add an exit.';
+      } else {
+        this._editBannerText.textContent = 'Edit mode active — select a location in the sidebar to place it, or drag any marker to reposition.';
+      }
     }
   }
 
@@ -729,6 +886,23 @@ class CampusMapApp {
   // Add / Edit Modal
   // --------------------------------------------------------------------------
   _openAddModal(normX, normY) {
+    if (!this._canEdit) return;
+    if (this._isEmergency) {
+      this._editTarget = {
+        id:          typeof generateEmergencyExitId === 'function' ? generateEmergencyExitId() : ('exit-' + Date.now()),
+        name:        '',
+        label:       'Emergency Exit',
+        zone:        'Campus Perimeter',
+        status:      'operational',
+        description: '',
+        placed:      normX !== null,
+        x:           normX !== null ? parseFloat(normX.toFixed(4)) : null,
+        y:           normY !== null ? parseFloat(normY.toFixed(4)) : null,
+      };
+      this._populateForm(this._editTarget, true);
+      this._openModal('Add Emergency Exit');
+      return;
+    }
     this._editTarget = {
       id:          generateId(),
       name:        '',
@@ -743,26 +917,42 @@ class CampusMapApp {
   }
 
   _openEditModal(id) {
-    const loc = findById(this._locations, id);
+    if (!this._canEdit) return;
+    const loc = this._findLocation(id);
     if (!loc) return;
     this._editTarget = structuredClone(loc);
     this._populateForm(this._editTarget, false);
-    this._openModal('Edit Location');
+    this._openModal(this._isEmergency ? 'Edit Emergency Exit' : 'Edit Location');
   }
 
   _populateForm(loc, isNew) {
     const form = this._modal.querySelector('#map-location-form');
-    form.querySelector('#form-name').value        = loc.name || '';
-    form.querySelector('#form-category').value    = loc.category || 'building';
+    form.querySelector('#form-name').value = loc.name || '';
+
+    if (this._isEmergency) {
+      const labelEl = form.querySelector('#form-label');
+      if (labelEl) labelEl.value = loc.label || 'Emergency Exit';
+      const zoneEl = form.querySelector('#form-zone');
+      if (zoneEl) zoneEl.value = loc.zone || 'Campus Perimeter';
+      const statusEl = form.querySelector('#form-status');
+      if (statusEl) statusEl.value = loc.status || 'operational';
+    } else {
+      const catEl = form.querySelector('#form-category');
+      if (catEl) catEl.value = loc.category || 'building';
+    }
+
     form.querySelector('#form-description').value = loc.description || '';
-    form.querySelector('#form-x').value           = loc.x !== null ? loc.x.toFixed(4) : '';
-    form.querySelector('#form-y').value           = loc.y !== null ? loc.y.toFixed(4) : '';
+    form.querySelector('#form-x').value = (loc.x !== null && loc.x !== undefined) ? loc.x.toFixed(4) : '';
+    form.querySelector('#form-y').value = (loc.y !== null && loc.y !== undefined) ? loc.y.toFixed(4) : '';
 
     const deleteBtn = this._modal.querySelector('#map-delete-location-btn');
-    deleteBtn.style.display = isNew ? 'none' : '';
+    if (deleteBtn) {
+      deleteBtn.style.display = isNew ? 'none' : '';
+    }
   }
 
   _openModal(title) {
+    if (!this._canEdit) return;
     this._modal.querySelector('.map-modal-title').textContent = title;
     this._modalOverlay.classList.add('is-open');
   }
@@ -773,11 +963,27 @@ class CampusMapApp {
   }
 
   _saveLocationFromForm() {
-    if (!this._editTarget) return;
+    if (!this._canEdit || !this._editTarget) return;
 
     const form = this._modal.querySelector('#map-location-form');
-    this._editTarget.name        = form.querySelector('#form-name').value.trim();
-    this._editTarget.category    = form.querySelector('#form-category').value;
+    this._editTarget.name = form.querySelector('#form-name').value.trim();
+    if (!this._editTarget.name) {
+      form.querySelector('#form-name').focus();
+      return;
+    }
+
+    if (this._isEmergency) {
+      const labelInput = form.querySelector('#form-label');
+      if (labelInput) this._editTarget.label = labelInput.value.trim() || 'Emergency Exit';
+      const zoneInput = form.querySelector('#form-zone');
+      if (zoneInput) this._editTarget.zone = zoneInput.value.trim() || 'Campus Perimeter';
+      const statusSelect = form.querySelector('#form-status');
+      if (statusSelect) this._editTarget.status = statusSelect.value || 'operational';
+    } else {
+      const catSelect = form.querySelector('#form-category');
+      if (catSelect) this._editTarget.category = catSelect.value;
+    }
+
     this._editTarget.description = form.querySelector('#form-description').value.trim();
 
     const xRaw = parseFloat(form.querySelector('#form-x').value);
@@ -788,12 +994,7 @@ class CampusMapApp {
       this._editTarget.placed = true;
     }
 
-    if (!this._editTarget.name) {
-      form.querySelector('#form-name').focus();
-      return;
-    }
-
-    const existing = findById(this._locations, this._editTarget.id);
+    const existing = this._findLocation(this._editTarget.id);
     if (existing) {
       Object.assign(existing, this._editTarget);
     } else {
@@ -808,8 +1009,14 @@ class CampusMapApp {
   }
 
   _deleteLocation() {
-    if (!this._editTarget) return;
+    if (!this._canEdit || !this._editTarget) return;
     const id = this._editTarget.id;
+    if (this._isEmergency) {
+      const exitTitle = this._editTarget.name || 'this emergency exit';
+      if (!confirm(`Are you sure you want to delete "${exitTitle}"? This action cannot be undone.`)) {
+        return;
+      }
+    }
     this._locations = this._locations.filter((l) => l.id !== id);
     this._persistLocations();
     this._closeModal();
@@ -818,11 +1025,79 @@ class CampusMapApp {
     this._renderMarkers();
   }
 
+  /**
+   * Automatically persist location changes to browser localStorage.
+   * Displays immediate status indicator (Saving…, Saved, Save failed).
+   */
   _persistLocations() {
-    saveLocations(this._locations);
+    // Only authorized staff and admins can persist changes
+    if (!this._canEdit) return;
+
+    this._setSaveStatus('saving');
+
+    if (this._saveTimer) {
+      clearTimeout(this._saveTimer);
+    }
+
+    this._saveTimer = setTimeout(() => {
+      try {
+        const ok = this._isEmergency
+          ? saveEmergencyExits(this._locations)
+          : saveLocations(this._locations);
+        if (ok) {
+          this._setSaveStatus('saved');
+        } else {
+          this._setSaveStatus('error', 'Storage failed');
+        }
+      } catch (err) {
+        console.error('CampusMapApp: autosave failed:', err);
+        this._setSaveStatus('error', 'Save failed');
+      }
+    }, 150);
+  }
+
+  /**
+   * Display autosave status feedback to the user.
+   * @param {'idle'|'saving'|'saved'|'error'} status
+   * @param {string} [message]
+   */
+  _setSaveStatus(status, message) {
+    if (!this._saveStatusEl) return;
+    if (this._statusClearTimer) {
+      clearTimeout(this._statusClearTimer);
+      this._statusClearTimer = null;
+    }
+
+    this._saveStatusEl.className = 'map-save-status';
+
+    if (status === 'saving') {
+      this._saveStatusEl.classList.add('map-save-status--saving');
+      this._saveStatusEl.innerHTML = '<span class="map-save-spinner" aria-hidden="true"></span><span>Saving…</span>';
+    } else if (status === 'saved') {
+      this._saveStatusEl.classList.add('map-save-status--saved');
+      this._saveStatusEl.innerHTML = '<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg><span>Saved</span>';
+      this._statusClearTimer = setTimeout(() => {
+        if (this._saveStatusEl) this._saveStatusEl.classList.add('is-hidden');
+      }, 2500);
+    } else if (status === 'error') {
+      this._saveStatusEl.classList.add('map-save-status--error');
+      const safeMsg = message ? String(message).replace(/</g, '&lt;') : 'Save failed';
+      this._saveStatusEl.innerHTML = `<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="2"/><line x1="8" y1="4" x2="8" y2="8" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="11.5" r="1"/></svg><span title="${safeMsg}">Save failed</span>`;
+      this._statusClearTimer = setTimeout(() => {
+        if (this._saveStatusEl) this._saveStatusEl.classList.add('is-hidden');
+      }, 5000);
+    } else {
+      this._saveStatusEl.classList.add('is-hidden');
+    }
   }
 
   _getFiltered() {
+    if (this._isEmergency) {
+      let result = filterEmergencyExits(this._locations, this._activeFilter);
+      result = searchEmergencyExits(result, this._searchQuery);
+      result = sortEmergencyExits(result, this._sortField);
+      return result;
+    }
     let result = filterByCategory(this._locations, this._activeFilter);
     result = searchLocations(result, this._searchQuery);
     result = sortLocations(result, this._sortField);
@@ -833,6 +1108,10 @@ class CampusMapApp {
   // HTML Template (Map/Satellite Controls Completely Removed)
   // --------------------------------------------------------------------------
   _tplPage() {
+    if (this._isEmergency) {
+      return this._tplEmergencyPage();
+    }
+
     const catBtns = [
       { id: 'all',         label: 'All',          icon: `<svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><rect x="2" y="2" width="7" height="7" rx="1"/><rect x="11" y="2" width="7" height="7" rx="1"/><rect x="2" y="11" width="7" height="7" rx="1"/><rect x="11" y="11" width="7" height="7" rx="1"/></svg>` },
       { id: 'building',    label: 'Buildings',    icon: ICON_SVG.building },
@@ -923,16 +1202,18 @@ class CampusMapApp {
             </div>
           </div>
 
-          <!-- Top-right controls: Compass & Edit toggle -->
+          <!-- Top-right controls: Compass, Autosave status & Edit toggle -->
           <div class="map-controls-topright">
+            <div id="map-save-status" class="map-save-status is-hidden" aria-live="polite"></div>
             <button id="map-compass-btn" class="map-compass-rose" type="button" aria-label="Compass" title="Reset North">
               <span class="compass-n">N</span>
               <span class="compass-needle"></span>
             </button>
+            ${this._canEdit ? `
             <button id="map-edit-toggle" class="map-edit-toggle-btn" type="button" aria-label="Toggle edit locations mode">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 2.5l2 2-7 7-2.5.5.5-2.5 7-7z"/></svg>
               Edit Locations
-            </button>
+            </button>` : ''}
           </div>
 
           <!-- Bottom-right: Scale indicator bar -->
@@ -960,7 +1241,7 @@ class CampusMapApp {
             <div class="map-popup-cat"></div>
             <div class="map-popup-name"></div>
             <div class="map-popup-desc"></div>
-            <button class="map-popup-edit-btn" type="button">Edit details</button>
+            ${this._canEdit ? '<button class="map-popup-edit-btn" type="button">Edit details</button>' : ''}
           </div>
 
           <!-- Edit mode banner -->
@@ -1015,6 +1296,209 @@ class CampusMapApp {
             </button>
             <button type="button" class="btn btn-outline btn-sm" onclick="this.closest('.map-modal-overlay').classList.remove('is-open')">Cancel</button>
             <button type="submit" form="map-location-form" class="btn btn-primary btn-sm">Save</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --------------------------------------------------------------------------
+  // Emergency Map HTML Template
+  // --------------------------------------------------------------------------
+  _tplEmergencyPage() {
+    return `
+      <div class="map-layout">
+        <!-- Sidebar -->
+        <aside class="map-sidebar" aria-label="Campus emergency exits">
+          <div class="map-sidebar-head">
+            <h1 class="map-sidebar-title">Emergency Map</h1>
+            <p class="map-sidebar-subtitle">Campus evacuation exits, designated assembly zones, and 24/7 security dispatch.</p>
+          </div>
+
+          <div class="map-search-wrap">
+            <div class="map-search-field">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.5"/><line x1="10" y1="10" x2="14" y2="14"/></svg>
+              <input
+                id="map-search-input"
+                class="map-search-input"
+                type="search"
+                placeholder="Search emergency exits, zones, notes…"
+                autocomplete="off"
+                aria-label="Search emergency exits"
+              />
+            </div>
+          </div>
+
+          <div class="map-filters" role="group" aria-label="Status filters">
+            <div class="map-filter-grid" style="grid-template-columns: repeat(3, 1fr);">
+              <button class="map-filter-btn is-active" data-category="all" type="button" title="All Exits">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><rect x="2" y="2" width="7" height="7" rx="1"/><rect x="11" y="2" width="7" height="7" rx="1"/><rect x="2" y="11" width="7" height="7" rx="1"/><rect x="11" y="11" width="7" height="7" rx="1"/></svg>
+                <span>All</span>
+              </button>
+              <button class="map-filter-btn" data-category="operational" type="button" title="Operational Exits">
+                <svg viewBox="0 0 20 20" fill="#22c55e" width="16" height="16"><circle cx="10" cy="10" r="7"/><path fill="#ffffff" d="M8.5 12.5l-2-2 1.4-1.4 1.1 1.1 3.5-3.5 1.4 1.4z"/></svg>
+                <span>Active</span>
+              </button>
+              <button class="map-filter-btn" data-category="standby" type="button" title="Standby Exits">
+                <svg viewBox="0 0 20 20" fill="#eab308" width="16" height="16"><circle cx="10" cy="10" r="7"/><rect x="9" y="5" width="2" height="6" fill="#ffffff" rx="1"/><rect x="9" y="13" width="2" height="2" fill="#ffffff" rx="1"/></svg>
+                <span>Standby</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="map-sort-row">
+            <span class="map-sort-label">Emergency Exits</span>
+            <div class="map-sort-select-wrap">
+              <select id="map-sort-select" class="map-sort-select" aria-label="Sort by">
+                <option value="name">Name (A–Z)</option>
+                <option value="zone">Zone Area</option>
+                <option value="status">Status</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="map-location-list" role="list" aria-label="Emergency exit list">
+            <!-- filled by JS -->
+          </div>
+
+          <!-- Emergency 24/7 Helpline Card -->
+          <div class="emergency-helpline-card" role="region" aria-label="Campus emergency contacts">
+            <div class="emergency-helpline-head">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+              <span>Emergency Contacts</span>
+            </div>
+            <div class="emergency-helpline-numbers">
+              <div class="emergency-helpline-item">Campus Hotline: <strong>19888</strong></div>
+              <div class="emergency-helpline-item">Security Desk: <strong>Ext. 101</strong></div>
+              <div class="emergency-helpline-item">MIU Clinic: <strong>Ext. 102</strong></div>
+              <div class="emergency-helpline-item">Ambulance: <strong>123</strong></div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Map canvas card -->
+        <div class="map-canvas-area" aria-label="Interactive emergency evacuation map">
+
+          <!-- Left controls: zoom + GPS -->
+          <div class="map-controls" aria-label="Map zoom controls">
+            <div class="map-ctrl-group">
+              <button id="map-zoom-in"  class="map-ctrl-btn" type="button" aria-label="Zoom in" title="Zoom in">+</button>
+              <button id="map-zoom-out" class="map-ctrl-btn" type="button" aria-label="Zoom out" title="Zoom out">−</button>
+              <button id="map-gps-btn"  class="map-ctrl-btn" type="button" aria-label="Center view" title="Re-center on Campus">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><line x1="8" y1="1" x2="8" y2="4"/><line x1="8" y1="12" x2="8" y2="15"/><line x1="1" y1="8" x2="4" y2="8"/><line x1="12" y1="8" x2="15" y2="8"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Top-right controls: Compass, Autosave status & Edit toggle -->
+          <div class="map-controls-topright">
+            <div id="map-save-status" class="map-save-status is-hidden" aria-live="polite"></div>
+            <button id="map-compass-btn" class="map-compass-rose" type="button" aria-label="Compass" title="Reset North">
+              <span class="compass-n">N</span>
+              <span class="compass-needle"></span>
+            </button>
+            ${this._canEdit ? `
+            <button id="map-edit-toggle" class="map-edit-toggle-btn" type="button" aria-label="Toggle edit emergency exits mode">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 2.5l2 2-7 7-2.5.5.5-2.5 7-7z"/></svg>
+              Edit Exits
+            </button>` : ''}
+          </div>
+
+          <!-- Bottom-left: Floating Legend Card matching reference visual -->
+          <div class="emergency-legend-card" aria-label="Emergency exit legend">
+            <div class="emergency-legend-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/>
+              </svg>
+            </div>
+            <div class="emergency-legend-copy">
+              <div class="emergency-legend-title">Emergency Exit</div>
+              <div class="emergency-legend-sub">Locate the nearest exit</div>
+            </div>
+          </div>
+
+          <!-- Pan/zoom canvas -->
+          <div class="map-canvas-inner" aria-label="Drag to pan, scroll to zoom">
+            <div class="map-image-container">
+              <img class="map-bg-image" src="${this._opts.imageSrc}" alt="MIU campus emergency aerial photograph" draggable="false" />
+              <div class="map-markers-layer" aria-label="Emergency exit markers"></div>
+            </div>
+          </div>
+
+          <!-- Emergency exit popup card -->
+          <div class="map-popup" role="dialog" aria-label="Emergency exit details" style="display:none; position:absolute;">
+            <button class="map-popup-close" type="button" aria-label="Close popup">×</button>
+            <div class="map-popup-cat"></div>
+            <div class="map-popup-name"></div>
+            <div class="map-popup-desc"></div>
+            ${this._canEdit ? '<button class="map-popup-edit-btn" type="button">Edit exit details</button>' : ''}
+          </div>
+
+          <!-- Edit mode banner -->
+          <div class="map-edit-banner" role="status" aria-live="polite">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+            <span class="map-edit-banner-text">Edit mode active — drag any red exit marker to reposition or click on the map to add an exit.</span>
+            <button class="map-edit-banner-cancel" type="button">Exit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add / Edit Emergency Exit modal -->
+      <div class="map-modal-overlay" role="dialog" aria-modal="true" aria-label="Edit emergency exit">
+        <div class="map-modal">
+          <div class="map-modal-head">
+            <h2 class="map-modal-title">Edit Emergency Exit</h2>
+            <button class="map-modal-close" type="button" aria-label="Close">×</button>
+          </div>
+
+          <form class="map-modal-body" id="map-location-form" novalidate>
+            <div class="map-form-group">
+              <label class="map-form-label" for="form-name">Exit Name <span style="color:#ef4444">*</span></label>
+              <input id="form-name" class="map-form-input" type="text" required placeholder="e.g. North Emergency Exit" />
+            </div>
+
+            <div class="map-form-group">
+              <label class="map-form-label" for="form-label">Marker Tag Label</label>
+              <input id="form-label" class="map-form-input" type="text" placeholder="e.g. Emergency Exit" />
+            </div>
+
+            <div class="map-form-group">
+              <label class="map-form-label" for="form-zone">Campus Zone / Area</label>
+              <input id="form-zone" class="map-form-input" type="text" placeholder="e.g. North Academic Wing" />
+            </div>
+
+            <div class="map-form-group">
+              <label class="map-form-label" for="form-status">Operational Status</label>
+              <select id="form-status" class="map-form-select">
+                <option value="operational">Operational (Clear & Active)</option>
+                <option value="standby">Standby (Under Inspection)</option>
+              </select>
+            </div>
+
+            <div class="map-form-group">
+              <label class="map-form-label" for="form-description">Evacuation Instructions & Notes</label>
+              <textarea id="form-description" class="map-form-textarea" placeholder="Instructions, assembly point, or access guidance…"></textarea>
+            </div>
+
+            <div class="map-form-group">
+              <label class="map-form-label">Position (0–1 normalised image coordinates)</label>
+              <div class="map-form-coords">
+                <input id="form-x" class="map-form-input" type="number" step="0.0001" min="0" max="1" placeholder="X" aria-label="X position" />
+                <input id="form-y" class="map-form-input" type="number" step="0.0001" min="0" max="1" placeholder="Y" aria-label="Y position" />
+              </div>
+              <p class="map-form-hint">Tip: Drag the glowing red exit pin on the map to adjust position in real time.</p>
+            </div>
+          </form>
+
+          <div class="map-modal-foot">
+            <button id="map-delete-location-btn" class="map-delete-btn" type="button">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4h10m-7 0V3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1m1 0v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4"/></svg>
+              Delete
+            </button>
+            <button type="button" class="btn btn-outline btn-sm" onclick="this.closest('.map-modal-overlay').classList.remove('is-open')">Cancel</button>
+            <button type="submit" form="map-location-form" class="btn btn-primary btn-sm">Save Exit</button>
           </div>
         </div>
       </div>
