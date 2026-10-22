@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lost &amp; Found Staff - CampusOne</title>
+  <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
+  <link rel="stylesheet" href="../public/css/style.css">
+  <link rel="stylesheet" href="../public/css/profile.css">
+  <link rel="stylesheet" href="../public/css/staff-lost-and-found.css">
+  <script src="../public/js/avatar.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="app-header">
+    <div class="container">
+      <a href="staff-lost-found.html" class="app-header__logo" aria-label="Lost and Found staff home">
+        <img src="../public/images/logo.png" alt="MIU logo" width="36" height="36">
+        <div class="app-header__logo-text"><span class="app-header__logo-abbr">MIU</span><span class="app-header__logo-sub">Misr International University</span></div>
+        <span class="app-header__logo-divider" aria-hidden="true"></span><span class="app-header__logo-brand">CampusOne</span>
+      </a>
+      <nav class="app-nav" aria-label="Main navigation">
+        <a href="staff-lost-found.html" class="app-nav__link" aria-current="page">Lost &amp; Found</a>
+        <a href="home.html" class="app-nav__link">Student portal</a>
+      </nav>
+      <div class="app-header__actions">
+        <div class="dropdown" id="profile-dropdown">
+          <button type="button" class="dropdown__trigger profile-trigger" id="profile-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="profile-panel">
+            <span class="profile-trigger__avatar" aria-hidden="true"><span class="avatar-initials" id="nav-initials">?</span></span>
+            <span class="profile-trigger__name" id="nav-user-name"></span>
+            <span aria-hidden="true">⌄</span>
+          </button>
+          <div class="dropdown__panel" id="profile-panel" role="menu">
+            <div class="dropdown__header" id="nav-user-email"></div>
+            <button type="button" class="dropdown__item dropdown__item--danger" id="logout-btn" role="menuitem">Log out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="staff-page">
+    <div class="container">
+      <div class="page-header-row">
+        <div><p class="eyebrow">Staff workspace</p><h1 class="page-title">Lost &amp; Found</h1><p class="page-subtitle">Review student reports and manage the campus item inventory.</p></div>
+        <div class="staff-stats"><strong id="report-count">0</strong><span>student reports</span></div>
+      </div>
+      <nav class="staff-tabs" aria-label="Lost and Found sections">
+        <button type="button" class="staff-tab is-active" data-view="reports">Student reports</button>
+        <button type="button" class="staff-tab" data-view="inventory">Inventory</button>
+        <button type="button" class="staff-tab" data-view="claims">Claims &amp; pickup</button>
+      </nav>
+
+      <section data-panel="reports">
+        <div class="section-heading"><div><h2>Submitted forms</h2><p>Each report includes the student who submitted it.</p></div><select id="report-filter" aria-label="Filter reports"><option value="all">All reports</option><option value="lost">Lost forms</option><option value="found">Found forms</option></select></div>
+        <div id="reports-list" class="report-list" aria-live="polite"></div>
+      </section>
+
+      <section data-panel="inventory" hidden>
+        <div class="section-heading"><div><h2>Inventory</h2><p>Items handed to staff can be added, edited, or removed here.</p></div><button type="button" class="button button-primary" id="add-item-btn">+ Add item</button></div>
+        <form id="inventory-form" class="inventory-form" hidden>
+          <input type="hidden" id="inventory-id">
+          <div class="field"><label for="inventory-name">Item name *</label><input id="inventory-name" required></div>
+          <div class="field"><label for="inventory-type">Type</label><select id="inventory-type"><option value="found">Found item</option><option value="lost">Lost item</option></select></div>
+          <div class="field"><label for="inventory-category">Category *</label><input id="inventory-category" required placeholder="e.g. Phone"></div>
+          <div class="field"><label for="inventory-location">Location *</label><input id="inventory-location" required></div>
+          <div class="field"><label for="inventory-date">Date *</label><input id="inventory-date" type="date" required></div>
+          <div class="field full"><label for="inventory-details">Details</label><textarea id="inventory-details"></textarea></div>
+          <div class="form-actions"><button type="submit" class="button button-primary">Save item</button><button type="button" class="button button-ghost" id="cancel-item-btn">Cancel</button></div>
+        </form>
+        <div id="inventory-list" class="inventory-list" aria-live="polite"></div>
+      </section>
+
+      <section data-panel="claims" hidden>
+        <div class="section-heading"><div><h2>Claim verification</h2><p>Review private answers before issuing a one-time pickup code.</p></div></div>
+        <div id="claims-list" class="claims-list" aria-live="polite"></div>
+      </section>
+    </div>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="../public/js/staff-lost-and-found.js"></script>
+</body>
+</html>

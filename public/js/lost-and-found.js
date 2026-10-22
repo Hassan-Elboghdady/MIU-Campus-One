@@ -10,17 +10,41 @@ const lostItems = [
   { name: "Brown leather wallet", category: "Wallet", place: "Campus Lawn", date: "Oct 13, 2026", detail: "Slim wallet with student ID and two cards", style: "browse-photo-wallet" }
 ];
 
-const foundItems = [
-  { name: "Blue backpack found near Library", category: "Bag", place: "Central Library", date: "Oct 16, 2026", detail: "Navy blue with silver zipper pull and a small front pocket", style: "browse-photo-blue" },
-  { name: "Silver watch handed to security", category: "Other", place: "Main Building security", date: "Oct 15, 2026", detail: "Silver band, dark face, found beside the east stairwell", style: "browse-photo-watch" },
-  { name: "Black Android phone", category: "Phone", place: "Room 302", date: "Oct 14, 2026", detail: "Black case with a small red sticker on the back", style: "browse-photo-phone" },
-  { name: "Brown leather wallet", category: "Wallet", place: "Campus security office", date: "Oct 13, 2026", detail: "Slim wallet with student ID and two cards inside", style: "browse-photo-wallet" }
-];
+const REPORTS_KEY = "campusone_lost_found_reports";
+const INVENTORY_KEY = "campusone_lost_found_inventory";
+const CLAIMS_KEY = "campusone_lost_found_claims";
+
+function getReports() {
+  try {
+    return JSON.parse(localStorage.getItem(REPORTS_KEY) || "[]");
+  } catch (error) {
+    showToast("Could not load your saved reports.");
+    return [];
+  }
+}
+
+function saveReport(report) {
+  try {
+    const reports = getReports();
+    reports.unshift(report);
+    localStorage.setItem(REPORTS_KEY, JSON.stringify(reports));
+    return true;
+  } catch (error) {
+    showToast("Could not save your report. Please try again.");
+    return false;
+  }
+}
 
 function showToast(message) {
   toast.textContent = message;
   toast.classList.add("show");
   window.setTimeout(() => toast.classList.remove("show"), 2800);
+}
+
+function escapeHtml(value) {
+  return String(value || "").replace(/[&<>"']/g, character => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[character]));
 }
 
 function cloneTemplate(id) {
@@ -35,7 +59,8 @@ function navigate(hash) {
 function getRoute() {
   const hash = window.location.hash.replace("#", "");
   if (hash.startsWith("matches")) return "matches";
-  if (hash === "browse-found")    return "browse-found";
+  if (hash === "claim") return "claim";
+  if (hash === "my-claims") return "my-claims";
   if (hash === "browse")          return "browse";
   return "new";
 }
@@ -62,12 +87,15 @@ function renderNew() {
     });
   });
 
-  /* Browse tab buttons inside the form */
+  /* Browse tab button inside the form */
   document.querySelectorAll("[data-route='browse']").forEach(btn => {
     btn.addEventListener("click", () => navigate("browse"));
   });
-  document.querySelectorAll("[data-route='browse-found']").forEach(btn => {
-    btn.addEventListener("click", () => navigate("browse-found"));
+  document.querySelectorAll("[data-route='claim']").forEach(btn => {
+    btn.addEventListener("click", () => navigate("claim"));
+  });
+  document.querySelectorAll("[data-route='my-claims']").forEach(btn => {
+    btn.addEventListener("click", () => navigate("my-claims"));
   });
 
   securityRow.hidden = reportType !== "found";
@@ -75,9 +103,131 @@ function renderNew() {
   document.querySelector("#photo").addEventListener("change", handlePhotoChange);
 }
 
+function formatClaimDate(value) {
+  if (!value) return "Not available";
+  return new Date(`${value}${value.length === 10 ? "T00:00:00" : ""}`).toLocaleDateString();
+}
+
+function renderMyClaims() {
+  app.replaceChildren(cloneTemplate("claims-status-template"));
+  const backLink = app.querySelector(".back-link");
+  if (backLink) backLink.addEventListener("click", event => { event.preventDefault(); navigate("new"); });
+
+  const session = JSON.parse(localStorage.getItem("campusone_session") || "null");
+  let claims = [];
+  let inventory = [];
+  try {
+    claims = JSON.parse(localStorage.getItem(CLAIMS_KEY) || "[]");
+    inventory = JSON.parse(localStorage.getItem(INVENTORY_KEY) || "[]");
+  } catch (error) {
+    showToast("Could not load your claim status.");
+    return;
+  }
+  const mine = claims.filter(claim => session && claim.student && (
+    (claim.student.id && claim.student.id === session.id) ||
+    (claim.student.email && claim.student.email.toLowerCase() === (session.email || "").toLowerCase())
+  ));
+  const list = document.querySelector("[data-my-claims]");
+  if (!mine.length) {
+    list.innerHTML = '<p class="empty-state">You have not submitted any claims yet.</p>';
+    return;
+  }
+  list.innerHTML = mine.map(claim => {
+    const item = inventory.find(entry => entry.id === claim.itemId) || { name: "Inventory item", location: "Lost & Found room" };
+    const approved = claim.status === "Pickup code issued";
+    const collected = claim.status === "Collected";
+    const rejected = claim.status === "Rejected";
+    const statusClass = approved ? "status-approved" : rejected ? "status-rejected" : collected ? "status-collected" : "status-pending";
+    const details = approved
+      ? `<div class="pickup-ticket"><p class="eyebrow">Ready for pickup</p><strong class="pickup-code">${escapeHtml(claim.pickupCode)}</strong><p><strong>Pickup location:</strong> Lost &amp; Found room</p><p><strong>Bring:</strong> Your university student ID and this pickup code.</p><p><strong>Code expires:</strong> ${escapeHtml(formatClaimDate(claim.codeExpiresAt))}</p></div>`
+      : collected
+        ? '<div class="claim-status-message success">Item collected successfully.</div>'
+        : rejected
+          ? '<div class="claim-status-message rejected">This claim was not approved. Please contact Lost &amp; Found staff for more information.</div>'
+          : '<div class="claim-status-message pending">Staff is reviewing your answers and student ID. Keep checking this page for an update.</div>';
+    return `<article class="claim-status-card"><div class="claim-status-card__top"><div><span class="claim-status ${statusClass}">${escapeHtml(claim.status)}</span><h2>${escapeHtml(item.name)}</h2><p>Submitted ${escapeHtml(formatClaimDate(claim.createdAt))}</p></div>${approved ? '<span aria-label="Pickup ready">✓</span>' : ''}</div>${details}</article>`;
+  }).join("");
+}
+
+function renderClaim() {
+  app.replaceChildren(cloneTemplate("claim-view-template"));
+  const backLink = app.querySelector(".back-link");
+  if (backLink) backLink.addEventListener("click", event => { event.preventDefault(); navigate("new"); });
+
+  const itemSelect = document.querySelector("#claim-item");
+  let inventory = [];
+  try {
+    inventory = JSON.parse(localStorage.getItem(INVENTORY_KEY) || "[]");
+  } catch (error) {
+    showToast("Could not load the inventory.");
+  }
+  if (!inventory.length) {
+    itemSelect.innerHTML = '<option value="">No items are currently ready for claiming</option>';
+    itemSelect.disabled = true;
+  } else {
+    itemSelect.innerHTML = '<option value="">Select the item you recognize</option>' +
+      inventory.filter(item => item.type === "found").map(item =>
+        `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)} — ${escapeHtml(item.location)}</option>`
+      ).join("");
+  }
+
+  document.querySelector("#claim-form").addEventListener("submit", event => {
+    event.preventDefault();
+    if (!event.currentTarget.reportValidity()) return;
+    const session = JSON.parse(localStorage.getItem("campusone_session") || "null");
+    const form = new FormData(event.currentTarget);
+    let claims = [];
+    try {
+      claims = JSON.parse(localStorage.getItem(CLAIMS_KEY) || "[]");
+    } catch (error) {
+      showToast("Could not load existing claims.");
+      return;
+    }
+    claims.unshift({
+      id: `claim-${Date.now()}`,
+      itemId: form.get("itemId"),
+      studentId: form.get("studentId"),
+      location: form.get("location"),
+      uniqueDetails: form.get("uniqueDetails"),
+      answers: [form.get("answerOne"), form.get("answerTwo")],
+      student: { id: session && session.id, name: session && session.name || "Unknown student", email: session && session.email || "" },
+      status: "Pending verification",
+      createdAt: new Date().toISOString()
+    });
+    try {
+      localStorage.setItem(CLAIMS_KEY, JSON.stringify(claims));
+      app.innerHTML = '<div class="match-panel claim-success"><p class="eyebrow">Claim submitted</p><h2>Staff will review your answers.</h2><p class="lead">If your answers match, Lost &amp; Found staff will issue a one-time pickup code. Bring your student ID when you collect the item.</p><button class="button button-primary" type="button" id="claim-done">Back to Lost &amp; Found</button></div>';
+      document.querySelector("#claim-done").addEventListener("click", () => navigate("new"));
+    } catch (error) {
+      showToast("Could not send your claim. Please try again.");
+    }
+  });
+}
+
 function handleReportSubmit(event) {
   event.preventDefault();
   if (!event.currentTarget.reportValidity()) return;
+  const session = JSON.parse(localStorage.getItem("campusone_session") || "null");
+  const form = new FormData(event.currentTarget);
+  const report = {
+    id: `report-${Date.now()}`,
+    type: reportType,
+    itemName: form.get("itemName"),
+    category: form.get("category"),
+    color: form.get("color"),
+    date: form.get("date"),
+    building: form.get("building"),
+    description: form.get("description"),
+    security: form.get("security") || "no",
+    student: {
+      id: session && session.id,
+      name: session && session.name ? session.name : "Unknown student",
+      email: session && session.email ? session.email : ""
+    },
+    createdAt: new Date().toISOString(),
+    status: "Open"
+  };
+  if (!saveReport(report)) return;
   showToast("Report received. Finding the closest matches…");
   window.setTimeout(() => navigate("matches"), 700);
 }
@@ -88,7 +238,7 @@ function handlePhotoChange(event) {
   }
 }
 
-function createBrowseCard(item, isFoundBoard) {
+function createBrowseCard(item) {
   const card   = document.querySelector("#browse-card-template").content.cloneNode(true);
   const root   = card.querySelector(".lost-card");
   const photo  = card.querySelector("[data-photo]");
@@ -104,17 +254,9 @@ function createBrowseCard(item, isFoundBoard) {
   card.querySelector("[data-card-place]").textContent    = `⌖ ${item.place}`;
 
   const action = card.querySelector("[data-card-action]");
-  action.textContent = isFoundBoard ? "This is mine" : "I found this item";
-  action.classList.toggle("claim-button", isFoundBoard);
+  action.textContent = "I found this item";
 
   action.addEventListener("click", () => {
-    if (isFoundBoard) {
-      action.classList.add("claimed");
-      action.textContent = "Claim sent to staff ✓";
-      action.disabled = true;
-      showToast("Your claim has been sent to Lost & Found staff.");
-      return;
-    }
     reportType = "found";
     navigate("new");
     showToast("Tell us where you found this item.");
@@ -123,26 +265,24 @@ function createBrowseCard(item, isFoundBoard) {
   return card;
 }
 
-function renderBrowse(isFoundBoard = false) {
+function renderBrowse() {
   app.replaceChildren(cloneTemplate("browse-view-template"));
 
   /* Wire back link inside browse view */
   const backLink = app.querySelector(".back-link");
   if (backLink) backLink.addEventListener("click", e => { e.preventDefault(); navigate("new"); });
 
-  const items = isFoundBoard ? foundItems : lostItems;
-  document.querySelector("[data-browse-title]").textContent    = isFoundBoard ? "Browse found items." : "Browse lost items.";
-  document.querySelector("[data-browse-lead]").textContent     = isFoundBoard
-    ? "See what students and staff have handed in. Recognize your item? Send a claim to Lost & Found staff."
-    : "Recognize something? Open a report and let the student know you may have found it.";
-  document.querySelector("[data-browse-count]").textContent    = isFoundBoard ? "12 found reports" : "24 active reports";
+  const items = lostItems;
+  document.querySelector("[data-browse-title]").textContent = "Browse lost items.";
+  document.querySelector("[data-browse-lead]").textContent = "Recognize something? Open a report and let the student know you may have found it.";
+  document.querySelector("[data-browse-count]").textContent = "24 active reports";
 
   const grid       = document.querySelector("[data-card-grid]");
   const search     = document.querySelector("[data-search]");
   const catFilter  = document.querySelector("[data-category-filter]");
   const noResults  = document.querySelector("[data-no-results]");
 
-  items.forEach(item => grid.append(createBrowseCard(item, isFoundBoard)));
+  items.forEach(item => grid.append(createBrowseCard(item)));
 
   const filterItems = () => {
     const q   = search.value.toLowerCase();
@@ -179,13 +319,18 @@ function renderMatches() {
 function renderRoute() {
   const route = getRoute();
   if (route === "matches")      renderMatches();
-  else if (route === "browse-found") renderBrowse(true);
+  else if (route === "claim")   renderClaim();
+  else if (route === "my-claims") renderMyClaims();
   else if (route === "browse")  renderBrowse();
   else                          renderNew();
 }
 
 /* Re-render on hash change (back/forward buttons) */
 window.addEventListener("hashchange", renderRoute);
+window.addEventListener("storage", event => {
+  if ((event.key === CLAIMS_KEY || event.key === INVENTORY_KEY) &&
+      getRoute() === "my-claims") renderMyClaims();
+});
 
 /* Initial render */
 renderRoute();

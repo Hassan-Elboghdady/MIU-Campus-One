@@ -1098,6 +1098,44 @@ h3 {
 
 .site-header-nav > a:not(.button):hover,
 .site-header-nav > a.active {
+  color: var(--red)
+}
+
+.claims-status-list {
+  display: grid;
+  gap: 16px;
+  max-width: 780px
+}
+
+.claim-status-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 22px
+}
+
+.claim-status-card__top {
+  align-items: flex-start;
+  display: flex;
+  justify-content: space-between
+}
+
+.claim-status-card h2 { font-size: 22px; margin: 12px 0 5px }
+.claim-status-card__top p { color: var(--muted); font-size: 12px; margin: 0 }
+.claim-status { border-radius: 20px; display: inline-block; font-size: 10px; font-weight: 700; padding: 6px 10px; text-transform: uppercase }
+.status-pending { background: #fff8d9; color: #806b00 }
+.status-approved { background: #e7f6f0; color: #23866a }
+.status-collected { background: #edf1f3; color: #4d5d6c }
+.status-rejected { background: #fff0f0; color: var(--red) }
+.pickup-ticket { background: #f4fbf8; border: 1px solid #b9e2d2; border-radius: 10px; margin-top: 20px; padding: 17px }
+.pickup-ticket .eyebrow { margin-bottom: 8px }
+.pickup-ticket p { color: #425565; font-size: 13px; margin: 9px 0 0 }
+.pickup-code { color: #176b54; display: block; font-family: "Space Grotesk", sans-serif; font-size: 28px; letter-spacing: .18em; margin: 4px 0 9px }
+.claim-status-message { border-radius: 8px; font-size: 13px; line-height: 1.5; margin-top: 18px; padding: 13px 15px }
+.claim-status-message.pending { background: #fffaf0; color: #665600 }
+.claim-status-message.success { background: #f4fbf8; color: #176b54 }
+.claim-status-message.rejected { background: #fff4f4; color: var(--red-dark) }
   color: #b80008
 }
 
