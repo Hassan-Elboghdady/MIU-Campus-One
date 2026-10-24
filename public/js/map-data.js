@@ -24,7 +24,6 @@ const CATEGORIES = {
   supermarket: { id: 'supermarket', label: 'Supermarkets',       icon: 'supermarket' },
   facility:    { id: 'facility',    label: 'Facilities',         icon: 'facility'    },
   entrance:    { id: 'entrance',    label: 'Entrances',          icon: 'entrance'    },
-  emergency:   { id: 'emergency',   label: 'Emergency',          icon: 'emergency'   },
 };
 
 // --------------------------------------------------------------------------
@@ -229,15 +228,6 @@ const SEED_LOCATIONS = [
     x: null,
     y: null,
   },
-  {
-    id: 'loc-emergency-point',
-    name: 'Emergency Point',
-    category: 'emergency',
-    description: 'Designated campus first-aid station and medical emergency response post.',
-    placed: true,
-    x: 0.41,
-    y: 0.75,
-  },
 ];
 
 // --------------------------------------------------------------------------
@@ -264,7 +254,11 @@ function loadLocations() {
 
     if (Array.isArray(saved) && saved.length > 0) {
       // Validate saved items
-      const validSaved = saved.filter((item) => item && typeof item === 'object' && typeof item.id === 'string');
+      const validSaved = saved
+        .filter((item) => item && typeof item === 'object' && typeof item.id === 'string')
+        // Retired: emergency locations now live only on the dedicated Emergency Map.
+        // Drop any stale saved copies so they never resurface on the Campus Map.
+        .filter((item) => item.category !== 'emergency' && item.id !== 'loc-emergency-point');
       const savedMap = new Map();
       validSaved.forEach((item) => savedMap.set(item.id, item));
 
