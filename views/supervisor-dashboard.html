@@ -228,8 +228,35 @@
       'use strict';
 
       /* -- Session & nav -------------------------------------------------- */
-      var session = initMaintNav();
+      var session = initMaintNav(['supervisor', 'manager', 'admin']);
       if (!session) return;
+
+      /* -- Filter state (declared early so URL param init can use it) ----- */
+      var sortCol = 'reportedAt';
+      var sortAsc = false;
+      var currentFilter = { search: '', cat: '', status: '', priority: '', tech: '' };
+
+      /* -- Read ?tech= URL param and pre-filter by technician -------------- */
+      (function () {
+        var params  = new URLSearchParams(window.location.search);
+        var techId  = params.get('tech');
+        if (!techId) return;
+        var tech = getTechById(techId);
+        if (!tech) return;
+        /* Set the tech filter so renderTable picks it up */
+        currentFilter.tech = techId;
+        /* Show a banner above the table */
+        var banner = document.createElement('div');
+        banner.id  = 'tech-filter-banner';
+        banner.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:12px;' +
+          'background:#EFF6FF;border:1px solid #BFDBFE;border-radius:var(--radius);' +
+          'padding:10px 16px;margin-block-end:var(--space-4);font-size:var(--text-sm);';
+        banner.innerHTML = '<span><strong style="color:#1D4ED8">Filtered:</strong> Showing tasks assigned to <strong>' +
+          tech.name + '</strong> (' + tech.role + ')</span>' +
+          '<a href="supervisor-dashboard.html" style="font-size:12px;font-weight:600;color:#1D4ED8;text-decoration:none;">✕ Clear filter</a>';
+        var wrap = document.querySelector('.data-table-wrap');
+        if (wrap) wrap.insertBefore(banner, wrap.firstChild);
+      })();
 
       /* -- Footer --------------------------------------------------------- */
       (function renderFooter() {
@@ -319,10 +346,6 @@
       /* ------------------------------------------------------------------ */
       /* DATA TABLE                                                           */
       /* ------------------------------------------------------------------ */
-      var sortCol = 'reportedAt';
-      var sortAsc = false;   /* newest first */
-      var currentFilter = { search: '', cat: '', status: '', priority: '' };
-
       /* Build technician options for assign dropdown */
       function buildTechOptions(selectedId) {
         var techs = getTechs();
@@ -362,10 +385,11 @@
         var q = f.search.toLowerCase();
         return tasks.filter(function (t) {
           var matchSearch = !q || (t.id + t.title + t.building + t.room + t.reportedBy).toLowerCase().indexOf(q) !== -1;
-          var matchCat    = !f.cat      || t.category === f.cat;
-          var matchStatus = !f.status   || t.status   === f.status;
-          var matchPrio   = !f.priority || t.priority === f.priority;
-          return matchSearch && matchCat && matchStatus && matchPrio;
+          var matchCat    = !f.cat      || t.category    === f.cat;
+          var matchStatus = !f.status   || t.status      === f.status;
+          var matchPrio   = !f.priority || t.priority    === f.priority;
+          var matchTech   = !f.tech     || t.assignedTo  === f.tech;
+          return matchSearch && matchCat && matchStatus && matchPrio && matchTech;
         });
       }
 

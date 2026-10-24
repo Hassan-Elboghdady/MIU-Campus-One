@@ -238,17 +238,56 @@ function showToast(message, type) {
 }
 
 /* --------------------------------------------------------------------------
-   Session guard helper (reuses same pattern as other pages)
+   Centralised role → home page map (used by all guards below)
    -------------------------------------------------------------------------- */
-function initMaintNav() {
+var ROLE_HOME_MAP = {
+  student:           'home.html',
+  supervisor:        'manager-dashboard.html',
+  manager:           'manager-dashboard.html',
+  technician:        'staff-dashboard.html',
+  staff:             'staff-dashboard.html',
+  admin:             'admin-panel.html',
+  'lost-found-staff':'staff-lost-found.html'
+};
+
+/* --------------------------------------------------------------------------
+   roleRedirect(allowedRoles)
+   Call from ANY page. Reads the session and redirects if the user's role
+   is not in allowedRoles. Returns the session if the user is allowed, else
+   null (and navigation has already been triggered).
+   -------------------------------------------------------------------------- */
+function roleRedirect(allowedRoles) {
+  var s = null;
+  try { s = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
+  if (!s) { window.location.replace('login.html'); return null; }
+  if (allowedRoles && allowedRoles.indexOf(s.role) === -1) {
+    window.location.replace(ROLE_HOME_MAP[s.role] || 'home.html');
+    return null;
+  }
+  return s;
+}
+
+/* --------------------------------------------------------------------------
+   Session guard helper for maintenance pages.
+   allowedRoles (optional): restrict page to a subset of staff.
+   e.g. initMaintNav(['supervisor','manager','admin']) for supervisor-dashboard.
+   -------------------------------------------------------------------------- */
+function initMaintNav(allowedRoles) {
+  /* 1 – Must be logged in */
   var s = null;
   try { s = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
   if (!s) { window.location.replace('login.html'); return null; }
 
-  /* Staff-only pages: redirect students away */
-  var STAFF_ROLES = ['supervisor', 'staff', 'admin', 'technician'];
-  if (STAFF_ROLES.indexOf(s.role) === -1) {
+  /* 2 – Must be any kind of staff (not a plain student) */
+  var ALL_STAFF = ['supervisor', 'manager', 'admin', 'staff', 'technician'];
+  if (ALL_STAFF.indexOf(s.role) === -1) {
     window.location.replace('home.html');
+    return null;
+  }
+
+  /* 3 – Page-level restriction (e.g. supervisor-only pages). Admin bypasses all. */
+  if (allowedRoles && s.role !== 'admin' && allowedRoles.indexOf(s.role) === -1) {
+    window.location.replace(ROLE_HOME_MAP[s.role] || 'home.html');
     return null;
   }
 

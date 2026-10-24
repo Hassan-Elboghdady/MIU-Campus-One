@@ -364,6 +364,8 @@
     (function () {
       var s = null; try { s = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
       if (!s) { window.location.replace('login.html'); return; }
+      var _RHM = { supervisor:'manager-dashboard.html', manager:'manager-dashboard.html', technician:'staff-dashboard.html', staff:'staff-dashboard.html', 'lost-found-staff':'staff-lost-found.html' };
+      if (s.role && _RHM[s.role]) { window.location.replace(_RHM[s.role]); return; }
 
       var el = function (id) { return document.getElementById(id); };
       var ini = (s.name || '?').trim().split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
