@@ -45,24 +45,34 @@ function initRoleNav(pageRole) {
   var ADMIN_ROLES   = ['admin'];
   var ALL_MAINT     = STAFF_ROLES.concat(MANAGER_ROLES).concat(ADMIN_ROLES);
 
-  if (ALL_MAINT.indexOf(s.role) === -1) {
-    window.location.replace('home.html');
-    return null;
-  }
+  /* Admin bypasses all guards — can access every page */
+  if (s.role === 'admin') {
+    /* skip role checks, just render header */
+  } else {
+    if (ALL_MAINT.indexOf(s.role) === -1) {
+      window.location.replace('home.html');
+      return null;
+    }
 
-  /* Page-level guard */
-  if (pageRole === 'staff'   && STAFF_ROLES.indexOf(s.role)   === -1 &&
-                                MANAGER_ROLES.indexOf(s.role) === -1 &&
-                                ADMIN_ROLES.indexOf(s.role)   === -1) {
-    window.location.replace('login.html'); return null;
-  }
-  if (pageRole === 'manager' && MANAGER_ROLES.indexOf(s.role) === -1 &&
-                                ADMIN_ROLES.indexOf(s.role)   === -1) {
-    window.location.replace('staff-dashboard.html'); return null;
-  }
-  if (pageRole === 'admin'   && ADMIN_ROLES.indexOf(s.role)   === -1) {
-    window.location.replace(MANAGER_ROLES.indexOf(s.role) !== -1 ? 'manager-dashboard.html' : 'staff-dashboard.html');
-    return null;
+    /* Centralised redirect map */
+    var ROLE_HOME_MAP = {
+      student:           'home.html',
+      supervisor:        'manager-dashboard.html',
+      manager:           'manager-dashboard.html',
+      technician:        'staff-dashboard.html',
+      staff:             'staff-dashboard.html',
+      admin:             'admin-panel.html',
+      'lost-found-staff':'staff-lost-found.html'
+    };
+
+    /* Page-level guard: strict per-role enforcement */
+    if (pageRole === 'staff' && STAFF_ROLES.indexOf(s.role) === -1) {
+      window.location.replace(ROLE_HOME_MAP[s.role] || 'home.html'); return null;
+    }
+    if (pageRole === 'manager' && MANAGER_ROLES.indexOf(s.role) === -1) {
+      window.location.replace(ROLE_HOME_MAP[s.role] || 'home.html'); return null;
+    }
+    /* pageRole === 'admin' — only admin reaches here; others already blocked above */
   }
 
   /* Populate header */
