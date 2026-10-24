@@ -1119,7 +1119,6 @@ class CampusMapApp {
       { id: 'supermarket', label: 'Supermarkets', icon: ICON_SVG.supermarket },
       { id: 'facility',    label: 'Facilities',   icon: ICON_SVG.facility },
       { id: 'entrance',    label: 'Entrances',    icon: ICON_SVG.entrance },
-      { id: 'emergency',   label: 'Emergency',    icon: ICON_SVG.emergency },
     ];
 
     const filterHtml = catBtns.map((c) => `
@@ -1370,10 +1369,9 @@ class CampusMapApp {
               <span>Emergency Contacts</span>
             </div>
             <div class="emergency-helpline-numbers">
-              <div class="emergency-helpline-item">Campus Hotline: <strong>19888</strong></div>
-              <div class="emergency-helpline-item">Security Desk: <strong>Ext. 101</strong></div>
-              <div class="emergency-helpline-item">MIU Clinic: <strong>Ext. 102</strong></div>
               <div class="emergency-helpline-item">Ambulance: <strong>123</strong></div>
+              <div class="emergency-helpline-item">Fire Department: <strong>180</strong></div>
+              <div class="emergency-helpline-item">Emergency Police: <strong>122</strong></div>
             </div>
           </div>
         </aside>
