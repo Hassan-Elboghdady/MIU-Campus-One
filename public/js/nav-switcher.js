@@ -70,7 +70,14 @@
   };
 
   var role = s.role;
-  if (role === 'admin') return; /* Admin keeps its own header/footer */
+  if (role === 'admin') {
+    var adminBadge = document.getElementById('nav-role-badge');
+    if (adminBadge) {
+      adminBadge.className = 'role-badge role-badge--admin';
+      adminBadge.textContent = 'Admin';
+    }
+    return; /* Admin keeps its own navigation */
+  }
 
   var def = NAV_SETS[role];
   if (!def) return;
