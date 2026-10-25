@@ -7,6 +7,7 @@
   <meta name="robots" content="noindex">
   <link rel="stylesheet" href="../public/css/style.css">
   <link rel="stylesheet" href="../public/css/profile.css">
+  <link rel="stylesheet" href="../public/css/roles.css">
   <link rel="stylesheet" href="../public/css/staff-lost-and-found.css">
 </head>
 <body>
@@ -27,6 +28,7 @@
         <a href="emergency.html" class="app-nav__link">Emergency Map</a>
       </nav>
       <div class="app-header__actions">
+        <span class="role-badge role-badge--manager" id="nav-role-badge">Manager</span>
         <div class="dropdown" id="profile-dropdown">
           <button type="button" class="dropdown__trigger profile-trigger" id="profile-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="profile-panel">
             <span class="profile-trigger__avatar" aria-hidden="true"><span class="avatar-initials" id="nav-initials">?</span></span>
@@ -89,6 +91,8 @@
       </div>
     </div>
   </div>
+  <script src="../public/js/back-button.js"></script>
   <script src="../public/js/maneger-lost-found.js"></script>
+  <script src="../public/js/nav-switcher.js"></script>
 </body>
 </html>
