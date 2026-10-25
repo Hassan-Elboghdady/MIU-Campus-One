@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -101,8 +101,17 @@
         <!-- injected by JS -->
       </div>
 
+      <!-- Manager replies banner (injected by JS) -->
+      <div id="manager-replies-section"></div>
+
       <!-- Filter tabs -->
       <div class="tasks-filter-bar" role="group" aria-label="Filter tasks">
+        <span class="tasks-filter-bar__label">View:</span>
+        <div class="tasks-filter-bar__group" role="group" aria-label="Filter by assignment scope">
+          <button type="button" class="tasks-filter-btn is-active" data-filter-type="scope" data-filter-value="mine" id="filter-scope-mine">My Claimed Tasks</button>
+          <button type="button" class="tasks-filter-btn" data-filter-type="scope" data-filter-value="all" id="filter-scope-all">Available to Claim</button>
+        </div>
+        <span class="tasks-filter-bar__sep" aria-hidden="true"></span>
         <span class="tasks-filter-bar__label">Status:</span>
         <div class="tasks-filter-bar__group" role="group" aria-label="Filter by status">
           <button type="button" class="tasks-filter-btn is-active" data-filter-type="status" data-filter-value="all" id="filter-status-all">All</button>
@@ -174,6 +183,34 @@
     </div>
   </div>
 
+  <!-- ===== DELETE CONFIRM MODAL ===== -->
+  <div class="modal-overlay" id="delete-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="delete-confirm-title" style="display:none">
+    <div class="modal-card" style="max-width:440px;">
+      <div class="modal-card__header">
+        <h2 class="modal-card__title" id="delete-confirm-title" style="display:flex;align-items:center;gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3,5 13,5"/><path d="M6 5V3h4v2"/><rect x="3" y="5" width="10" height="9" rx="1"/><line x1="6" y1="8" x2="6" y2="11"/><line x1="10" y1="8" x2="10" y2="11"/></svg>
+          Delete Resolved Task
+        </h2>
+        <button type="button" class="modal-card__close" id="delete-confirm-close" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="3" x2="15" y2="15"/><line x1="15" y1="3" x2="3" y2="15"/></svg>
+        </button>
+      </div>
+      <div class="modal-card__body">
+        <p style="font-size:var(--text-md);color:var(--color-ink);margin:0 0 8px;">
+          Are you sure you want to <strong style="color:#DC2626;">permanently delete</strong> this resolved task?
+        </p>
+        <p style="font-size:var(--text-sm);color:var(--color-muted);margin:0;">This action cannot be undone. The task will be removed from the system.</p>
+      </div>
+      <div class="modal-card__footer">
+        <button type="button" class="btn btn-outline" id="delete-confirm-cancel">Cancel</button>
+        <button type="button" class="btn" id="delete-confirm-ok" style="background:#DC2626;color:#fff;border:none;">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3,5 13,5"/><path d="M6 5V3h4v2"/><rect x="3" y="5" width="10" height="9" rx="1"/><line x1="6" y1="8" x2="6" y2="11"/><line x1="10" y1="8" x2="10" y2="11"/></svg>
+          Yes, Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
   <footer class="app-footer">
     <div class="container app-footer__inner">
       <div class="app-footer__brand">
@@ -209,13 +246,17 @@
         return t.name.trim().toLowerCase() === (session.name || '').trim().toLowerCase();
       });
 
+      if (!myTech && allTechs.length) {
+        myTech = allTechs.find(function (t) { return t.id === 'tech-0'; }) || allTechs[0];
+      }
+
       var myTechId = myTech ? myTech.id : null;
 
       /* ── Greeting ── */
       var greetEl = document.getElementById('staff-greeting');
       var subEl   = document.getElementById('staff-subtitle');
       if (greetEl) greetEl.textContent = 'Welcome, ' + (session.name || 'Staff') + '!';
-      if (subEl && myTech) subEl.textContent = 'Showing tasks assigned to you as ' + myTech.role + '. Tap any task to view full details or update its status.';
+      if (subEl && myTech) subEl.textContent = 'Showing tasks for ' + myTech.name + ' (' + myTech.role + '). View student reports, update progress, or claim available tasks.';
 
       /* ── Mini stats ── */
       function renderStats() {
@@ -224,10 +265,10 @@
         var row = document.getElementById('staff-stat-row');
         if (!row) return;
         var defs = [
-          { label: 'Total Assigned', val: myTasks.length,                                                                              cls: 'staff-stat--total'     },
-          { label: 'Pending',        val: myTasks.filter(function(t){return t.status==='pending';}).length,                            cls: 'staff-stat--pending'   },
-          { label: 'In Progress',    val: myTasks.filter(function(t){return t.status==='in_progress';}).length,                        cls: 'staff-stat--progress'  },
-          { label: 'Resolved',       val: myTasks.filter(function(t){return t.status==='resolved';}).length,                           cls: 'staff-stat--resolved'  }
+          { label: 'My Assigned Tasks', val: myTasks.length,                                                                              cls: 'staff-stat--total'     },
+          { label: 'Pending',           val: myTasks.filter(function(t){return t.status==='pending';}).length,                            cls: 'staff-stat--pending'   },
+          { label: 'In Progress',       val: myTasks.filter(function(t){return t.status==='in_progress';}).length,                        cls: 'staff-stat--progress'  },
+          { label: 'Resolved',          val: myTasks.filter(function(t){return t.status==='resolved';}).length,                           cls: 'staff-stat--resolved'  }
         ];
         row.innerHTML = defs.map(function (d) {
           return '<div class="staff-stat ' + d.cls + '"><div class="staff-stat__val">' + d.val + '</div><div class="staff-stat__label">' + d.label + '</div></div>';
@@ -236,17 +277,91 @@
       renderStats();
 
       /* ── Filters ── */
-      var activeFilters = { status: 'all', priority: 'all' };
+      var activeFilters = { scope: 'mine', status: 'all', priority: 'all' };
 
       var locIcon = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="7" r="3"/><path d="M8 1C4.69 1 2 3.69 2 7c0 5 6 9 6 9s6-4 6-9c0-3.31-2.69-6-6-6z"/></svg>';
       var calIcon = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="14" height="12" rx="1"/><line x1="1" y1="7" x2="15" y2="7"/><line x1="5" y1="1" x2="5" y2="4"/><line x1="11" y1="1" x2="11" y2="4"/></svg>';
       var tagIcon  = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 2h6l6 6-6 6-6-6V2z"/><circle cx="5" cy="5" r="1" fill="currentColor" stroke="none"/></svg>';
 
+      /* ── Delete confirm modal wiring ── */
+      var deleteConfirmModal = document.getElementById('delete-confirm-modal');
+      var pendingDeleteId = null;
+
+      function openDeleteConfirm(taskId) {
+        pendingDeleteId = taskId;
+        if (deleteConfirmModal) { deleteConfirmModal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+      }
+      function closeDeleteConfirm() {
+        pendingDeleteId = null;
+        if (deleteConfirmModal) { deleteConfirmModal.style.display = 'none'; document.body.style.overflow = ''; }
+      }
+
+      var delClose  = document.getElementById('delete-confirm-close');
+      var delCancel = document.getElementById('delete-confirm-cancel');
+      var delOk     = document.getElementById('delete-confirm-ok');
+      if (delClose)  delClose.addEventListener('click', closeDeleteConfirm);
+      if (delCancel) delCancel.addEventListener('click', closeDeleteConfirm);
+      deleteConfirmModal && deleteConfirmModal.addEventListener('click', function(e){ if(e.target===deleteConfirmModal) closeDeleteConfirm(); });
+
+      if (delOk) {
+        delOk.addEventListener('click', function () {
+          if (!pendingDeleteId) { closeDeleteConfirm(); return; }
+          var tId = pendingDeleteId;
+          closeDeleteConfirm();
+
+          var all = getTasks();
+          var targetTask = all.find(function (t) { return t.id === tId; });
+          var remaining = all.filter(function (t) { return t.id !== tId; });
+          try { localStorage.setItem('campusone_maint_tasks', JSON.stringify(remaining)); } catch(err) {}
+
+          /* DO NOT delete from campusone_reports! Keep report marked resolved / finished so student sees it and deletes it themselves */
+          try {
+            var rawReports = localStorage.getItem('campusone_reports');
+            if (rawReports && targetTask) {
+              var repList = JSON.parse(rawReports);
+              var rep = repList.find(function (r) {
+                return r.taskId === targetTask.id || r.id === targetTask.reportId || r.id === targetTask.id;
+              });
+              if (rep) {
+                rep.status = 'resolved';
+                rep.finished = true;
+                rep.finishedAt = new Date().toISOString();
+                rep.updatedAt = new Date().toISOString();
+                rep.timeline = rep.timeline || [];
+                rep.timeline.unshift({
+                  status: 'resolved',
+                  timestamp: new Date().toISOString(),
+                  note: 'Task marked finished and archived by staff (' + (myTech.name || session.name) + '). Waiting for student review and closure.'
+                });
+                localStorage.setItem('campusone_reports', JSON.stringify(repList));
+              }
+            }
+          } catch(eR) {}
+
+          showToast('Task removed from staff dashboard.', 'success');
+          renderStats();
+          renderTasks();
+        });
+      }
+
       function renderTasks() {
         var allTasks = getTasks();
-        var tasks = myTechId
-          ? allTasks.filter(function (t) { return t.assignedTo === myTechId; })
-          : [];
+
+        /* Only show tasks that came from student reports (have reportId or reportedBy) */
+        var studentTasks = allTasks.filter(function (t) {
+          return !!(t.reportId || t.reportedBy);
+        });
+
+        var tasks;
+        if (activeFilters.scope === 'mine') {
+          /* My claimed tasks */
+          tasks = myTechId
+            ? studentTasks.filter(function (t) { return t.assignedTo === myTechId; })
+            : [];
+        } else {
+          /* All Campus Reports = unassigned tasks available to claim */
+          tasks = studentTasks.filter(function (t) { return !t.assignedTo; });
+        }
 
         if (activeFilters.status !== 'all')   tasks = tasks.filter(function (t) { return t.status   === activeFilters.status;   });
         if (activeFilters.priority !== 'all') tasks = tasks.filter(function (t) { return t.priority === activeFilters.priority; });
@@ -261,26 +376,36 @@
 
         var list  = document.getElementById('tasks-list');
         var count = document.getElementById('tasks-count');
-        if (count) count.textContent = tasks.length + ' task' + (tasks.length !== 1 ? 's' : '') + ' shown';
-
-        if (!myTechId) {
-          list.innerHTML = '<div class="empty-state"><div class="empty-state__icon"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="18" r="10"/><path d="M4 44c0-11 9-20 20-20s20 9 20 20"/></svg></div><p class="empty-state__title">No technician profile found</p><p class="empty-state__text">Your account is not linked to a technician profile. Contact your manager.</p></div>';
-          return;
-        }
+        var scopeLabel = activeFilters.scope === 'mine' ? ' (My Claimed Tasks)' : ' (Available to Claim)';
+        if (count) count.textContent = tasks.length + ' task' + (tasks.length !== 1 ? 's' : '') + ' shown' + scopeLabel;
 
         if (!tasks.length) {
-          list.innerHTML = '<div class="empty-state"><div class="empty-state__icon"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="32" height="36" rx="2"/><line x1="16" y1="18" x2="32" y2="18"/><line x1="16" y1="24" x2="32" y2="24"/><line x1="16" y1="30" x2="24" y2="30"/></svg></div><p class="empty-state__title">No tasks found</p><p class="empty-state__text">No tasks match the selected filters. Try clearing a filter above.</p></div>';
+          var emptyMsg = activeFilters.scope === 'mine'
+            ? 'You have no claimed tasks yet. Switch to "Available to Claim" to pick up new student reports.'
+            : 'No unclaimed student reports at the moment. Check back later.';
+          list.innerHTML = '<div class="empty-state"><div class="empty-state__icon"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="32" height="36" rx="2"/><line x1="16" y1="18" x2="32" y2="18"/><line x1="16" y1="24" x2="32" y2="24"/><line x1="16" y1="30" x2="24" y2="30"/></svg></div><p class="empty-state__title">No tasks found</p><p class="empty-state__text">' + emptyMsg + '</p></div>';
           return;
         }
 
         list.innerHTML = tasks.map(function (task) {
           var hasRequest = (getChangeRequests() || []).some(function(r){ return r.taskId === task.id && r.staffId === myTechId && r.status === 'pending'; });
+
+          /* In 'all' scope tasks are always unassigned so show Claim button; in 'mine' they're mine so show Delete if resolved */
+          var unassignedClaim = (activeFilters.scope === 'all' && !task.assignedTo && myTechId)
+            ? '<button type="button" class="btn btn-sm btn-primary claim-task-btn" data-claim-id="' + task.id + '" style="margin-inline-start:auto;padding:4px 10px;font-size:0.75rem;">Claim Task</button>'
+            : '';
+
+          var deleteBtn = (activeFilters.scope === 'mine' && task.status === 'resolved')
+            ? '<button type="button" class="btn btn-sm delete-task-btn" data-delete-id="' + task.id + '" style="margin-inline-start:auto;padding:4px 10px;font-size:0.75rem;background:#FEF2F2;color:#DC2626;border:1px solid #FECACA;border-radius:var(--radius);cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:4px;" title="Delete resolved task"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3,5 13,5"/><path d="M6 5V3h4v2"/><rect x="3" y="5" width="10" height="9" rx="1"/><line x1="6" y1="8" x2="6" y2="11"/><line x1="10" y1="8" x2="10" y2="11"/></svg>Delete</button>'
+            : '';
+
           return '<a href="task-details.html?id=' + encodeURIComponent(task.id) + '" class="task-card" data-priority="' + task.priority + '" id="task-' + task.id + '">' +
             '<div class="task-card__header">' +
               '<span class="task-card__title">' + task.title + '</span>' +
               '<div class="task-card__chips">' +
                 priorityChip(task.priority) +
                 statusChip(task.status) +
+                '<span class="req-badge req-badge--student" style="background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE;font-weight:600;">Student Report</span>' +
                 (hasRequest ? '<span class="req-badge">Request Pending</span>' : '') +
               '</div>' +
             '</div>' +
@@ -289,10 +414,69 @@
               '<span class="task-card__meta-item">' + locIcon + task.building + ' · ' + task.room + '</span>' +
               '<span class="task-card__meta-item">' + tagIcon + task.category + '</span>' +
               '<span class="task-card__meta-item">' + calIcon + fmtDate(task.reportedAt) + '</span>' +
-              '<span class="task-card__meta-item" style="margin-inline-start:auto;font-size:var(--text-xs);font-family:monospace;color:var(--color-muted)">' + task.id + '</span>' +
+              (task.reportedBy ? '<span class="task-card__meta-item" style="color:#2563EB;font-weight:600;">Reported by: ' + task.reportedBy + '</span>' : '') +
+              unassignedClaim +
+              deleteBtn +
+              '<span class="task-card__meta-item" style="margin-inline-start:' + (unassignedClaim || deleteBtn ? '8px' : 'auto') + ';font-size:var(--text-xs);font-family:monospace;color:var(--color-muted)">' + task.id + (task.reportId ? ' (' + task.reportId + ')' : '') + '</span>' +
             '</div>' +
           '</a>';
         }).join('');
+
+        // Wire up claim buttons
+        list.querySelectorAll('.claim-task-btn').forEach(function (cBtn) {
+          cBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var tId = cBtn.dataset.claimId;
+            var t = getTaskById(tId);
+            if (t && myTechId) {
+              t.assignedTo = myTechId;
+              t.status = 'in_progress';
+              t.log = t.log || [];
+              t.log.push({
+                actor: (myTech.name || session.name) + ' (' + (myTech.role || 'Staff') + ')',
+                action: 'Claimed by Technician',
+                note: 'Technician claimed and assigned this task to themselves.',
+                ts: new Date().toISOString()
+              });
+              updateTask(t);
+
+              /* Explicitly sync status and assignee to student report in campusone_reports */
+              try {
+                var rawReports = localStorage.getItem('campusone_reports');
+                if (rawReports) {
+                  var repList = JSON.parse(rawReports);
+                  var rep = repList.find(function (r) { return r.taskId === t.id || r.id === t.reportId || r.id === t.id; });
+                  if (rep) {
+                    rep.status = 'in_progress';
+                    rep.assignedTo = { name: myTech.name || session.name, role: myTech.role || 'Maintenance', id: myTech.id };
+                    rep.updatedAt = new Date().toISOString();
+                    rep.timeline = rep.timeline || [];
+                    rep.timeline.unshift({
+                      status: 'in_progress',
+                      timestamp: new Date().toISOString(),
+                      note: 'Claimed and started by technician ' + (myTech.name || session.name) + ' (' + (myTech.role || 'Staff') + ')'
+                    });
+                    localStorage.setItem('campusone_reports', JSON.stringify(repList));
+                  }
+                }
+              } catch(eRepSync) {}
+
+              showToast('You have claimed task ' + t.id + '!', 'success');
+              renderStats();
+              renderTasks();
+            }
+          });
+        });
+
+        // Wire up delete buttons — open custom modal instead of browser confirm
+        list.querySelectorAll('.delete-task-btn').forEach(function (dBtn) {
+          dBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openDeleteConfirm(dBtn.dataset.deleteId);
+          });
+        });
       }
 
       renderTasks();
@@ -310,22 +494,89 @@
         });
       });
 
-      /* ── Notification dot ── */
-      (function () {
-        var requests = getChangeRequests() || [];
-        var myPending = requests.filter(function (r) { return r.staffId === myTechId && r.status === 'answered'; });
-        var dot = document.getElementById('notif-dot');
-        var list = document.getElementById('notif-list');
-        if (myPending.length) {
+      /* ── Manager Replies Banner + Notification dot ── */
+      var DISMISSED_REPLIES_KEY = 'campusone_dismissed_replies';
+
+      function getDismissed() {
+        try { return JSON.parse(localStorage.getItem(DISMISSED_REPLIES_KEY)) || []; } catch(e) { return []; }
+      }
+      function addDismissed(reqId) {
+        var d = getDismissed();
+        if (d.indexOf(reqId) === -1) d.push(reqId);
+        try { localStorage.setItem(DISMISSED_REPLIES_KEY, JSON.stringify(d)); } catch(e) {}
+      }
+
+      function renderManagerReplies() {
+        var requests  = getChangeRequests() || [];
+        var dismissed = getDismissed();
+        var typeLabels = { reassign:'Reassign Task', extension:'Deadline Extension', resources:'Additional Resources', clarification:'Needs Clarification', other:'Other' };
+
+        /* Replies meant for THIS staff member that have been answered */
+        var replies = requests.filter(function (r) {
+          var isMyId = myTechId && r.staffId === myTechId;
+          var isMyName = session.name && r.staffName && r.staffName.trim().toLowerCase() === session.name.trim().toLowerCase();
+          var isTechName = myTech && myTech.name && r.staffName && r.staffName.trim().toLowerCase() === myTech.name.trim().toLowerCase();
+          return (isMyId || isMyName || isTechName || (!r.staffId && !r.staffName)) &&
+                 (r.status === 'answered' || r.status === 'rejected') &&
+                 dismissed.indexOf(r.id) === -1;
+        });
+
+        var section = document.getElementById('manager-replies-section');
+        if (!section) return;
+
+        /* Notification dot */
+        var dot  = document.getElementById('notif-dot');
+        var nList = document.getElementById('notif-list');
+        if (replies.length) {
           if (dot) dot.style.display = 'block';
-          if (list) list.innerHTML = myPending.map(function (r) {
-            return '<div class="dropdown__item" style="flex-direction:column;align-items:flex-start;gap:2px;pointer-events:none;">' +
-              '<span style="font-weight:700;color:var(--color-ink)">Manager replied to your request</span>' +
+          if (nList) nList.innerHTML = replies.map(function (r) {
+            return '<div class="dropdown__item" style="flex-direction:column;align-items:flex-start;gap:2px;cursor:default;">' +
+              '<span style="font-weight:700;color:var(--color-ink)">Manager replied · ' + (typeLabels[r.type] || r.type) + '</span>' +
               '<span style="font-size:var(--text-xs);color:var(--color-muted)">' + (r.managerNote || 'No note.') + '</span>' +
             '</div>';
           }).join('');
+        } else {
+          if (dot) dot.style.display = 'none';
+          if (nList) nList.innerHTML = '<div class="dropdown__empty">No new notifications</div>';
         }
-      })();
+
+        if (!replies.length) { section.innerHTML = ''; return; }
+
+        section.innerHTML = replies.map(function (r) {
+          var isRejected = r.status === 'rejected';
+          var accent = isRejected ? '#DC2626' : '#16A34A';
+          var bg     = isRejected ? '#FEF2F2' : '#F0FDF4';
+          var border = isRejected ? '#FECACA' : '#BBF7D0';
+          var icon   = isRejected
+            ? '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="7"/><line x1="5" y1="5" x2="11" y2="11"/><line x1="11" y1="5" x2="5" y2="11"/></svg>'
+            : '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="7"/><polyline points="5,8 7,10 11,6"/></svg>';
+          return '<div style="background:' + bg + ';border:1px solid ' + border + ';border-radius:10px;padding:14px 16px;display:flex;align-items:flex-start;gap:14px;margin-block-end:var(--space-3);">' +
+            '<span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:' + accent + '22;color:' + accent + ';flex-shrink:0;margin-top:2px;">' + icon + '</span>' +
+            '<div style="flex:1;min-width:0;">' +
+              '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-block-end:4px;">' +
+                '<span style="font-weight:700;font-size:var(--text-sm);color:' + accent + ';">Manager ' + (isRejected ? 'Rejected' : 'Approved') + ' your request</span>' +
+                '<span style="font-size:var(--text-xs);color:var(--color-muted);white-space:nowrap;">' + fmtDate(r.createdAt) + '</span>' +
+              '</div>' +
+              '<div style="font-size:var(--text-xs);color:var(--color-muted);margin-block-end:4px;">Request type: <strong>' + (typeLabels[r.type] || r.type) + '</strong>' + (r.taskId ? ' &nbsp;·&nbsp; Task: ' + r.taskId : '') + '</div>' +
+              '<div style="font-size:var(--text-sm);color:#1E293B;background:rgba(0,0,0,0.04);border-radius:6px;padding:8px 10px;margin-block-end:8px;border-left:3px solid ' + accent + ';">' +
+                '<strong style="font-size:var(--text-xs);color:var(--color-muted);display:block;margin-block-end:2px;">Manager\'s reply:</strong>' +
+                (r.managerNote || 'No additional note.') +
+              '</div>' +
+              '<button type="button" class="btn btn-sm btn-outline dismiss-reply-btn" data-reply-id="' + r.id + '" style="font-size:var(--text-xs);padding:4px 12px;">Dismiss</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+
+        /* Wire dismiss buttons */
+        section.querySelectorAll('.dismiss-reply-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            addDismissed(btn.dataset.replyId);
+            renderManagerReplies();
+          });
+        });
+      }
+
+      renderManagerReplies();
 
       /* ── Change-request modal ── */
       var modal    = document.getElementById('request-modal');
@@ -373,7 +624,7 @@
           var request = {
             id:          'req-' + Date.now(),
             staffId:     myTechId,
-            staffName:   session.name,
+            staffName:   (myTech && myTech.name ? myTech.name : session.name),
             taskId:      taskId,
             type:        type,
             message:     msg,

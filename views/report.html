@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -182,6 +182,37 @@
                 </div>
               </div>
 
+              <!-- Section 3: Maintenance Routing -->
+              <div class="form-section">
+                <p class="form-section__label">Issue Category</p>
+
+                <div class="form-group">
+                  <label class="form-label" for="field-category">
+                    Category
+                  </label>
+                  <select class="form-select" id="field-category" name="category">
+                    <option value="auto">Auto-detect from issue (Recommended)</option>
+                    <option value="General Maint.">General Maintenance</option>
+                    <option value="Plumbing">Plumbing (Taps, Pipes, Restrooms, Drains)</option>
+                    <option value="Electrical">Electrical (Lighting, Power, Sockets)</option>
+                    <option value="HVAC">HVAC &amp; Air Conditioning</option>
+                    <option value="Carpentry">Carpentry (Doors, Locks, Furniture)</option>
+                    <option value="Elevator">Elevator / Machinery</option>
+                    <option value="Painting">Painting &amp; Wall Repairs</option>
+                  </select>
+                </div>
+
+                <div style="margin-top:14px;padding:12px 16px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;display:flex;align-items:flex-start;gap:12px;font-size:0.875rem;">
+                  <span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#DBEAFE;color:#1D4ED8;flex-shrink:0;margin-top:1px;">
+                    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="7"/><line x1="8" y1="5" x2="8" y2="8"/><circle cx="8" cy="11" r=".5" fill="currentColor" stroke="none"/></svg>
+                  </span>
+                  <div>
+                    <span style="font-weight:600;color:#1E40AF;display:block;margin-bottom:2px;">Reviewed by maintenance staff</span>
+                    <span style="color:#3B82F6;">Your report will be visible to all available maintenance staff. A technician will claim and handle it as soon as possible.</span>
+                  </div>
+                </div>
+              </div>
+
               <!-- Section 3: Images -->
               <div class="form-section">
                 <p class="form-section__label">Images (optional)</p>
@@ -260,8 +291,8 @@
                     </svg>
                   </span>
                   <div class="info-tip__text">
-                    <span class="info-tip__label">Staff reviews and assigns</span>
-                    <span class="info-tip__desc">A supervisor reviews your report and assigns it to a technician.</span>
+                    <span class="info-tip__label">Staff claims your report</span>
+                    <span class="info-tip__desc">Your report is visible to all maintenance staff. Any available technician can claim and handle it.</span>
                   </div>
                 </div>
 
@@ -327,11 +358,17 @@
             <path d="M7 18l7 7 15-14"/>
           </svg>
         </div>
-        <h2 class="success-heading">Report submitted</h2>
-        <p class="success-body">Your report has been received. Track its progress in My reports.</p>
-        <div class="success-id">
-          <span>Report ID</span>
-          <strong id="success-report-id"></strong>
+        <h2 class="success-heading">Report Sent to Maintenance Staff</h2>
+        <p class="success-body">Your report has been received and routed directly to the campus maintenance staff portal.</p>
+        <div class="success-id" style="flex-direction:column;gap:8px;padding:16px 20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:12px;">
+            <span style="color:var(--color-muted);">Report ID</span>
+            <strong id="success-report-id"></strong>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:12px;border-top:1px dashed rgba(0,0,0,0.1);padding-top:8px;">
+            <span style="color:var(--color-muted);">Status</span>
+            <strong id="success-staff-assigned" style="color:var(--color-primary);font-size:0.95rem;">Sent to Maintenance Staff</strong>
+          </div>
         </div>
         <div class="success-actions">
           <a id="success-view-btn" href="my-reports.html" class="btn btn-primary">View my report</a>
@@ -398,6 +435,7 @@
       if (tog && nav) tog.addEventListener('click', function () { tog.setAttribute('aria-expanded', String(nav.classList.toggle('is-open'))); });
     })();
   </script>
+  <script src="../public/js/maintenance-data.js"></script>
   <script type="module" src="../public/js/report.js"></script>
   <script>
     /* Compact fallback for file:// protocol */
@@ -407,10 +445,10 @@
         if (!form || form.dataset.ready) return;
         form.dataset.ready = 'true';
 
-        var imgs = [], upload = document.getElementById('image-upload-area'), fi = document.getElementById('field-images');
-        var thumbs = document.getElementById('image-thumbnails'), desc = document.getElementById('field-description');
-        var cnt = document.getElementById('desc-counter'), fw = document.getElementById('report-form-wrapper');
-        var sc = document.getElementById('report-success'), another = document.getElementById('success-another-btn');
+        var $ = function (id) { return document.getElementById(id); };
+        var imgs = [], upload = $('image-upload-area'), fi = $('field-images'), thumbs = $('image-thumbnails');
+        var desc = $('field-description'), cnt = $('desc-counter'), fw = $('report-form-wrapper'), sc = $('report-success');
+        var fTitle = $('field-title'), fBldg = $('field-building'), fRoom = $('field-room'), formAlert = $('report-form-alert');
 
         if (desc && cnt) desc.addEventListener('input', function () { cnt.textContent = desc.value.length + ' / 500'; });
 
@@ -431,8 +469,8 @@
         }
 
         function handleFiles(files) {
-          var remaining = 3 - imgs.length;
-          Array.from(files).slice(0, remaining).forEach(function (f) {
+          var rem = 3 - imgs.length;
+          Array.from(files).slice(0, rem).forEach(function (f) {
             if (f.size > 5 * 1024 * 1024) return alert('"' + f.name + '" exceeds 5 MB.');
             var r = new FileReader();
             r.onload = function (e) { imgs.push(e.target.result); renderThumbs(); };
@@ -441,115 +479,87 @@
         }
 
         if (upload) {
-          ['dragenter', 'dragover'].forEach(function (ev) {
-            upload.addEventListener(ev, function (e) { e.preventDefault(); e.stopPropagation(); upload.classList.add('is-dragover'); });
-          });
-          ['dragleave', 'dragend'].forEach(function (ev) {
-            upload.addEventListener(ev, function (e) { e.preventDefault(); if (!upload.contains(e.relatedTarget)) upload.classList.remove('is-dragover'); });
-          });
-          upload.addEventListener('drop', function (e) {
-            e.preventDefault(); e.stopPropagation(); upload.classList.remove('is-dragover');
-            if (e.dataTransfer && e.dataTransfer.files) handleFiles(e.dataTransfer.files);
-          });
+          var tog = function (on, e) { e.preventDefault(); e.stopPropagation(); upload.classList.toggle('is-dragover', on); };
+          ['dragenter', 'dragover'].forEach(function (ev) { upload.addEventListener(ev, function (e) { tog(true, e); }); });
+          ['dragleave', 'dragend'].forEach(function (ev) { upload.addEventListener(ev, function (e) { if (!upload.contains(e.relatedTarget)) tog(false, e); }); });
+          upload.addEventListener('drop', function (e) { tog(false, e); if (e.dataTransfer && e.dataTransfer.files) handleFiles(e.dataTransfer.files); });
         }
-
         if (fi) fi.addEventListener('change', function () { if (fi.files) handleFiles(fi.files); fi.value = ''; });
 
-        var fTitle = document.getElementById('field-title');
-        var fDesc  = document.getElementById('field-description');
-        var fBldg  = document.getElementById('field-building');
-        var fRoom  = document.getElementById('field-room');
-        var errTitle = document.getElementById('error-title');
-        var errDesc  = document.getElementById('error-description');
-        var errBldg  = document.getElementById('error-building');
-        var errRoom  = document.getElementById('error-room');
-        var formAlert = document.getElementById('report-form-alert');
+        var req = [
+          [fTitle, $('error-title'), 'Please enter an issue title.'],
+          [desc, $('error-description'), 'Please enter a description of the issue.'],
+          [fBldg, $('error-building'), 'Please select a building.'],
+          [fRoom, $('error-room'), 'Please enter a room or area.']
+        ];
 
-        function setErr(field, errEl, msg) {
-          if (field) { field.classList.add('is-error'); field.setAttribute('aria-invalid', 'true'); }
-          if (errEl) { errEl.textContent = msg; errEl.classList.add('is-visible'); }
-        }
+        function setErr(f, err, msg) { if (f) { f.classList.add('is-error'); f.setAttribute('aria-invalid', 'true'); } if (err) { err.textContent = msg; err.classList.add('is-visible'); } }
+        function clrErr(f, err) { if (f) { f.classList.remove('is-error'); f.removeAttribute('aria-invalid'); } if (err) { err.textContent = ''; err.classList.remove('is-visible'); } }
 
-        function clrErr(field, errEl) {
-          if (field) { field.classList.remove('is-error'); field.removeAttribute('aria-invalid'); }
-          if (errEl) { errEl.textContent = ''; errEl.classList.remove('is-visible'); }
-        }
-
-        [fTitle, fRoom].forEach(function (f) {
-          if (f) f.addEventListener('input', function () {
-            clrErr(f, f === fTitle ? errTitle : errRoom);
-            if (formAlert) formAlert.classList.remove('is-visible');
-          });
-        });
-        if (fDesc) fDesc.addEventListener('input', function () {
-          clrErr(fDesc, errDesc);
-          if (formAlert) formAlert.classList.remove('is-visible');
-        });
-        if (fBldg) fBldg.addEventListener('change', function () {
-          clrErr(fBldg, errBldg);
-          if (formAlert) formAlert.classList.remove('is-visible');
+        req.forEach(function (item) {
+          var f = item[0], err = item[1];
+          if (f) f.addEventListener(f === fBldg ? 'change' : 'input', function () { clrErr(f, err); if (formAlert) formAlert.classList.remove('is-visible'); });
         });
 
         form.addEventListener('submit', function (e) {
           e.preventDefault();
-          var title = (fTitle ? fTitle.value : '').trim();
-          var description = (fDesc ? fDesc.value : '').trim();
-          var building = fBldg ? fBldg.value : '';
-          var room = (fRoom ? fRoom.value : '').trim();
-
           var hasErr = false, firstErr = null;
-
-          if (!title) { setErr(fTitle, errTitle, 'Please enter an issue title.'); hasErr = true; if (!firstErr) firstErr = fTitle; }
-          else clrErr(fTitle, errTitle);
-
-          if (!description) { setErr(fDesc, errDesc, 'Please enter a description of the issue.'); hasErr = true; if (!firstErr) firstErr = fDesc; }
-          else clrErr(fDesc, errDesc);
-
-          if (!building) { setErr(fBldg, errBldg, 'Please select a building.'); hasErr = true; if (!firstErr) firstErr = fBldg; }
-          else clrErr(fBldg, errBldg);
-
-          if (!room) { setErr(fRoom, errRoom, 'Please enter a room or area.'); hasErr = true; if (!firstErr) firstErr = fRoom; }
-          else clrErr(fRoom, errRoom);
+          req.forEach(function (item) {
+            var f = item[0], err = item[1], msg = item[2];
+            if (!f || !f.value.trim()) { setErr(f, err, msg); hasErr = true; if (!firstErr) firstErr = f; }
+            else clrErr(f, err);
+          });
 
           if (hasErr) {
-            if (formAlert) {
-              formAlert.textContent = 'Please complete all required fields highlighted in red below.';
-              formAlert.classList.add('is-visible');
-            }
-            if (firstErr) {
-              firstErr.focus();
-              firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+            if (formAlert) { formAlert.textContent = 'Please complete all required fields highlighted in red below.'; formAlert.classList.add('is-visible'); }
+            if (firstErr) { firstErr.focus(); firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
             return;
           }
-
           if (formAlert) { formAlert.textContent = ''; formAlert.classList.remove('is-visible'); }
 
           var session = null; try { session = JSON.parse(localStorage.getItem('campusone_session')); } catch (err) {}
           var reports = [];   try { reports = JSON.parse(localStorage.getItem('campusone_reports')) || []; } catch (err) {}
+          var nextId = 'RPT-' + new Date().getFullYear() + '-' + String(reports.length + 1).padStart(4, '0'), now = new Date().toISOString();
+          var catEl = $('field-category'), selectedCat = catEl ? catEl.value : 'auto';
 
-          var nextId = 'RPT-' + new Date().getFullYear() + '-' + String(reports.length + 1).padStart(4, '0');
-          var now = new Date().toISOString();
+          var dispatchResult = null;
+          if (typeof createMaintenanceTaskFromReport === 'function') {
+            dispatchResult = createMaintenanceTaskFromReport({
+              id: nextId, title: fTitle.value.trim(), description: desc.value.trim(), building: fBldg.value,
+              room: fRoom.value.trim(), images: imgs.slice(), studentName: session ? session.name : 'Student',
+              category: selectedCat !== 'auto' ? selectedCat : '', priority: 'medium'
+            }, '');
+          }
+          if (dispatchResult && dispatchResult.task) {
+            try {
+              var tasks = JSON.parse(localStorage.getItem('campusone_maint_tasks')) || [];
+              var tIdx = tasks.findIndex(function (t) { return t.id === dispatchResult.task.id; });
+              if (tIdx !== -1) { tasks[tIdx].assignedTo = ''; localStorage.setItem('campusone_maint_tasks', JSON.stringify(tasks)); }
+            } catch (e2) {}
+          }
 
           reports.unshift({
-            id: nextId, studentEmail: (session?.email || 'student@miuegypt.edu.eg').toLowerCase(),
-            studentName: session?.name || 'Student', title: title, description: description,
-            building: building, room: room, images: imgs.slice(), status: 'submitted',
-            createdAt: now, updatedAt: now, assignedTo: null,
-            timeline: [{ status: 'submitted', timestamp: now, note: 'Report submitted' }]
+            id: nextId, taskId: (dispatchResult && dispatchResult.task) ? dispatchResult.task.id : '',
+            studentEmail: ((session && session.email) || 'student@miuegypt.edu.eg').toLowerCase(),
+            studentName: (session && session.name) || 'Student', title: fTitle.value.trim(), description: desc.value.trim(),
+            category: selectedCat, building: fBldg.value, room: fRoom.value.trim(), images: imgs.slice(),
+            status: 'submitted', createdAt: now, updatedAt: now, assignedTo: null,
+            timeline: [{ status: 'submitted', timestamp: now, note: 'Report submitted. Awaiting maintenance staff to claim this task.' }]
           });
           try { localStorage.setItem('campusone_reports', JSON.stringify(reports)); } catch (err) {}
 
-          var idEl = document.getElementById('success-report-id'), vb = document.getElementById('success-view-btn');
+          var idEl = $('success-report-id'), vb = $('success-view-btn'), sa = $('success-staff-assigned');
           if (idEl) idEl.textContent = nextId;
           if (vb) vb.href = 'my-reports.html?id=' + encodeURIComponent(nextId);
+          if (sa) sa.textContent = 'Sent to maintenance staff portal — a technician will claim and handle your report.';
           if (fw) { fw.hidden = true; fw.style.display = 'none'; }
           if (sc) { sc.hidden = false; sc.style.display = 'flex'; }
         });
 
+        var another = $('success-another-btn');
         if (another) another.addEventListener('click', function () {
           form.reset(); imgs = []; renderThumbs();
-          clrErr(fTitle, errTitle); clrErr(fDesc, errDesc); clrErr(fBldg, errBldg); clrErr(fRoom, errRoom);
+          req.forEach(function (item) { clrErr(item[0], item[1]); });
           if (formAlert) { formAlert.textContent = ''; formAlert.classList.remove('is-visible'); }
           if (cnt) cnt.textContent = '0 / 500';
           if (sc) { sc.hidden = true; sc.style.display = 'none'; }
