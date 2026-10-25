@@ -1,6 +1,7 @@
 /* back-button.js
-   Shows a floating "← Back to [Dashboard]" button whenever the signed-in
-   user is browsing a page that isn't their home page.
+   Shows a floating "← Back to Dashboard" button for roles that visit a page
+   outside their home. Student and Manager are excluded — they navigate freely
+   and don't need the back button. Admin, Staff, Technician, and L&F Staff get it.
    Works on file:// (no ES modules, pure IIFE). */
 (function () {
   'use strict';
@@ -9,22 +10,20 @@
   try { s = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
   if (!s || !s.role) return;
 
+  /* Roles that do NOT get the back button */
+  var SKIP_ROLES = { student: true, manager: true, supervisor: true };
+  if (SKIP_ROLES[s.role]) return;
+
   var ROLE_HOME = {
-    student:            'home.html',
     staff:              'staff-dashboard.html',
     technician:         'staff-dashboard.html',
-    manager:            'manager-dashboard.html',
-    supervisor:         'manager-dashboard.html',
     'lost-found-staff': 'staff-lost-found.html',
     admin:              'admin-panel.html'
   };
 
   var ROLE_LABEL = {
-    student:            'Student Home',
     staff:              'Staff Dashboard',
     technician:         'Staff Dashboard',
-    manager:            'Manager Dashboard',
-    supervisor:         'Manager Dashboard',
     'lost-found-staff': 'L&F Dashboard',
     admin:              'Admin Panel'
   };
