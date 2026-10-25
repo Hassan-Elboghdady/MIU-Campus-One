@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -288,11 +288,11 @@
       if (isStaff) {
         // Logo → supervisor dashboard
         var logo = document.querySelector('.app-header__logo');
-        if (logo) logo.href = 'supervisor-dashboard.html';
+        if (logo) logo.href = 'manager-dashboard.html';
 
         // Nav links → staff section
         var staffLinks = [
-          { id: 'nav-link-1', href: 'supervisor-dashboard.html', label: 'Dashboard' },
+          { id: 'nav-link-1', href: 'manager-dashboard.html', label: 'Dashboard' },
           { id: 'nav-link-2', href: 'maintenance-team.html',     label: 'Team'      },
           { id: 'nav-link-3', href: 'my-tasks.html',             label: 'My Tasks'  },
           { id: 'nav-link-4', href: 'map.html',                  label: 'Campus Map'},
@@ -311,7 +311,7 @@
         // Dropdown: replace "My Reports" with "Dashboard"
         var reportsLink = el('nav-reports-link');
         if (reportsLink) {
-          reportsLink.href = 'supervisor-dashboard.html';
+          reportsLink.href = 'manager-dashboard.html';
           reportsLink.querySelector('svg').outerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>';
           reportsLink.childNodes[reportsLink.childNodes.length - 1].textContent = ' Dashboard';
         }
@@ -454,5 +454,7 @@
       }
     })();
   </script>
+<script src="../public/js/back-button.js"></script>
+<script src="../public/js/nav-switcher.js"></script>
 </body>
 </html>

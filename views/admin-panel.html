@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -91,7 +91,7 @@
         <a href="admin-panel.html"          class="app-nav__link" aria-current="page" id="nav-admin">Admin Panel</a>
         <a href="manager-dashboard.html"    class="app-nav__link" id="nav-manager">Manager View</a>
         <a href="maneger-lost-found.html"   class="app-nav__link" id="nav-lost-found">Lost &amp; Found</a>
-        <a href="supervisor-dashboard.html" class="app-nav__link" id="nav-tasks">All Tasks</a>
+        <a href="manager-dashboard.html" class="app-nav__link" id="nav-tasks">All Tasks</a>
         <a href="map.html"                  class="app-nav__link" id="nav-map">Campus Map</a>
         <a href="emergency.html"            class="app-nav__link" id="nav-emergency">Emergency Map</a>
       </nav>
@@ -257,7 +257,6 @@
                 <option value="student">Student</option>
                 <option value="staff">Maintenance Staff</option>
                 <option value="technician">Technician</option>
-                <option value="supervisor">Supervisor</option>
                 <option value="manager">Manager</option>
                 <option value="lost-found-staff">Lost &amp; Found Staff</option>
                 <option value="admin">Admin</option>
@@ -294,7 +293,6 @@
               <option value="student">Student</option>
               <option value="staff">Maint. Staff</option>
               <option value="technician">Technician</option>
-              <option value="supervisor">Supervisor</option>
               <option value="manager">Manager</option>
               <option value="lost-found-staff">L&amp;F Staff</option>
               <option value="admin">Admin</option>
@@ -434,7 +432,6 @@
             <option value="student">Student</option>
             <option value="staff">Maintenance Staff</option>
             <option value="technician">Technician</option>
-            <option value="supervisor">Supervisor</option>
             <option value="manager">Manager</option>
             <option value="lost-found-staff">Lost &amp; Found Staff</option>
             <option value="admin">Admin</option>
@@ -468,7 +465,7 @@
       <nav class="app-footer__links" aria-label="Footer navigation">
         <a href="admin-panel.html">Admin Panel</a>
         <a href="manager-dashboard.html">Manager View</a>
-        <a href="supervisor-dashboard.html">All Tasks</a>
+        <a href="manager-dashboard.html">All Tasks</a>
       </nav>
       <span class="app-footer__copy">© 2026 Misr International University</span>
     </div>
@@ -489,7 +486,7 @@
     /* ── MOCK USERS (built-in accounts, not in localStorage) ── */
     var MOCK_USERS = [
       { id:'u1',  name:'Ahmed Nasser',      email:'student@miuegypt.edu.eg',      password:'student123', role:'student',          studentId:'2022-00001', faculty:'Engineering', source:'built-in' },
-      { id:'u2',  name:'Sara Mahmoud',      email:'supervisor@miuegypt.edu.eg',   password:'super123',   role:'supervisor',       studentId:null, faculty:null, source:'built-in' },
+      { id:'u2',  name:'Sara Mahmoud',      email:'manager2@miuegypt.edu.eg',     password:'manager123', role:'manager',          studentId:null, faculty:null, source:'built-in' },
       { id:'u3',  name:'Omar Khaled',       email:'tech@miuegypt.edu.eg',         password:'tech123',    role:'technician',       studentId:null, faculty:null, source:'built-in' },
       { id:'u4',  name:'Nour El-Din Fawzy', email:'lostandfound@miuegypt.edu.eg', password:'lf123',      role:'lost-found-staff', studentId:null, faculty:null, source:'built-in' },
       { id:'u5',  name:'Admin User',        email:'admin@miuegypt.edu.eg',        password:'admin123',   role:'admin',            studentId:null, faculty:null, source:'built-in' },
@@ -604,8 +601,8 @@
     el('admin-filter-tech').addEventListener('change',function(){adminFilter.tech=this.value;renderAdminTable();});
 
     /* ── USER ACCOUNTS TAB ── */
-    var roleChipClass = { student:'role-chip--student', staff:'role-chip--staff', technician:'role-chip--technician', supervisor:'role-chip--supervisor', manager:'role-chip--manager', 'lost-found-staff':'role-chip--lost-found-staff', admin:'role-chip--admin' };
-    var roleLabels    = { student:'Student', staff:'Maint. Staff', technician:'Technician', supervisor:'Supervisor', manager:'Manager', 'lost-found-staff':'L&F Staff', admin:'Admin' };
+    var roleChipClass = { student:'role-chip--student', staff:'role-chip--staff', technician:'role-chip--technician', supervisor:'role-chip--manager', manager:'role-chip--manager', 'lost-found-staff':'role-chip--lost-found-staff', admin:'role-chip--admin' };
+    var roleLabels    = { student:'Student', staff:'Maint. Staff', technician:'Technician', supervisor:'Manager', manager:'Manager', 'lost-found-staff':'L&F Staff', admin:'Admin' };
     var userSearch = '', userRoleFilter = '';
 
     function renderUsers() {
@@ -877,7 +874,7 @@
           '<div class="manager-staff-card__top">'+
             '<div class="team-card__avatar" style="width:44px;height:44px;font-size:var(--text-md);">'+ini+'</div>'+
             '<div style="flex:1"><div class="team-card__name">'+tech.name+'</div><div class="team-card__role">'+tech.role+' · '+availChip(tech.availability)+'</div></div>'+
-            '<a href="supervisor-dashboard.html?tech='+tech.id+'" class="btn btn-sm btn-outline" style="text-decoration:none">View Tasks</a>'+
+            '<a href="manager-dashboard.html?tech='+tech.id+'" class="btn btn-sm btn-outline" style="text-decoration:none">View Tasks</a>'+
           '</div>'+
           '<div class="manager-staff-card__stats">'+
             '<div class="msc-stat"><span class="msc-stat__num">'+myTasks.filter(function(t){return t.status==='pending';}).length+'</span><span class="msc-stat__label">Pending</span></div>'+
@@ -960,5 +957,7 @@
 
   })();
   </script>
+<script src="../public/js/back-button.js"></script>
+<script src="../public/js/nav-switcher.js"></script>
 </body>
 </html>

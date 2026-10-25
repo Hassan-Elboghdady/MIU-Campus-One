@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   var INVENTORY_KEY = 'campusone_lost_found_inventory';
   var CLAIMS_KEY = 'campusone_lost_found_claims';
   var toast = document.getElementById('toast');
@@ -173,7 +173,7 @@
         '<a href="admin-panel.html" class="app-nav__link">Admin Panel</a>' +
         '<a href="manager-dashboard.html" class="app-nav__link">Manager View</a>' +
         '<a href="maneger-lost-found.html" class="app-nav__link" aria-current="page">Lost &amp; Found</a>' +
-        '<a href="supervisor-dashboard.html" class="app-nav__link">All Tasks</a>' +
+        '<a href="manager-dashboard.html" class="app-nav__link">All Tasks</a>' +  
         '<a href="map.html" class="app-nav__link">Campus Map</a>' +
         '<a href="emergency.html" class="app-nav__link">Emergency Map</a>';
     }

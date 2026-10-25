@@ -1,4 +1,4 @@
-/* ==========================================================================
+﻿/* ==========================================================================
    roles.css – Styles for the three-role maintenance portals:
      · staff-dashboard.html   (Staff Portal)
      · manager-dashboard.html (Manager Dashboard)
@@ -32,6 +32,12 @@
   background-color: #F0FDF4;
   color: #15803D;
   border-color: #BBF7D0;
+}
+
+.role-badge--lf {
+  background-color: #F0FDFA;
+  color: #0F766E;
+  border-color: #99F6E4;
 }
 .role-badge--admin {
   background-color: #FFF7ED;

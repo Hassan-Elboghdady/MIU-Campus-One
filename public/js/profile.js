@@ -1,4 +1,4 @@
-/**
+﻿/**
  * profile.js - Profile page logic for profile.html
  */
 
@@ -43,7 +43,7 @@ const ROLE_MENU = {
   'supervisor':       [{ label: 'Dashboard', href: 'staff.html' }, { label: 'Team', href: 'team.html' }],
   'technician':       [{ label: 'My tasks', href: 'maintenance.html' }],
   'lost-found-staff': [{ label: 'Lost & Found manager', href: 'staff-lost-found.html' }],
-  'admin':            [{ label: 'Dashboard', href: 'supervisor-dashboard.html' }, { label: 'Campus Map', href: 'map.html' }, { label: 'Team', href: 'maintenance-team.html' }, { label: 'My Tasks', href: 'my-tasks.html' }],
+  'admin':            [{ label: 'Dashboard', href: 'manager-dashboard.html' }, { label: 'Campus Map', href: 'map.html' }, { label: 'Team', href: 'maintenance-team.html' }, { label: 'My Tasks', href: 'my-tasks.html' }],
 };
 
 function renderNav(user) {
