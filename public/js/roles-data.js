@@ -62,7 +62,8 @@ function initRoleNav(pageRole) {
       technician:        'staff-dashboard.html',
       staff:             'staff-dashboard.html',
       admin:             'admin-panel.html',
-      'lost-found-staff':'staff-lost-found.html'
+      'lost-found-staff':'staff-lost-found.html',
+      'lost-found-manager':'maneger-lost-found.html'
     };
 
     /* Page-level guard: strict per-role enforcement */

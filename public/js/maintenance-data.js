@@ -247,7 +247,8 @@ var ROLE_HOME_MAP = {
   technician:        'staff-dashboard.html',
   staff:             'staff-dashboard.html',
   admin:             'admin-panel.html',
-  'lost-found-staff':'staff-lost-found.html'
+  'lost-found-staff':'staff-lost-found.html',
+  'lost-found-manager':'maneger-lost-found.html'
 };
 
 /* --------------------------------------------------------------------------

@@ -362,7 +362,7 @@
       if (!s) { window.location.replace('login.html'); return; }
 
       /* Role guard: non-students (except admin) go to their own dashboard */
-      var ROLE_HOME_MAP = { supervisor:'manager-dashboard.html', manager:'manager-dashboard.html', technician:'staff-dashboard.html', staff:'staff-dashboard.html', 'lost-found-staff':'staff-lost-found.html' };
+      var ROLE_HOME_MAP = { supervisor:'manager-dashboard.html', manager:'manager-dashboard.html', technician:'staff-dashboard.html', staff:'staff-dashboard.html', 'lost-found-staff':'staff-lost-found.html', 'lost-found-manager':'maneger-lost-found.html' };
       if (s.role && ROLE_HOME_MAP[s.role]) { window.location.replace(ROLE_HOME_MAP[s.role]); return; }
 
       var el = function (id) { return document.getElementById(id); };

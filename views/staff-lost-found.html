@@ -86,7 +86,7 @@
       var s = null;
       try { s = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
       if (!s) { window.location.replace('login.html'); return; }
-      var ROLE_HOME = { student:'home.html', supervisor:'manager-dashboard.html', manager:'manager-dashboard.html', technician:'staff-dashboard.html', staff:'staff-dashboard.html' };
+      var ROLE_HOME = { student:'home.html', supervisor:'manager-dashboard.html', manager:'manager-dashboard.html', technician:'staff-dashboard.html', staff:'staff-dashboard.html', 'lost-found-manager':'maneger-lost-found.html' };
       if (s.role !== 'lost-found-staff' && s.role !== 'admin') { window.location.replace(ROLE_HOME[s.role] || 'login.html'); return; }
 
       /* ─ Populate header ─ */
