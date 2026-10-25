@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -20,7 +20,7 @@
   <!-- ===== APP HEADER ===== -->
   <header class="app-header" id="app-header">
     <div class="container">
-      <a href="supervisor-dashboard.html" class="app-header__logo" aria-label="Go to CampusOne home">
+      <a href="manager-dashboard.html" class="app-header__logo" aria-label="Go to CampusOne home">
         <img src="../public/images/logo.png" alt="MIU logo" width="36" height="36">
         <div class="app-header__logo-text">
           <span class="app-header__logo-abbr">MIU</span>
@@ -30,12 +30,13 @@
         <span class="app-header__logo-brand">CampusOne</span>
       </a>
       <nav class="app-nav" id="app-nav" aria-label="Main navigation">
-        <a href="supervisor-dashboard.html" class="app-nav__link" id="nav-dashboard">Dashboard</a>
-        <a href="maintenance-team.html"     class="app-nav__link" id="nav-team">Team</a>
-        <a href="my-tasks.html"             class="app-nav__link" id="nav-tasks">My Tasks</a>
-        <a href="map.html"                  class="app-nav__link" id="nav-map">Campus Map</a>
+        <a href="manager-dashboard.html" class="app-nav__link" id="nav-dashboard">Overview</a>
+        <a href="maintenance-team.html"   class="app-nav__link" id="nav-team">Team</a>
+        <a href="map.html"                class="app-nav__link" id="nav-map">Campus Map</a>
+        <a href="emergency.html"          class="app-nav__link" id="nav-emergency">Emergency Map</a>
       </nav>
       <div class="app-header__actions">
+        <span class="role-badge role-badge--manager" id="nav-role-badge">Manager</span>
         <div class="dropdown" id="notif-dropdown">
           <button type="button" class="dropdown__trigger" id="notif-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="notif-panel" aria-label="Notifications">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2a5 5 0 0 1 5 5v3l1.5 2.5H2.5L4 10V7a5 5 0 0 1 5-5z"/><path d="M7 15a2 2 0 0 0 4 0"/></svg>
@@ -188,7 +189,7 @@
         </div>
       </div>
       <nav class="app-footer__links" aria-label="Footer navigation">
-        <a href="supervisor-dashboard.html">Dashboard</a>
+        <a href="manager-dashboard.html">Dashboard</a>
         <a href="maintenance-team.html">Team</a>
         <a href="my-tasks.html">My Tasks</a>
       </nav>
@@ -441,5 +442,7 @@
 
     })();
   </script>
+<script src="../public/js/back-button.js"></script>
+<script src="../public/js/nav-switcher.js"></script>
 </body>
 </html>

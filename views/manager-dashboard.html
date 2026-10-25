@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -32,7 +32,7 @@
       <nav class="app-nav" id="app-nav" aria-label="Main navigation">
         <a href="manager-dashboard.html" class="app-nav__link" aria-current="page" id="nav-dashboard">Overview</a>
         <a href="maintenance-team.html"  class="app-nav__link" id="nav-team">Team</a>
-        <a href="supervisor-dashboard.html" class="app-nav__link" id="nav-tasks">All Tasks</a>
+        
         <a href="map.html"               class="app-nav__link" id="nav-map">Campus Map</a>
         <a href="emergency.html"         class="app-nav__link" id="nav-emergency">Emergency Map</a>
       </nav>
@@ -130,7 +130,7 @@
       </section>
 
       <!-- ── ALL TASKS TABLE ── -->
-      <section aria-labelledby="table-heading">
+      <section aria-labelledby="table-heading" id="tasks-section">
         <div class="data-table-wrap">
           <div class="data-table-toolbar">
             <span class="data-table-toolbar__title" id="table-heading">All Maintenance Requests</span>
@@ -222,7 +222,7 @@
       <nav class="app-footer__links" aria-label="Footer navigation">
         <a href="manager-dashboard.html">Overview</a>
         <a href="maintenance-team.html">Team</a>
-        <a href="supervisor-dashboard.html">All Tasks</a>
+        <a href="manager-dashboard.html">All Tasks</a>
       </nav>
       <span class="app-footer__copy">© 2026 Misr International University</span>
     </div>
@@ -293,7 +293,7 @@
                 '</div>' +
                 '<span class="team-card__role">' + tech.role + ' · ' + availChip(tech.availability) + '</span>' +
               '</div>' +
-              '<a href="supervisor-dashboard.html?tech=' + tech.id + '" class="btn btn-sm btn-outline" style="text-decoration:none;white-space:nowrap;">View Tasks</a>' +
+              '<a href="manager-dashboard.html?tech=' + tech.id + '" class="btn btn-sm btn-outline" style="text-decoration:none;white-space:nowrap;">View Tasks</a>' +
             '</div>' +
             '<div class="manager-staff-card__stats">' +
               '<div class="msc-stat"><span class="msc-stat__num" style="color:var(--color-maint-pending)">' + pending + '</span><span class="msc-stat__label">Pending</span></div>' +
@@ -422,7 +422,31 @@
 
       /* ── TASKS TABLE ── */
       var sortCol = 'reportedAt', sortAsc = false;
-      var currentFilter = { search: '', status: '', priority: '' };
+      var currentFilter = { search: '', status: '', priority: '', tech: '' };
+
+      /* Read ?tech= URL param and pre-filter */
+      (function(){
+        var params = new URLSearchParams(window.location.search);
+        var techId = params.get('tech');
+        if (!techId) return;
+        var tech = getTechById(techId);
+        if (!tech) return;
+        currentFilter.tech = techId;
+        var banner = document.createElement('div');
+        banner.id = 'tech-filter-banner';
+        banner.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:var(--radius);padding:10px 16px;margin-block-end:var(--space-4);font-size:var(--text-sm);';
+        banner.innerHTML = '<span><strong style="color:#1D4ED8">Filtered:</strong> Showing tasks for <strong>' + tech.name + '</strong></span>' +
+          '<a href="manager-dashboard.html" style="font-size:12px;font-weight:600;color:#1D4ED8;text-decoration:none;">&times; Clear filter</a>';
+        var wrap = document.querySelector('.data-table-wrap');
+        if (wrap) wrap.insertBefore(banner, wrap.firstChild);
+        setTimeout(function () {
+          var sec = document.getElementById('tasks-section') || wrap;
+          if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          var sel = document.getElementById('tbl-filter-tech');
+          if (sel) sel.value = techId;
+        }, 200);
+      })();
+
 
       function buildTechOptions(selectedId) {
         var techs = getTechs();
@@ -439,7 +463,8 @@
         var filtered = allTasks.filter(function (t) {
           return (!q || (t.id+t.title+t.building+t.room).toLowerCase().indexOf(q)!==-1) &&
                  (!currentFilter.status   || t.status===currentFilter.status) &&
-                 (!currentFilter.priority || t.priority===currentFilter.priority);
+                 (!currentFilter.priority || t.priority===currentFilter.priority) &&
+                 (!currentFilter.tech     || t.assignedTo===currentFilter.tech);
         });
         filtered = filtered.slice().sort(function (a, b) {
           var va = a[sortCol]||'', vb = b[sortCol]||'';
@@ -513,5 +538,7 @@
 
     })();
   </script>
+<script src="../public/js/back-button.js"></script>
+<script src="../public/js/nav-switcher.js"></script>
 </body>
 </html>
