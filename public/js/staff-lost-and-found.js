@@ -33,7 +33,10 @@
   function renderInventory() {
     var items = read(INVENTORY_KEY, []);
     document.getElementById('inventory-list').innerHTML = items.length ? items.map(function (item) {
-      return '<article class="inventory-card"><span class="badge badge-' + escapeHtml(item.type) + '">' + escapeHtml(item.type) + '</span><h3>' + escapeHtml(item.name) + '</h3><p>' + escapeHtml(item.category) + ' · ' + escapeHtml(item.location) + '</p><p>' + escapeHtml(item.details || 'No additional details.') + '</p><p class="report-card__meta">' + escapeHtml(formatDate(item.date)) + '</p><div class="inventory-actions"><button class="button button-ghost" data-edit="' + escapeHtml(item.id) + '" type="button">Edit</button><button class="button button-ghost" data-remove="' + escapeHtml(item.id) + '" type="button">Remove</button></div></article>';
+      var approval = item.approvalStatus || 'approved';
+      var approvalLabel = approval === 'approved' ? 'Verified' : approval === 'rejected' ? 'Not verified' : 'Pending approval';
+      var approvalClass = approval === 'approved' ? 'badge-found' : approval === 'rejected' ? 'badge-lost' : '';
+      return '<article class="inventory-card"><span class="badge badge-' + escapeHtml(item.type) + '">' + escapeHtml(item.type) + '</span><span class="badge ' + approvalClass + '">' + approvalLabel + '</span><h3>' + escapeHtml(item.name) + '</h3><p>' + escapeHtml(item.category) + ' · ' + escapeHtml(item.location) + '</p><p>' + escapeHtml(item.details || 'No additional details.') + '</p><p class="report-card__meta">' + escapeHtml(formatDate(item.date)) + '</p><div class="inventory-actions"><button class="button button-ghost" data-edit="' + escapeHtml(item.id) + '" type="button">Edit</button><button class="button button-ghost" data-remove="' + escapeHtml(item.id) + '" type="button">Remove</button></div></article>';
     }).join('') : '<p class="empty-state">Inventory is empty. Add an item to get started.</p>';
   }
   function makePickupCode() {
@@ -73,13 +76,13 @@
     if (!currentUser || ['admin', 'lost-found-staff'].indexOf(currentUser.role) === -1) { window.location.replace('login.html'); return; }
     document.getElementById('nav-user-name').textContent = currentUser.name || ''; document.getElementById('nav-user-email').textContent = currentUser.email || '';
     var seed = read(INVENTORY_KEY, null);
-    if (seed === null) write(INVENTORY_KEY, [{id:'inventory-1',name:'Blue backpack found near Library',type:'found',category:'Bag',location:'Central Library',date:'2026-10-16',details:'Navy blue with silver zipper pull and a small front pocket.'},{id:'inventory-2',name:'Silver watch handed to security',type:'found',category:'Other',location:'Main Building security',date:'2026-10-15',details:'Silver band with a dark face.'}]);
+    if (seed === null) write(INVENTORY_KEY, [{id:'inventory-1',name:'Blue backpack found near Library',type:'found',category:'Bag',location:'Central Library',date:'2026-10-16',details:'Navy blue with silver zipper pull and a small front pocket.',approvalStatus:'approved'},{id:'inventory-2',name:'Silver watch handed to security',type:'found',category:'Other',location:'Main Building security',date:'2026-10-15',details:'Silver band with a dark face.',approvalStatus:'approved'}]);
     renderReports(); renderInventory(); renderClaims();
     document.querySelectorAll('[data-view]').forEach(function (tab) { tab.addEventListener('click', function () { document.querySelectorAll('[data-view]').forEach(function (other) { other.classList.toggle('is-active', other === tab); }); document.querySelectorAll('[data-panel]').forEach(function (panel) { panel.hidden = panel.dataset.panel !== tab.dataset.view; }); }); });
     document.getElementById('report-filter').addEventListener('change', renderReports);
     document.getElementById('add-item-btn').addEventListener('click', function () { document.getElementById('inventory-form').hidden = false; document.getElementById('inventory-name').focus(); });
     document.getElementById('cancel-item-btn').addEventListener('click', resetForm);
-    document.getElementById('inventory-form').addEventListener('submit', function (event) { event.preventDefault(); var items = read(INVENTORY_KEY, []), id = document.getElementById('inventory-id').value || 'inventory-' + Date.now(), item = {id:id,name:document.getElementById('inventory-name').value.trim(),type:document.getElementById('inventory-type').value,category:document.getElementById('inventory-category').value.trim(),location:document.getElementById('inventory-location').value.trim(),date:document.getElementById('inventory-date').value,details:document.getElementById('inventory-details').value.trim()}; var existing = items.findIndex(function (entry) { return entry.id === id; }); if (existing === -1) items.unshift(item); else items[existing] = item; if (write(INVENTORY_KEY, items)) { resetForm(); renderInventory(); showToast('Inventory item saved.'); } });
+    document.getElementById('inventory-form').addEventListener('submit', function (event) { event.preventDefault(); var items = read(INVENTORY_KEY, []), id = document.getElementById('inventory-id').value || 'inventory-' + Date.now(), existing = items.find(function (entry) { return entry.id === id; }), item = {id:id,name:document.getElementById('inventory-name').value.trim(),type:document.getElementById('inventory-type').value,category:document.getElementById('inventory-category').value.trim(),location:document.getElementById('inventory-location').value.trim(),date:document.getElementById('inventory-date').value,details:document.getElementById('inventory-details').value.trim(),approvalStatus:existing ? (existing.approvalStatus || 'approved') : 'pending'}; var existingIndex = items.findIndex(function (entry) { return entry.id === id; }); if (existingIndex === -1) items.unshift(item); else items[existingIndex] = item; if (write(INVENTORY_KEY, items)) { resetForm(); renderInventory(); showToast(existing ? 'Inventory item updated.' : 'Item saved and sent to the manager for approval.'); } });
     document.getElementById('inventory-list').addEventListener('click', function (event) { var edit = event.target.dataset.edit, remove = event.target.dataset.remove; if (edit) editItem(edit); if (remove && window.confirm('Remove this inventory item?')) { var items = read(INVENTORY_KEY, []).filter(function (item) { return item.id !== remove; }); if (write(INVENTORY_KEY, items)) { renderInventory(); showToast('Inventory item removed.'); } } });
     document.getElementById('claims-list').addEventListener('click', function (event) {
       var claims = read(CLAIMS_KEY, []);
@@ -113,5 +116,9 @@
     document.getElementById('profile-trigger').addEventListener('click', function () { var panel = document.getElementById('profile-panel'), open = panel.classList.toggle('is-open'); this.setAttribute('aria-expanded', String(open)); });
     document.getElementById('logout-btn').addEventListener('click', function () { localStorage.removeItem('campusone_session'); window.location.replace('login.html'); });
   }
+  window.addEventListener('storage', function (event) {
+    if (event.key === INVENTORY_KEY) renderInventory();
+    if (event.key === CLAIMS_KEY) renderClaims();
+  });
   document.addEventListener('DOMContentLoaded', init);
 }());

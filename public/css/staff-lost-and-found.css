@@ -22,4 +22,36 @@
 .claim-answers { background: #f7f9fa; border-radius: 8px; margin: 15px 0; padding: 12px 16px; }.claim-answers strong { color: #1b2735; display: block; font-size: 12px; margin-bottom: 5px; }.claim-answers p { margin: 5px 0 12px; }.claim-answers p:last-child { margin-bottom: 0; }
 .claim-controls { align-items: center; display: flex; flex-wrap: wrap; gap: 9px; }.claim-controls select, .claim-controls input { border: 1px solid #e2e7ea; border-radius: 7px; padding: 9px; }.claim-controls input { min-width: 140px; }
 .claim-code { background: #fff8d9; border: 1px solid #ead982; border-radius: 8px; color: #604f00; font-size: 14px; font-weight: 700; letter-spacing: .12em; padding: 11px 14px; }
+.toast {
+  align-items: center;
+  background: #153b2b;
+  border: 1px solid #2d7a59;
+  border-radius: 12px;
+  bottom: 24px;
+  box-shadow: 0 10px 28px rgba(15, 35, 27, .2);
+  color: #fff;
+  display: flex;
+  font-size: 14px;
+  font-weight: 600;
+  gap: 10px;
+  left: 50%;
+  max-width: min(420px, calc(100vw - 32px));
+  min-height: 48px;
+  opacity: 0;
+  padding: 12px 18px;
+  pointer-events: none;
+  position: fixed;
+  transform: translate(-50%, 16px);
+  transition: opacity .2s ease, transform .2s ease;
+  z-index: 1000;
+}
+.toast::before { color: #8ee3b5; content: "\2713"; font-size: 18px; line-height: 1; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.confirm-modal { align-items: center; background: rgba(17, 24, 39, .46); display: flex; inset: 0; justify-content: center; padding: 20px; position: fixed; z-index: 1100; }
+.confirm-modal[hidden] { display: none; }
+.confirm-modal__card { background: #fff; border: 1px solid #e4e9ed; border-radius: 16px; box-shadow: 0 20px 55px rgba(17, 24, 39, .2); max-width: 390px; padding: 26px; width: 100%; }
+.confirm-modal__icon { align-items: center; background: #fff4df; border-radius: 50%; color: #9a6500; display: flex; font-size: 18px; font-weight: 800; height: 38px; justify-content: center; margin-bottom: 14px; width: 38px; }
+.confirm-modal h2 { color: #4e0c10; font-size: 21px; margin: 0 0 7px; }
+.confirm-modal p { color: #5f6d7a; font-size: 14px; line-height: 1.5; margin: 0; }
+.confirm-modal__actions { display: flex; gap: 9px; justify-content: flex-end; margin-top: 22px; }
 @media (max-width: 700px) { .page-header-row, .section-heading { align-items: flex-start; flex-direction: column; }.report-card, .inventory-form { grid-template-columns: 1fr; }.field.full, .form-actions { grid-column: auto; } }

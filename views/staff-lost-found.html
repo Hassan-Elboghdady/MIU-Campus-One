@@ -21,8 +21,8 @@
       </a>
       <nav class="app-nav" aria-label="Main navigation">
         <a href="staff-lost-found.html" class="app-nav__link" aria-current="page">Lost &amp; Found</a>
-        <a href="lost-and-found.html" class="app-nav__link">Browse Items</a>
-        <a href="profile.html" class="app-nav__link">Profile</a>
+
+
       </nav>
       <div class="app-header__actions">
         <div class="dropdown" id="profile-dropdown">
@@ -96,26 +96,6 @@
       if (el('nav-user-name'))  el('nav-user-name').textContent  = s.name  || '';
       if (el('nav-user-email')) el('nav-user-email').textContent = s.email || '';
 
-      /* ─ Profile dropdown ─ */
-      var trigger = el('profile-trigger'), panel = el('profile-panel');
-      if (trigger && panel) {
-        trigger.addEventListener('click', function (e) {
-          e.stopPropagation();
-          var open = panel.classList.toggle('is-open');
-          trigger.setAttribute('aria-expanded', String(open));
-        });
-        document.addEventListener('click', function () {
-          panel.classList.remove('is-open');
-          trigger.setAttribute('aria-expanded', 'false');
-        });
-      }
-
-      /* ─ Logout ─ */
-      var lb = el('logout-btn');
-      if (lb) lb.addEventListener('click', function () {
-        localStorage.removeItem('campusone_session');
-        window.location.replace('login.html');
-      });
     })();
   </script>
 </body>
