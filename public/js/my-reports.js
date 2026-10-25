@@ -3,29 +3,86 @@
  */
 import { requireLogin, ROLE_HOME, renderFooter } from './common.js';
 import { renderNav, renderStatusBadge } from './student-nav.js';
-import { getMyReports, getReportById } from './reports-service.js';
+import { getMyReports, getReportById, deleteReport } from './reports-service.js';
 
 const user = requireLogin();
 if (user && user.role !== 'student') {
   window.location.replace(ROLE_HOME[user.role] || 'login.html');
 }
 
-let allReports = [];
-let activeFilter = 'all';
-let lastThumbFocus = null;
+let allReports = [], activeFilter = 'all', lastThumbFocus = null;
+let pendingDeleteId = null, onPendingDeleted = null;
 
-function esc(str) {
-  return String(str || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-}
+const esc = (s) => String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
-function formatDate(iso) {
-  try { return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(iso)); }
+function fmt(iso, opts) {
+  try { return new Intl.DateTimeFormat('en-GB', opts).format(new Date(iso)); }
   catch { return iso || ''; }
 }
+const formatDate = (iso) => fmt(iso, { day: 'numeric', month: 'short', year: 'numeric' });
+const formatDateTime = (iso) => fmt(iso, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-function formatDateTime(iso) {
-  try { return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(iso)); }
-  catch { return iso || ''; }
+function showToast(message, type = 'success') {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'maint-toast';
+    document.body.appendChild(container);
+  }
+  const item = document.createElement('div');
+  item.className = 'maint-toast__item' + (type ? ' maint-toast__item--' + type : '');
+  item.textContent = message;
+  container.appendChild(item);
+  setTimeout(() => {
+    item.classList.add('is-hiding');
+    setTimeout(() => { if (item.parentNode) item.parentNode.removeChild(item); }, 280);
+  }, 3000);
+}
+
+function openDeleteModal(reportId, callback) {
+  pendingDeleteId = reportId;
+  onPendingDeleted = callback;
+  const modal = document.getElementById('student-delete-modal');
+  const repIdEl = document.getElementById('student-delete-report-id');
+  if (repIdEl) repIdEl.textContent = 'Report ID: ' + reportId + ' will be permanently removed.';
+  if (modal) { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+}
+
+function closeDeleteModal() {
+  pendingDeleteId = null;
+  onPendingDeleted = null;
+  const modal = document.getElementById('student-delete-modal');
+  if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
+}
+
+function initDeleteModal() {
+  const modal = document.getElementById('student-delete-modal');
+  const closeBtn = document.getElementById('student-delete-close');
+  const cancelBtn = document.getElementById('student-delete-cancel');
+  const okBtn = document.getElementById('student-delete-ok');
+
+  if (closeBtn) closeBtn.addEventListener('click', closeDeleteModal);
+  if (cancelBtn) cancelBtn.addEventListener('click', closeDeleteModal);
+  if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeDeleteModal(); });
+
+  if (okBtn) {
+    okBtn.addEventListener('click', async () => {
+      if (!pendingDeleteId) { closeDeleteModal(); return; }
+      const rId = pendingDeleteId, cb = onPendingDeleted;
+      closeDeleteModal();
+      try {
+        await deleteReport(rId);
+      } catch {
+        try {
+          const list = JSON.parse(localStorage.getItem('campusone_reports') || '[]').filter(r => r.id !== rId && r.taskId !== rId);
+          localStorage.setItem('campusone_reports', JSON.stringify(list));
+        } catch {}
+      }
+      showToast('Report deleted successfully.', 'success');
+      if (typeof cb === 'function') cb();
+    });
+  }
 }
 
 const ICONS = {
@@ -39,19 +96,39 @@ const ICONS = {
 // ── LIST VIEW ─────────────────────────────────────────────────────────────
 function renderListItem(r) {
   const div = document.createElement('div');
+  const isResolved = (r.status === 'resolved' || r.finished);
+  const deleteBtnHtml = isResolved
+    ? `<button type="button" class="btn btn-sm btn-delete-report" data-delete-id="${esc(r.id)}" title="Delete this finished report" aria-label="Delete finished report ${esc(r.id)}">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3,5 13,5"/><path d="M6 5V3h4v2"/><rect x="3" y="5" width="10" height="9" rx="1"/><line x1="6" y1="8" x2="6" y2="11"/><line x1="10" y1="8" x2="10" y2="11"/></svg>Delete
+      </button>`
+    : '';
+
   div.innerHTML = `
     <a href="my-reports.html?id=${encodeURIComponent(r.id)}" class="report-card" data-status="${esc(r.status)}" id="report-card-${esc(r.id)}">
       <div class="report-card__header">
         <span class="report-card__title">${esc(r.title)}</span>
-        ${renderStatusBadge(r.status)}
+        <div style="display:flex;align-items:center;gap:8px;">
+          ${renderStatusBadge(r.status)}
+          ${isResolved ? '<span class="finished-badge">Finished</span>' : ''}
+        </div>
       </div>
       <div class="report-card__meta">
         <span class="report-card__meta-item"><span>${ICONS.id}</span><span>${esc(r.id)}</span></span>
         <span class="report-card__meta-item"><span>${ICONS.loc}</span><span>${esc(r.building)} - ${esc(r.room)}</span></span>
         <span class="report-card__meta-item"><span>${ICONS.cal}</span><span>${formatDate(r.createdAt)}</span></span>
+        ${deleteBtnHtml}
       </div>
     </a>`;
-  return div.firstElementChild;
+
+  const cardEl = div.firstElementChild;
+  const delBtn = cardEl.querySelector('.btn-delete-report');
+  if (delBtn) {
+    delBtn.addEventListener('click', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      openDeleteModal(r.id, () => loadList());
+    });
+  }
+  return cardEl;
 }
 
 function applyFilter(filter) {
@@ -69,7 +146,7 @@ function applyFilter(filter) {
     ? allReports
     : allReports.filter(r => (r.status || 'submitted').toLowerCase().replace(/\s+/g, '_') === filter);
 
-  if (filtered.length === 0) {
+  if (!filtered.length) {
     const isAll = filter === 'all';
     container.innerHTML = `
       <div class="empty-state">
@@ -91,13 +168,11 @@ function applyFilter(filter) {
 async function loadList() {
   const container = document.getElementById('reports-list-container');
   if (!container) return;
-  container.innerHTML = `
-    <div class="reports-list" aria-hidden="true">
-      ${[0, 1, 2].map(() => '<div class="skeleton-card"><span class="skeleton-line skeleton-line--full"></span><span class="skeleton-line skeleton-line--short"></span></div>').join('')}
-    </div>`;
+  container.innerHTML = `<div class="reports-list" aria-hidden="true">${[0, 1, 2].map(() => '<div class="skeleton-card"><span class="skeleton-line skeleton-line--full"></span><span class="skeleton-line skeleton-line--short"></span></div>').join('')}</div>`;
 
-  try { allReports = await getMyReports(); }
-  catch {
+  try {
+    allReports = await getMyReports();
+  } catch {
     container.innerHTML = `
       <div class="error-state">
         <p class="error-state__title">Could not load reports</p>
@@ -138,29 +213,39 @@ function initImageViewer() {
 
 function buildDetailsHtml(report) {
   const st = report.status || 'submitted';
+  const isResolved = (st === 'resolved' || report.finished);
+  const finishedBanner = isResolved
+    ? `<div class="finished-alert" style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="width:38px;height:38px;border-radius:50%;background:#DCFCE7;display:flex;align-items:center;justify-content:center;color:#16A34A;flex-shrink:0;">
+            <svg width="22" height="22" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,8 6,11 13,4"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:700;color:#166534;font-size:1.05rem;">Task Finished &amp; Resolved</div>
+            <div style="color:#15803D;font-size:0.875rem;margin-top:2px;">The maintenance team has resolved this issue. If you are satisfied with the fix, you can delete this report.</div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-sm btn-delete-detail" id="detail-delete-btn" data-delete-id="${esc(report.id)}" style="background:#DC2626;color:#ffffff;border:none;padding:9px 16px;border-radius:8px;font-weight:700;display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,5 13,5"/><path d="M6 5V3h4v2"/><rect x="3" y="5" width="10" height="9" rx="1"/><line x1="6" y1="8" x2="6" y2="11"/><line x1="10" y1="8" x2="10" y2="11"/></svg>
+          Delete Report
+        </button>
+      </div>`
+    : '';
+
   const imgHtml = (report.images && report.images.length > 0)
     ? `<div class="detail-row"><span class="detail-row__label">Images</span>
         <div class="details-image-grid">
-          ${report.images.map((src, i) => `
-            <button type="button" class="details-thumb" data-idx="${i}" aria-label="View image ${i + 1}">
-              <img src="${esc(src)}" alt="Report image ${i + 1}" loading="lazy">
-            </button>`).join('')}
+          ${report.images.map((src, i) => `<button type="button" class="details-thumb" data-idx="${i}" aria-label="View image ${i + 1}"><img src="${esc(src)}" alt="Report image ${i + 1}" loading="lazy"></button>`).join('')}
         </div>
       </div>` : '';
 
   const assignedHtml = report.assignedTo
-    ? `<div class="assigned-block">
-        <span class="assigned-block__avatar" aria-hidden="true">${ICONS.user}</span>
-        <div class="assigned-block__info">
-          <span class="assigned-block__name">${esc(report.assignedTo.name)}</span>
-          <span class="assigned-block__role">${esc(report.assignedTo.role)}</span>
-        </div>
-      </div>`
+    ? `<div class="assigned-block"><span class="assigned-block__avatar" aria-hidden="true">${ICONS.user}</span><div class="assigned-block__info"><span class="assigned-block__name">${esc(report.assignedTo.name)}</span><span class="assigned-block__role">${esc(report.assignedTo.role)}</span></div></div>`
     : `<span class="not-assigned">Not assigned yet</span>`;
 
   const timelineHtml = (report.timeline && report.timeline.length > 0)
     ? `<ol class="timeline" aria-label="Report history">
-        ${report.timeline.map((step, i) => `
+        ${report.timeline.map((step) => `
           <li class="timeline-step">
             <span class="timeline-dot" aria-hidden="true"></span>
             <div class="timeline-content">
@@ -174,30 +259,29 @@ function buildDetailsHtml(report) {
       </ol>`
     : '<p class="empty-state__text">No timeline events recorded.</p>';
 
+  const rows = [
+    ['Report ID', esc(report.id)],
+    ['Status', `${renderStatusBadge(st)} ${isResolved ? '<span class="finished-badge" style="margin-inline-start:6px;">Finished</span>' : ''}`],
+    ['Building', esc(report.building)],
+    ['Room / area', esc(report.room)],
+    ['Submitted', formatDateTime(report.createdAt)],
+    ['Last updated', formatDateTime(report.updatedAt)],
+    ['Description', `<p class="details-description">${esc(report.description)}</p>`]
+  ];
+
   return `
     <div class="details-layout">
+      ${finishedBanner}
       <div class="details-card">
         <div class="details-card__header">Report details</div>
         <div class="details-card__body">
-          <div class="detail-row"><span class="detail-row__label">Report ID</span><span class="detail-row__value">${esc(report.id)}</span></div>
-          <div class="detail-row"><span class="detail-row__label">Status</span><span class="detail-row__value">${renderStatusBadge(st)}</span></div>
-          <div class="detail-row"><span class="detail-row__label">Building</span><span class="detail-row__value">${esc(report.building)}</span></div>
-          <div class="detail-row"><span class="detail-row__label">Room / area</span><span class="detail-row__value">${esc(report.room)}</span></div>
-          <div class="detail-row"><span class="detail-row__label">Submitted</span><span class="detail-row__value">${formatDateTime(report.createdAt)}</span></div>
-          <div class="detail-row"><span class="detail-row__label">Last updated</span><span class="detail-row__value">${formatDateTime(report.updatedAt)}</span></div>
-          <div class="detail-row"><span class="detail-row__label">Description</span><p class="details-description">${esc(report.description)}</p></div>
+          ${rows.map(([label, val]) => `<div class="detail-row"><span class="detail-row__label">${label}</span><span class="detail-row__value">${val}</span></div>`).join('')}
           ${imgHtml}
         </div>
       </div>
       <div class="details-sidebar">
-        <div class="details-card">
-          <div class="details-card__header">Assigned to</div>
-          <div class="details-card__body">${assignedHtml}</div>
-        </div>
-        <div class="details-card">
-          <div class="details-card__header">Status timeline</div>
-          <div class="details-card__body">${timelineHtml}</div>
-        </div>
+        <div class="details-card"><div class="details-card__header">Assigned to</div><div class="details-card__body">${assignedHtml}</div></div>
+        <div class="details-card"><div class="details-card__header">Status timeline</div><div class="details-card__body">${timelineHtml}</div></div>
       </div>
     </div>`;
 }
@@ -205,12 +289,7 @@ function buildDetailsHtml(report) {
 async function loadDetails(id) {
   const container = document.getElementById('details-container');
   if (!container) return;
-  container.innerHTML = `
-    <div class="details-card skeleton-card skeleton-card--lg" aria-hidden="true">
-      <span class="skeleton-line skeleton-line--mid"></span>
-      <span class="skeleton-line skeleton-line--full"></span>
-      <span class="skeleton-line skeleton-line--full"></span>
-    </div>`;
+  container.innerHTML = `<div class="details-card skeleton-card skeleton-card--lg" aria-hidden="true"><span class="skeleton-line skeleton-line--mid"></span><span class="skeleton-line skeleton-line--full"></span><span class="skeleton-line skeleton-line--full"></span></div>`;
 
   let report = null;
   try { report = await getReportById(id); } catch {}
@@ -229,12 +308,17 @@ async function loadDetails(id) {
 
   container.innerHTML = buildDetailsHtml(report);
 
-  // Wire thumbnail dialog triggers
+  const detailDelBtn = container.querySelector('#detail-delete-btn');
+  if (detailDelBtn) {
+    detailDelBtn.addEventListener('click', () => {
+      openDeleteModal(report.id, () => window.location.replace('my-reports.html'));
+    });
+  }
+
   container.querySelectorAll('.details-thumb').forEach(btn => {
     btn.addEventListener('click', () => {
       lastThumbFocus = btn;
-      const idx = Number(btn.dataset.idx);
-      openImageViewer(report.images[idx], `Report image ${idx + 1}`);
+      openImageViewer(report.images[Number(btn.dataset.idx)], `Report image ${Number(btn.dataset.idx) + 1}`);
     });
   });
 
@@ -245,6 +329,7 @@ async function loadDetails(id) {
 document.addEventListener('DOMContentLoaded', () => {
   renderNav();
   renderFooter();
+  initDeleteModal();
 
   const id = new URLSearchParams(window.location.search).get('id');
   const listView = document.getElementById('list-view');

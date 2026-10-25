@@ -1,21 +1,11 @@
 /**
  * reports-service.js
  * Data service for campus maintenance reports.
- * All access to localStorage goes through the safe wrapper from common.js.
- * Replace this module with real API calls later; the function signatures
- * and the report object shape must not change.
  */
-
 import { CONFIG, getUser } from './common.js';
 
-// --------------------------------------------------------------------------
-// Storage key (shared with future staff pages)
-// --------------------------------------------------------------------------
 const STORAGE_KEY = 'campusone_reports';
 
-// --------------------------------------------------------------------------
-// Status constants
-// --------------------------------------------------------------------------
 export const STATUSES = Object.freeze({
   SUBMITTED:   'submitted',
   ASSIGNED:    'assigned',
@@ -23,20 +13,8 @@ export const STATUSES = Object.freeze({
   RESOLVED:    'resolved',
 });
 
-// --------------------------------------------------------------------------
-// Building list
-// --------------------------------------------------------------------------
-export const BUILDINGS = [
-  'Building R',
-  'Building N',
-  'MAIN',
-  'Building P',
-  'Building S',
-];
+export const BUILDINGS = ['Building R', 'Building N', 'MAIN', 'Building P', 'Building S'];
 
-// --------------------------------------------------------------------------
-// Safe localStorage helpers (mirrored from common.js style)
-// --------------------------------------------------------------------------
 function storageGet() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -51,204 +29,194 @@ function storageSet(reports) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
     return true;
   } catch (err) {
-    if (err instanceof DOMException && err.name === 'QuotaExceededError') {
-      return 'quota';
-    }
-    return false;
+    return (err instanceof DOMException && err.name === 'QuotaExceededError') ? 'quota' : false;
   }
 }
 
-// --------------------------------------------------------------------------
-// ID generator - RPT-YEAR-SEQUENCE
-// --------------------------------------------------------------------------
 function generateId(reports) {
-  const year  = new Date().getFullYear();
-  const prefix = `RPT-${year}-`;
-  const nums   = reports
-    .map((r) => {
-      const match = r.id && r.id.startsWith(prefix) ? parseInt(r.id.slice(prefix.length), 10) : 0;
-      return isNaN(match) ? 0 : match;
-    });
-  const next = (nums.length > 0 ? Math.max(...nums) : 0) + 1;
-  return `${prefix}${String(next).padStart(4, '0')}`;
+  const prefix = `RPT-${new Date().getFullYear()}-`;
+  const nums = reports.map((r) => {
+    const m = r.id && r.id.startsWith(prefix) ? parseInt(r.id.slice(prefix.length), 10) : 0;
+    return isNaN(m) ? 0 : m;
+  });
+  return `${prefix}${String((nums.length ? Math.max(...nums) : 0) + 1).padStart(4, '0')}`;
 }
 
-// --------------------------------------------------------------------------
-// MOCK seed data - only inserted when CONFIG.DEV_MODE is true
-// --------------------------------------------------------------------------
-/* MOCK DATA - remove or gate behind DEV_MODE before any production launch */
 function seedMockData() {
-  const existing = storageGet();
-  if (existing.length > 0) return;
-
+  if (storageGet().length > 0) return;
   const user = getUser();
   if (!user) return;
+  const now = Date.now(), d = (ms) => new Date(now - ms).toISOString();
 
-  const now     = new Date();
-  const dayAgo  = new Date(now - 86400000).toISOString();
-  const weekAgo = new Date(now - 7 * 86400000).toISOString();
-
-  /* MOCK DATA start */
-  const mockReports = [
+  storageSet([
     {
-      id:           'RPT-2026-0001',
-      studentEmail: user.email,
-      studentName:  user.name,
-      title:        'Broken projector in lecture hall',
-      description:  'The projector in room 201 does not display an image. The power light is on but the screen stays blank. It has been like this for three days.',
-      building:     BUILDINGS[0],
-      room:         'Room 201',
-      images:       [],
-      status:       STATUSES.RESOLVED,
-      createdAt:    weekAgo,
-      updatedAt:    dayAgo,
-      assignedTo:   { name: 'Technician Staff', role: 'technician' },
+      id: 'RPT-2026-0001', studentEmail: user.email, studentName: user.name,
+      title: 'Broken projector in lecture hall', description: 'The projector in room 201 does not display an image. The power light is on but the screen stays blank. It has been like this for three days.',
+      building: BUILDINGS[0], room: 'Room 201', images: [], status: STATUSES.RESOLVED,
+      createdAt: d(7 * 864e5), updatedAt: d(864e5), assignedTo: { name: 'Technician Staff', role: 'technician' },
       timeline: [
-        { status: STATUSES.SUBMITTED,   timestamp: weekAgo,                             note: 'Report submitted' },
-        { status: STATUSES.ASSIGNED,    timestamp: new Date(now - 5 * 86400000).toISOString(), note: 'Assigned to maintenance team' },
-        { status: STATUSES.IN_PROGRESS, timestamp: new Date(now - 3 * 86400000).toISOString(), note: 'Technician on site' },
-        { status: STATUSES.RESOLVED,    timestamp: dayAgo,                              note: 'Projector lamp replaced' },
-      ],
+        { status: STATUSES.SUBMITTED, timestamp: d(7 * 864e5), note: 'Report submitted' },
+        { status: STATUSES.ASSIGNED, timestamp: d(5 * 864e5), note: 'Assigned to maintenance team' },
+        { status: STATUSES.IN_PROGRESS, timestamp: d(3 * 864e5), note: 'Technician on site' },
+        { status: STATUSES.RESOLVED, timestamp: d(864e5), note: 'Projector lamp replaced' }
+      ]
     },
     {
-      id:           'RPT-2026-0002',
-      studentEmail: user.email,
-      studentName:  user.name,
-      title:        'Leaking tap in ground floor bathroom',
-      description:  'The cold water tap in the ground floor men\'s bathroom near the main entrance has been dripping constantly for about a week.',
-      building:     BUILDINGS[1],
-      room:         'Ground floor bathroom',
-      images:       [],
-      status:       STATUSES.IN_PROGRESS,
-      createdAt:    new Date(now - 4 * 86400000).toISOString(),
-      updatedAt:    new Date(now - 2 * 86400000).toISOString(),
-      assignedTo:   { name: 'Plumbing Team', role: 'technician' },
+      id: 'RPT-2026-0002', studentEmail: user.email, studentName: user.name,
+      title: 'Leaking tap in ground floor bathroom', description: "The cold water tap in the ground floor men's bathroom near the main entrance has been dripping constantly for about a week.",
+      building: BUILDINGS[1], room: 'Ground floor bathroom', images: [], status: STATUSES.IN_PROGRESS,
+      createdAt: d(4 * 864e5), updatedAt: d(2 * 864e5), assignedTo: { name: 'Plumbing Team', role: 'technician' },
       timeline: [
-        { status: STATUSES.SUBMITTED,   timestamp: new Date(now - 4 * 86400000).toISOString(), note: 'Report submitted' },
-        { status: STATUSES.ASSIGNED,    timestamp: new Date(now - 3 * 86400000).toISOString(), note: 'Assigned to plumbing team' },
-        { status: STATUSES.IN_PROGRESS, timestamp: new Date(now - 2 * 86400000).toISOString(), note: 'Parts ordered, repair scheduled' },
-      ],
+        { status: STATUSES.SUBMITTED, timestamp: d(4 * 864e5), note: 'Report submitted' },
+        { status: STATUSES.ASSIGNED, timestamp: d(3 * 864e5), note: 'Assigned to plumbing team' },
+        { status: STATUSES.IN_PROGRESS, timestamp: d(2 * 864e5), note: 'Parts ordered, repair scheduled' }
+      ]
     },
     {
-      id:           'RPT-2026-0003',
-      studentEmail: user.email,
-      studentName:  user.name,
-      title:        'Broken socket near window in library',
-      description:  'The power socket on the right side of the third row, near the window, does not work. Students cannot charge laptops in that area.',
-      building:     BUILDINGS[2], // MAIN
-      room:         'Third row, window side',
-      images:       [],
-      status:       STATUSES.SUBMITTED,
-      createdAt:    new Date(now - 86400000).toISOString(),
-      updatedAt:    new Date(now - 86400000).toISOString(),
-      assignedTo:   null,
-      timeline: [
-        { status: STATUSES.SUBMITTED, timestamp: new Date(now - 86400000).toISOString(), note: 'Report submitted' },
-      ],
-    },
-  ];
-  /* MOCK DATA end */
-
-  storageSet(mockReports);
+      id: 'RPT-2026-0003', studentEmail: user.email, studentName: user.name,
+      title: 'Broken socket near window in library', description: 'The power socket on the right side of the third row, near the window, does not work. Students cannot charge laptops in that area.',
+      building: BUILDINGS[2], room: 'Third row, window side', images: [], status: STATUSES.SUBMITTED,
+      createdAt: d(864e5), updatedAt: d(864e5), assignedTo: null,
+      timeline: [{ status: STATUSES.SUBMITTED, timestamp: d(864e5), note: 'Report submitted' }]
+    }
+  ]);
 }
 
-// --------------------------------------------------------------------------
-// Public API (async - returns Promises for easy API replacement)
-// --------------------------------------------------------------------------
+const STATUS_MAP = {
+  pending: (t) => (t.assignedTo ? STATUSES.ASSIGNED : STATUSES.SUBMITTED),
+  in_progress: () => STATUSES.IN_PROGRESS,
+  resolved: () => STATUSES.RESOLVED,
+  on_hold: () => STATUSES.IN_PROGRESS
+};
 
-/**
- * Returns all reports owned by the logged-in student, newest first.
- * @returns {Promise<object[]>}
- */
+function syncReportItem(report, tasks, techs) {
+  const task = tasks.find((t) => t.id === report.taskId || t.reportId === report.id || t.id === report.id);
+  if (!task) return false;
+  let changed = false;
+  const mapped = STATUS_MAP[task.status] ? STATUS_MAP[task.status](task) : report.status;
+  if (mapped && mapped !== report.status) {
+    report.status = mapped;
+    changed = true;
+  }
+  if (task.status === 'resolved' && !report.finished) {
+    report.finished = true;
+    changed = true;
+  }
+  if (task.assignedTo) {
+    const tech = techs.find((t) => t.id === task.assignedTo);
+    if (tech && (!report.assignedTo || report.assignedTo.id !== tech.id)) {
+      report.assignedTo = { name: tech.name, role: tech.role, id: tech.id };
+      changed = true;
+    }
+  }
+  return changed;
+}
+
+function syncAllReports(reports) {
+  try {
+    const tasks = JSON.parse(localStorage.getItem('campusone_maint_tasks') || '[]');
+    const techs = JSON.parse(localStorage.getItem('campusone_techs') || '[]');
+    if (!tasks.length) return;
+    let dirty = false;
+    reports.forEach((r) => { if (syncReportItem(r, tasks, techs)) dirty = true; });
+    if (dirty) storageSet(reports);
+  } catch {}
+}
+
 export async function getMyReports() {
   if (CONFIG.DEV_MODE) seedMockData();
-  const user = getUser();
-  const all  = storageGet();
-
-  if (user && user.email) {
-    const currentEmail = (user.email || '').trim().toLowerCase();
-    const userReports = all.filter((r) => {
-      const rEmail = (r.studentEmail || '').trim().toLowerCase();
-      return !rEmail || rEmail === currentEmail;
-    });
-
-    if (userReports.length > 0) {
-      return userReports.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    }
-
-    if (CONFIG.DEV_MODE) {
-      return all.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    }
-
-    return [];
-  }
-
-  return all.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const user = getUser(), all = storageGet();
+  syncAllReports(all);
+  const email = (user?.email || '').trim().toLowerCase();
+  const list = email ? all.filter((r) => !(r.studentEmail || '').trim() || (r.studentEmail || '').trim().toLowerCase() === email) : all;
+  const res = (list.length || !CONFIG.DEV_MODE) ? list : all;
+  return res.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
 
-/**
- * Returns a single report by ID.
- * @param {string} id
- * @returns {Promise<object|null>}
- */
 export async function getReportById(id) {
   if (CONFIG.DEV_MODE) seedMockData();
   const all = storageGet();
-  const report = all.find((r) => r.id === id);
-  return report || null;
+  syncAllReports(all);
+  return all.find((r) => r.id === id || r.taskId === id) || null;
 }
 
-/**
- * Creates a new report and saves it to localStorage so it appears in My Reports.
- * Returns the saved report object, or throws if quota exceeded.
- * @param {{ title: string, description: string, building: string, room: string, images: string[] }} data
- * @returns {Promise<object>}
- */
-export async function createReport(data) {
-  let user = getUser();
-  if (!user) {
-    user = { email: 'student@miuegypt.edu.eg', name: 'Student', role: 'student' };
-  }
+export async function deleteReport(id) {
+  const all = storageGet();
+  const next = all.filter((r) => r.id !== id && r.taskId !== id);
+  storageSet(next);
+  return true;
+}
 
-  const all       = storageGet();
-  const now       = new Date().toISOString();
+const CAT_RULES = [
+  [/\b(leak|water|pipe|tap|faucet|sink|drain|toilet|restroom|bathroom|dispenser|flush|plumb)\b/, 'Plumbing'],
+  [/\b(light|bulb|electric|power|socket|wire|fuse|breaker|switch|flicker|outlet|cable)\b/, 'Electrical'],
+  [/\b(ac|air condition|hvac|heat|cooling|thermostat|fan|vent|filter|cold)\b/, 'HVAC'],
+  [/\b(door|lock|handle|window|table|chair|bench|desk|wood|hinge|cabinet|carpenter)\b/, 'Carpentry'],
+  [/\b(elevator|lift)\b/, 'Elevator'],
+  [/\b(paint|wall|crack|ceiling|plaster|peeling)\b/, 'Painting']
+];
+
+function detectCategory(text, fallback) {
+  if (fallback && fallback !== 'auto') return fallback;
+  const match = CAT_RULES.find(([re]) => re.test(text));
+  return match ? match[1] : 'General Maint.';
+}
+
+function detectPriority(text, fallback) {
+  if (fallback && fallback !== 'auto') return fallback;
+  if (/\b(emergency|urgent|danger|hazard|flood|fire|spark|smoke|burst|shock)\b/.test(text)) return 'emergency';
+  if (/\b(broken|stopped|blocked|fail|critical|exam|major|completely|safety)\b/.test(text)) return 'high';
+  return 'medium';
+}
+
+export async function createReport(data) {
+  let user = getUser() || { email: 'student@miuegypt.edu.eg', name: 'Student', role: 'student' };
+  const all = storageGet(), now = new Date().toISOString();
   const safeEmail = (user.email || 'student@miuegypt.edu.eg').trim().toLowerCase();
-  const safeName  = (user.name || 'Student').trim();
+  const safeName = (user.name || 'Student').trim();
+  const reportId = generateId(all);
+  const text = `${data.title || ''} ${data.description || ''}`.toLowerCase();
+  const category = detectCategory(text, data.category);
+  const priority = detectPriority(text, data.priority);
+
+  let maxNum = 0, rawTasks = [];
+  try {
+    rawTasks = JSON.parse(localStorage.getItem('campusone_maint_tasks') || '[]');
+    rawTasks.forEach((t) => {
+      const m = t.id && t.id.match(/^MNT-(\d+)$/);
+      if (m) maxNum = Math.max(maxNum, parseInt(m[1], 10));
+    });
+  } catch {}
+  const taskId = 'MNT-' + String(maxNum + 1).padStart(3, '0');
+
+  const newTask = {
+    id: taskId, reportId, title: data.title, description: data.description, category,
+    building: data.building, room: data.room, priority, status: 'pending', reportedBy: safeName,
+    reportedAt: now, assignedTo: '', photoUrl: (data.images && data.images[0]) || '', images: data.images || [],
+    log: [{ actor: `${safeName} (Student)`, action: 'Report Submitted', note: `Submitted via student portal. Location: ${data.building} - ${data.room}. Awaiting a maintenance staff member to claim this task.`, ts: now }]
+  };
+  try {
+    rawTasks.unshift(newTask);
+    localStorage.setItem('campusone_maint_tasks', JSON.stringify(rawTasks));
+  } catch (e) {
+    console.error('Error creating maintenance task for staff', e);
+  }
 
   const newReport = {
-    id:           generateId(all),
-    studentEmail: safeEmail,
-    studentName:  safeName,
-    title:        data.title,
-    description:  data.description,
-    building:     data.building,
-    room:         data.room,
-    images:       data.images || [],
-    status:       STATUSES.SUBMITTED,
-    createdAt:    now,
-    updatedAt:    now,
-    assignedTo:   null,
-    timeline: [
-      { status: STATUSES.SUBMITTED, timestamp: now, note: 'Report submitted' },
-    ],
+    id: reportId, taskId, studentEmail: safeEmail, studentName: safeName,
+    title: data.title, description: data.description, category, priority,
+    building: data.building, room: data.room, images: data.images || [],
+    status: STATUSES.SUBMITTED, createdAt: now, updatedAt: now, assignedTo: null,
+    timeline: [{ status: STATUSES.SUBMITTED, timestamp: now, note: 'Report submitted. Awaiting maintenance staff to claim this task.' }]
   };
 
-  const updated = [newReport, ...all];
-  const result  = storageSet(updated);
-
+  const result = storageSet([newReport, ...all]);
   if (result === 'quota') {
-    // Retry without heavy base64 images so report text and location are never lost
-    const strippedReport = { ...newReport, images: [] };
-    const retryUpdated   = [strippedReport, ...all];
-    const retryResult    = storageSet(retryUpdated);
-    if (retryResult === true) {
-      return strippedReport;
-    }
+    const stripped = { ...newReport, images: [] };
+    if (storageSet([stripped, ...all]) === true) return stripped;
     throw new DOMException('Storage quota exceeded. Free up space and try again.', 'QuotaExceededError');
   }
-  if (result === false) {
-    throw new Error('Could not save the report. Please try again.');
-  }
+  if (!result) throw new Error('Could not save the report. Please try again.');
 
   return newReport;
 }

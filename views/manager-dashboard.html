@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -484,9 +484,11 @@
         tbody.innerHTML = filtered.map(function (task) {
           var techName = '—';
           if (task.assignedTo) { var tech=techs.find(function(t){return t.id===task.assignedTo;}); if(tech) techName=tech.name; }
+          var isStudentRpt = !!(task.reportId || (task.log && task.log.some(function(l){ return l.action === 'Report Submitted'; })));
+          var rptBadge = isStudentRpt ? ' <span style="font-size:0.7rem;font-weight:600;color:#1D4ED8;background:#EFF6FF;padding:2px 6px;border-radius:4px;border:1px solid #BFDBFE;">Student</span>' : '';
           return '<tr data-task-id="' + task.id + '" role="row">' +
             '<td class="td-id">' + task.id + '</td>' +
-            '<td><a href="task-details.html?id=' + encodeURIComponent(task.id) + '" style="color:var(--color-ink);font-weight:600;text-decoration:none;" onmouseover="this.style.color=\'var(--color-primary)\'" onmouseout="this.style.color=\'var(--color-ink)\'">' + task.title + '</a></td>' +
+            '<td><a href="task-details.html?id=' + encodeURIComponent(task.id) + '" style="color:var(--color-ink);font-weight:600;text-decoration:none;" onmouseover="this.style.color=\'var(--color-primary)\'" onmouseout="this.style.color=\'var(--color-ink)\'">' + task.title + '</a>' + rptBadge + '</td>' +
             '<td>' + priorityChip(task.priority) + '</td>' +
             '<td>' + statusChip(task.status) + '</td>' +
             '<td><select class="assign-select" data-task-id="' + task.id + '" aria-label="Assign technician">' + buildTechOptions(task.assignedTo) + '</select></td>' +

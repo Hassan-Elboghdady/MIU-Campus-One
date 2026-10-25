@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -140,6 +140,12 @@
                 Save Status
               </button>
 
+              <!-- Delete button (only shown when resolved) -->
+              <button type="button" id="delete-task-btn" style="display:none;width:100%;margin-top:10px;background:#FEF2F2;color:#DC2626;border:1px solid #FECACA;border-radius:var(--radius);padding:9px 16px;font-size:var(--text-sm);font-weight:600;cursor:pointer;align-items:center;justify-content:center;gap:6px;" aria-label="Delete this task">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3,5 13,5"/><path d="M6 5V3h4v2"/><rect x="3" y="5" width="10" height="9" rx="1"/><line x1="6" y1="8" x2="6" y2="11"/><line x1="10" y1="8" x2="10" y2="11"/></svg>
+                Delete Resolved Task
+              </button>
+
             </div>
           </div>
 
@@ -178,6 +184,32 @@
 
     </div><!-- /.container -->
   </main>
+
+  <!-- ===== DELETE CONFIRM MODAL ===== -->
+  <div class="modal-overlay" id="td-delete-modal" role="dialog" aria-modal="true" aria-labelledby="td-delete-title" style="display:none">
+    <div class="modal-card" style="max-width:440px;">
+      <div class="modal-card__header">
+        <h2 class="modal-card__title" id="td-delete-title" style="display:flex;align-items:center;gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3,5 13,5"/><path d="M6 5V3h4v2"/><rect x="3" y="5" width="10" height="9" rx="1"/><line x1="6" y1="8" x2="6" y2="11"/><line x1="10" y1="8" x2="10" y2="11"/></svg>
+          Delete Resolved Task
+        </h2>
+        <button type="button" class="modal-card__close" id="td-delete-close" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="3" x2="15" y2="15"/><line x1="15" y1="3" x2="3" y2="15"/></svg>
+        </button>
+      </div>
+      <div class="modal-card__body">
+        <p style="font-size:var(--text-md);color:var(--color-ink);margin:0 0 8px;">Are you sure you want to <strong style="color:#DC2626;">permanently delete</strong> this resolved task?</p>
+        <p style="font-size:var(--text-sm);color:var(--color-muted);margin:0;">This action cannot be undone. The task will be removed from the system.</p>
+      </div>
+      <div class="modal-card__footer">
+        <button type="button" class="btn btn-outline" id="td-delete-cancel">Cancel</button>
+        <button type="button" class="btn" id="td-delete-ok" style="background:#DC2626;color:#fff;border:none;">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3,5 13,5"/><path d="M6 5V3h4v2"/><rect x="3" y="5" width="10" height="9" rx="1"/><line x1="6" y1="8" x2="6" y2="11"/><line x1="10" y1="8" x2="10" y2="11"/></svg>
+          Yes, Delete
+        </button>
+      </div>
+    </div>
+  </div>
 
   <footer class="app-footer">
     <div class="container app-footer__inner">
@@ -264,6 +296,85 @@
       }).join('');
 
       /* ------------------------------------------------------------------ */
+      /* DELETE TASK (resolved tasks only)                                   */
+      /* ------------------------------------------------------------------ */
+      var deleteBtn = document.getElementById('delete-task-btn');
+
+      function updateDeleteBtnVisibility() {
+        if (!deleteBtn) return;
+        if (task.status === 'resolved') {
+          deleteBtn.style.display = 'flex';
+        } else {
+          deleteBtn.style.display = 'none';
+        }
+      }
+      updateDeleteBtnVisibility();
+
+      var tdDeleteModal  = document.getElementById('td-delete-modal');
+      var tdDeleteClose  = document.getElementById('td-delete-close');
+      var tdDeleteCancel = document.getElementById('td-delete-cancel');
+      var tdDeleteOk     = document.getElementById('td-delete-ok');
+
+      function openTdDeleteModal() {
+        if (tdDeleteModal) { tdDeleteModal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+      }
+      function closeTdDeleteModal() {
+        if (tdDeleteModal) { tdDeleteModal.style.display = 'none'; document.body.style.overflow = ''; }
+      }
+
+      if (tdDeleteClose)  tdDeleteClose.addEventListener('click', closeTdDeleteModal);
+      if (tdDeleteCancel) tdDeleteCancel.addEventListener('click', closeTdDeleteModal);
+      tdDeleteModal && tdDeleteModal.addEventListener('click', function(e){ if(e.target===tdDeleteModal) closeTdDeleteModal(); });
+
+      function doDeleteTask() {
+        /* Remove from maint_tasks */
+        var tasks = [];
+        try { tasks = JSON.parse(localStorage.getItem('campusone_maint_tasks')) || []; } catch(e2) {}
+        tasks = tasks.filter(function (t) { return t.id !== task.id; });
+        try { localStorage.setItem('campusone_maint_tasks', JSON.stringify(tasks)); } catch(e3) {}
+
+        /* DO NOT delete from campusone_reports! Keep report marked resolved / finished so student sees it and deletes it themselves */
+        try {
+          var rawReports = localStorage.getItem('campusone_reports');
+          if (rawReports) {
+            var repList = JSON.parse(rawReports);
+            var rep = repList.find(function (r) {
+              return r.taskId === task.id || r.id === task.reportId || (task.id && r.id === task.id);
+            });
+            if (rep) {
+              rep.status = 'resolved';
+              rep.finished = true;
+              rep.finishedAt = new Date().toISOString();
+              rep.updatedAt = new Date().toISOString();
+              rep.timeline = rep.timeline || [];
+              rep.timeline.unshift({
+                status: 'resolved',
+                timestamp: new Date().toISOString(),
+                note: 'Task marked finished and archived by staff (' + (session.name || 'Staff') + '). Waiting for student review and closure.'
+              });
+              localStorage.setItem('campusone_reports', JSON.stringify(repList));
+            }
+          }
+        } catch(e4) {}
+
+        showToast('Task removed from staff dashboard.', 'success');
+        setTimeout(function () { window.location.replace('staff-dashboard.html'); }, 900);
+      }
+
+      if (tdDeleteOk) {
+        tdDeleteOk.addEventListener('click', function () {
+          closeTdDeleteModal();
+          doDeleteTask();
+        });
+      }
+
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', function () {
+          openTdDeleteModal();
+        });
+      }
+
+      /* ------------------------------------------------------------------ */
       /* STATUS PROGRESS STEPS                                               */
       /* ------------------------------------------------------------------ */
       var STATUS_FLOW = [
@@ -327,6 +438,44 @@
           var infoStatusRow = document.getElementById('info-status-value');
           if (infoStatusRow) infoStatusRow.querySelector('.task-info-row__value').innerHTML = statusChip(task.status);
           renderStatusSteps(task.status);
+          updateDeleteBtnVisibility();
+
+          /* Sync status and assignee to campusone_reports if this was from a student report */
+          try {
+            var rawReports = localStorage.getItem('campusone_reports');
+            if (rawReports) {
+              var repList = JSON.parse(rawReports);
+              var rep = repList.find(function (r) { return r.taskId === task.id || r.id === task.reportId || r.id === task.id; });
+              if (rep) {
+                var mappedStatus = task.status;
+                if (task.status === 'pending') {
+                  mappedStatus = task.assignedTo ? 'assigned' : 'submitted';
+                } else if (task.status === 'on_hold') {
+                  mappedStatus = 'in_progress';
+                }
+                rep.status = mappedStatus;
+                if (task.status === 'resolved') {
+                  rep.finished = true;
+                  rep.finishedAt = rep.finishedAt || new Date().toISOString();
+                }
+                if (task.assignedTo) {
+                  var techObj = getTechById(task.assignedTo);
+                  if (techObj) {
+                    rep.assignedTo = { name: techObj.name, role: techObj.role, id: techObj.id };
+                  }
+                }
+                rep.updatedAt = new Date().toISOString();
+                rep.timeline = rep.timeline || [];
+                rep.timeline.unshift({
+                  status: mappedStatus,
+                  timestamp: new Date().toISOString(),
+                  note: note || ('Status updated to ' + task.status.replace('_', ' ') + ' by ' + actor)
+                });
+                localStorage.setItem('campusone_reports', JSON.stringify(repList));
+              }
+            }
+          } catch(eR) {}
+
           renderTimeline();
           document.getElementById('status-note').value = '';
           showToast('Status updated to ' + (STATUS_FLOW.find(function (s) { return s.value === task.status; }) || { label: task.status }).label + '.', 'success');
@@ -397,6 +546,32 @@
         saveTechs(techs);
 
         if (updateTask(task)) {
+          /* Sync assignment to campusone_reports */
+          try {
+            var rawReports = localStorage.getItem('campusone_reports');
+            if (rawReports) {
+              var repList = JSON.parse(rawReports);
+              var rep = repList.find(function (r) { return r.taskId === task.id || r.id === task.reportId || r.id === task.id; });
+              if (rep) {
+                if (tech) {
+                  rep.assignedTo = { name: tech.name, role: tech.role, id: tech.id };
+                  if (rep.status === 'submitted') rep.status = 'assigned';
+                } else {
+                  rep.assignedTo = null;
+                  if (rep.status === 'assigned') rep.status = 'submitted';
+                }
+                rep.updatedAt = new Date().toISOString();
+                rep.timeline = rep.timeline || [];
+                rep.timeline.unshift({
+                  status: rep.status,
+                  timestamp: new Date().toISOString(),
+                  note: tech ? ('Assigned to ' + tech.name + ' (' + tech.role + ')') : 'Technician assignment cleared'
+                });
+                localStorage.setItem('campusone_reports', JSON.stringify(repList));
+              }
+            }
+          } catch(eAssignSync) {}
+
           renderAssignPanel();
           renderTimeline();
           showToast(tech ? 'Assigned to ' + tech.name + '.' : 'Technician unassigned.', 'success');

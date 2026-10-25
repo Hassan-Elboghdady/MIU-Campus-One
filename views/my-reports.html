@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -144,6 +144,36 @@
     </div>
   </dialog>
 
+  <!-- ===== STUDENT DELETE CONFIRM MODAL ===== -->
+  <div class="modal-overlay" id="student-delete-modal" role="dialog" aria-modal="true" aria-labelledby="student-delete-title" style="display:none">
+    <div class="modal-card" style="max-width:440px;">
+      <div class="modal-card__header">
+        <h2 class="modal-card__title" id="student-delete-title" style="display:flex;align-items:center;gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3,5 13,5"/><path d="M6 5V3h4v2"/><rect x="3" y="5" width="10" height="9" rx="1"/><line x1="6" y1="8" x2="6" y2="11"/><line x1="10" y1="8" x2="10" y2="11"/></svg>
+          Delete Report
+        </h2>
+        <button type="button" class="modal-card__close" id="student-delete-close" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="3" x2="15" y2="15"/><line x1="15" y1="3" x2="3" y2="15"/></svg>
+        </button>
+      </div>
+      <div class="modal-card__body">
+        <p style="font-size:var(--text-md);color:var(--color-ink);margin:0 0 8px;">
+          Are you sure you want to delete this finished report?
+        </p>
+        <p style="font-size:var(--text-sm);color:var(--color-muted);margin:0;" id="student-delete-report-id">
+          This report will be permanently removed from your history.
+        </p>
+      </div>
+      <div class="modal-card__footer">
+        <button type="button" class="btn btn-outline" id="student-delete-cancel">Cancel</button>
+        <button type="button" class="btn" id="student-delete-ok" style="background:#DC2626;color:#fff;border:none;font-weight:600;">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3,5 13,5"/><path d="M6 5V3h4v2"/><rect x="3" y="5" width="10" height="9" rx="1"/><line x1="6" y1="8" x2="6" y2="11"/><line x1="10" y1="8" x2="10" y2="11"/></svg>
+          Yes, Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     (function () {
       var s = null; try { s = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
@@ -192,79 +222,73 @@
         var listCont = document.getElementById('reports-list-container'), detailsCont = document.getElementById('details-container');
         if ((listCont && listCont.children.length) || (detailsCont && detailsCont.children.length)) return;
 
-        var reports = []; try { reports = JSON.parse(localStorage.getItem('campusone_reports')) || []; } catch (e) {}
-        var s = null;     try { s = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
+        var reports = [], s = null;
+        try { reports = JSON.parse(localStorage.getItem('campusone_reports')) || []; } catch (e) {}
+        try { s = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
         var email = (s?.email || '').toLowerCase();
         var myReports = reports.filter(function (r) { return !email || !r.studentEmail || r.studentEmail.toLowerCase() === email; });
         if (!myReports.length && reports.length) myReports = reports;
+
+        var modal = document.getElementById('student-delete-modal'), modalClose = document.getElementById('student-delete-close');
+        var modalCancel = document.getElementById('student-delete-cancel'), modalOk = document.getElementById('student-delete-ok');
+        var targetDelId = null;
+
+        function openModal(rId) {
+          targetDelId = rId;
+          var repIdEl = document.getElementById('student-delete-report-id');
+          if (repIdEl) repIdEl.textContent = 'Report ID: ' + rId + ' will be permanently removed.';
+          if (modal) { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+        }
+        function closeModal() { targetDelId = null; if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; } }
+        [modalClose, modalCancel].forEach(function(b){ if(b) b.addEventListener('click', closeModal); });
+        if (modal) modal.addEventListener('click', function(e){ if(e.target === modal) closeModal(); });
+        if (modalOk) modalOk.addEventListener('click', function () {
+          if (!targetDelId) return closeModal();
+          var rId = targetDelId; closeModal();
+          try {
+            var all = (JSON.parse(localStorage.getItem('campusone_reports')) || []).filter(function (r) { return r.id !== rId && r.taskId !== rId; });
+            localStorage.setItem('campusone_reports', JSON.stringify(all));
+          } catch(e) {}
+          id ? window.location.replace('my-reports.html') : window.location.reload();
+        });
 
         if (id && detailsCont) {
           if (listView) listView.hidden = true;
           if (detailsView) detailsView.hidden = false;
           var found = myReports.find(function (r) { return r.id === id; }) || reports.find(function (r) { return r.id === id; }) || reports[0];
-          if (found) {
-            var dt = document.getElementById('details-title'); if (dt) dt.textContent = found.title;
-            var st = found.status || 'submitted';
-            var imgs = (found.images && found.images.length)
-              ? '<div style="margin-top:16px;border-top:1px solid #f4f4f5;padding-top:16px;"><strong style="display:block;margin-bottom:8px;color:#71717a;">Attached Images:</strong><div style="display:flex;gap:12px;flex-wrap:wrap;">' +
-                found.images.map(function (src, i) { return '<img src="' + src + '" alt="Report image ' + (i+1) + '" style="width:100px;height:100px;object-fit:cover;border-radius:6px;border:1px solid #e4e4e7;cursor:pointer;" onclick="window.open(this.src)">'; }).join('') + '</div></div>' : '';
-            detailsCont.innerHTML =
-              '<div class="card" style="padding:24px;margin-bottom:20px;">' +
-                '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">' +
-                  '<h2 style="font-size:1.25rem;font-weight:700;color:#18181b;margin:0;">' + found.title + '</h2>' +
-                  '<span class="status-badge status-badge--' + st + '">' + st.replace('_',' ').toUpperCase() + '</span>' +
-                '</div>' +
-                '<p style="color:#52525b;line-height:1.6;margin-bottom:16px;">' + (found.description || '') + '</p>' +
-                '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;font-size:.9rem;border-top:1px solid #f4f4f5;padding-top:16px;">' +
-                  '<div><strong style="color:#71717a;">Building:</strong> ' + (found.building || '—') + '</div>' +
-                  '<div><strong style="color:#71717a;">Room/Area:</strong> ' + (found.room || '—') + '</div>' +
-                  '<div><strong style="color:#71717a;">Report ID:</strong> ' + found.id + '</div>' +
-                  '<div><strong style="color:#71717a;">Submitted:</strong> ' + new Date(found.createdAt).toLocaleDateString('en-GB') + '</div>' +
-                '</div>' + imgs +
-              '</div>';
-          }
+          if (!found) return;
+          var dt = document.getElementById('details-title'); if (dt) dt.textContent = found.title;
+          var st = found.status || 'submitted', isDone = (st === 'resolved' || found.finished);
+          var banner = isDone ? '<div class="finished-alert" style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;"><div style="display:flex;align-items:center;gap:14px;"><div style="width:38px;height:38px;border-radius:50%;background:#DCFCE7;display:flex;align-items:center;justify-content:center;color:#16A34A;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,8 6,11 13,4"/></svg></div><div><div style="font-weight:700;color:#166534;font-size:1.05rem;">Task Finished &amp; Resolved</div><div style="color:#15803D;font-size:0.875rem;margin-top:2px;">The maintenance staff has resolved this issue. You can delete this report to close it.</div></div></div><button type="button" class="btn btn-sm" id="fallback-del" style="background:#DC2626;color:#ffffff;border:none;padding:9px 16px;border-radius:8px;font-weight:700;display:inline-flex;align-items:center;gap:6px;cursor:pointer;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,5 13,5"/><path d="M6 5V3h4v2"/><rect x="3" y="5" width="10" height="9" rx="1"/><line x1="6" y1="8" x2="6" y2="11"/><line x1="10" y1="8" x2="10" y2="11"/></svg>Delete Report</button></div>' : '';
+          var imgs = (found.images && found.images.length) ? '<div style="margin-top:16px;border-top:1px solid #f4f4f5;padding-top:16px;"><strong style="display:block;margin-bottom:8px;color:#71717a;">Attached Images:</strong><div style="display:flex;gap:12px;flex-wrap:wrap;">' + found.images.map(function (src, i) { return '<img src="' + src + '" alt="Report image ' + (i+1) + '" style="width:100px;height:100px;object-fit:cover;border-radius:6px;border:1px solid #e4e4e7;cursor:pointer;" onclick="window.open(this.src)">'; }).join('') + '</div></div>' : '';
+          var tech = found.assignedTo ? (found.assignedTo.name + ' (' + found.assignedTo.role + ')') : 'Campus Maintenance Staff';
+          detailsCont.innerHTML = banner + '<div class="card" style="padding:24px;margin-bottom:20px;"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:gap:12px;margin-bottom:16px;"><h2 style="font-size:1.25rem;font-weight:700;color:#18181b;margin:0;">' + found.title + '</h2><div style="display:flex;align-items:center;gap:8px;"><span class="status-badge status-badge--' + st + '">' + st.replace('_',' ').toUpperCase() + '</span>' + (isDone ? '<span class="finished-badge">Finished</span>' : '') + '</div></div><p style="color:#52525b;line-height:1.6;margin-bottom:16px;">' + (found.description || '') + '</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;font-size:.9rem;border-top:1px solid #f4f4f5;padding-top:16px;"><div><strong style="color:#71717a;">Building:</strong> ' + (found.building || '—') + '</div><div><strong style="color:#71717a;">Room/Area:</strong> ' + (found.room || '—') + '</div><div><strong style="color:#71717a;">Report ID:</strong> ' + found.id + '</div><div><strong style="color:#71717a;">Assigned To:</strong> <span style="color:#2563EB;font-weight:600;">' + tech + '</span></div><div><strong style="color:#71717a;">Submitted:</strong> ' + new Date(found.createdAt).toLocaleDateString('en-GB') + '</div></div>' + imgs + '</div>';
+          var fbDel = document.getElementById('fallback-del'); if (fbDel) fbDel.addEventListener('click', function () { openModal(found.id); });
           return;
         }
 
         if (listCont) {
           if (listView) listView.hidden = false;
           if (detailsView) detailsView.hidden = true;
-
           function render(f) {
-            document.querySelectorAll('.filter-btn').forEach(function (btn) {
-              var on = btn.dataset.filter === f;
-              btn.classList.toggle('is-active', on);
-              btn.setAttribute('aria-pressed', String(on));
-            });
-            var list = f === 'all' ? myReports : myReports.filter(function (r) {
-              return (r.status || 'submitted').toLowerCase().replace(/\s+/g, '_') === f;
-            });
+            document.querySelectorAll('.filter-btn').forEach(function (btn) { btn.classList.toggle('is-active', btn.dataset.filter === f); btn.setAttribute('aria-pressed', String(btn.dataset.filter === f)); });
+            var list = f === 'all' ? myReports : myReports.filter(function (r) { return (r.status || 'submitted').toLowerCase().replace(/\s+/g, '_') === f; });
             if (!list.length) {
-              listCont.innerHTML =
-                '<div class="empty-state">' +
-                  '<div class="empty-state__icon"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="32" height="36" rx="2"/><line x1="16" y1="18" x2="32" y2="18"/><line x1="16" y1="24" x2="32" y2="24"/><line x1="16" y1="30" x2="24" y2="30"/></svg></div>' +
-                  '<p class="empty-state__title">' + (f === 'all' ? 'No reports yet' : 'No ' + f.replace('_',' ') + ' reports') + '</p>' +
-                  '<p class="empty-state__text">' + (f === 'all' ? 'You have not submitted any maintenance reports.' : 'You have no reports with this status.') + '</p>' +
-                  (f === 'all' ? '<a href="report.html" class="btn btn-primary">Report an issue</a>' : '') +
-                '</div>';
+              listCont.innerHTML = '<div class="empty-state"><div class="empty-state__icon"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="32" height="36" rx="2"/><line x1="16" y1="18" x2="32" y2="18"/><line x1="16" y1="24" x2="32" y2="24"/><line x1="16" y1="30" x2="24" y2="30"/></svg></div><p class="empty-state__title">' + (f === 'all' ? 'No reports yet' : 'No ' + f.replace('_',' ') + ' reports') + '</p><p class="empty-state__text">' + (f === 'all' ? 'You have not submitted any maintenance reports.' : 'You have no reports with this status.') + '</p>' + (f === 'all' ? '<a href="report.html" class="btn btn-primary">Report an issue</a>' : '') + '</div>';
               return;
             }
-            listCont.innerHTML =
-              '<p class="list-count">' + list.length + ' report' + (list.length === 1 ? '' : 's') + (f !== 'all' ? ' (' + f.replace('_',' ') + ')' : '') + '</p>' +
-              '<div class="reports-list">' +
-                list.map(function (r) {
-                  var st = r.status || 'submitted';
-                  return '<a href="my-reports.html?id=' + encodeURIComponent(r.id) + '" class="report-card" data-status="' + st + '">' +
-                    '<div class="report-card__header"><span class="report-card__title">' + r.title + '</span><span class="status-badge status-badge--' + st + '">' + st.replace('_',' ').toUpperCase() + '</span></div>' +
-                    '<div class="report-card__meta"><span class="report-card__meta-item">' + r.id + '</span><span class="report-card__meta-item">' + (r.building || '') + ' - ' + (r.room || '') + '</span><span class="report-card__meta-item">' + new Date(r.createdAt).toLocaleDateString('en-GB') + '</span></div>' +
-                  '</a>';
-                }).join('') +
-              '</div>';
-          }
+            listCont.innerHTML = '<p class="list-count">' + list.length + ' report' + (list.length === 1 ? '' : 's') + (f !== 'all' ? ' (' + f.replace('_',' ') + ')' : '') + '</p><div class="reports-list">' +
+              list.map(function (r) {
+                var st = r.status || 'submitted', isDone = (st === 'resolved' || r.finished);
+                var del = isDone ? '<button type="button" class="btn btn-sm btn-delete-report fallback-card-del" data-id="' + r.id + '" title="Delete this finished report"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,5 13,5"/><path d="M6 5V3h4v2"/><rect x="3" y="5" width="10" height="9" rx="1"/><line x1="6" y1="8" x2="6" y2="11"/><line x1="10" y1="8" x2="10" y2="11"/></svg>Delete</button>' : '';
+                return '<a href="my-reports.html?id=' + encodeURIComponent(r.id) + '" class="report-card" data-status="' + st + '"><div class="report-card__header"><span class="report-card__title">' + r.title + '</span><div style="display:flex;align-items:center;gap:8px;"><span class="status-badge status-badge--' + st + '">' + st.replace('_',' ').toUpperCase() + '</span>' + (isDone ? '<span class="finished-badge">Finished</span>' : '') + '</div></div><div class="report-card__meta"><span class="report-card__meta-item">' + r.id + '</span><span class="report-card__meta-item">' + (r.building || '') + ' - ' + (r.room || '') + '</span><span class="report-card__meta-item">' + new Date(r.createdAt).toLocaleDateString('en-GB') + '</span>' + del + '</div></a>';
+              }).join('') + '</div>';
 
-          document.querySelectorAll('.filter-btn').forEach(function (btn) {
-            btn.addEventListener('click', function () { render(btn.dataset.filter); });
-          });
+            listCont.querySelectorAll('.fallback-card-del').forEach(function (btn) {
+              btn.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); openModal(btn.dataset.id); });
+            });
+          }
+          document.querySelectorAll('.filter-btn').forEach(function (btn) { btn.addEventListener('click', function () { render(btn.dataset.filter); }); });
           render('all');
         }
       }, 200);

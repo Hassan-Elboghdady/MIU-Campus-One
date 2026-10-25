@@ -18,6 +18,7 @@ var MAINT_LOG_KEY      = 'campusone_maint_log';
    Seed technicians
    -------------------------------------------------------------------------- */
 var SEED_TECHNICIANS = [
+  { id: 'tech-0', name: 'Omar Khaled',     role: 'Maintenance Staff', availability: 'available', activeTasks: 1, phone: '+20 10-9999-8888', email: 'tech@miuegypt.edu.eg',   joined: '2022-01-10' },
   { id: 'tech-1', name: 'Ahmed Hassan',    role: 'Plumber',          availability: 'available', activeTasks: 2, phone: '+20 10-1234-5678', email: 'a.hassan@miu.edu.eg',  joined: '2023-03-15' },
   { id: 'tech-2', name: 'Mohamed Salah',   role: 'Electrician',      availability: 'on_duty',   activeTasks: 4, phone: '+20 10-2345-6789', email: 'm.salah@miu.edu.eg',   joined: '2022-08-01' },
   { id: 'tech-3', name: 'Khaled Ibrahim',  role: 'HVAC Technician',  availability: 'busy',      activeTasks: 5, phone: '+20 10-3456-7890', email: 'k.ibrahim@miu.edu.eg', joined: '2021-01-20' },
@@ -142,7 +143,16 @@ function storeSet(key, value) {
    Seed  – writes defaults only once
    -------------------------------------------------------------------------- */
 function seedMaintData() {
-  if (!storeGet(MAINT_TECHS_KEY)) storeSet(MAINT_TECHS_KEY, SEED_TECHNICIANS);
+  var techs = storeGet(MAINT_TECHS_KEY);
+  if (!techs) {
+    storeSet(MAINT_TECHS_KEY, SEED_TECHNICIANS);
+  } else {
+    var hasOmar = techs.some(function (t) { return t.id === 'tech-0' || t.email === 'tech@miuegypt.edu.eg'; });
+    if (!hasOmar) {
+      techs.unshift(SEED_TECHNICIANS[0]);
+      storeSet(MAINT_TECHS_KEY, techs);
+    }
+  }
   if (!storeGet(MAINT_TASKS_KEY)) storeSet(MAINT_TASKS_KEY, SEED_TASKS);
 }
 
@@ -153,23 +163,199 @@ function getTasks()  { seedMaintData(); return storeGet(MAINT_TASKS_KEY) || []; 
 function getTechs()  { seedMaintData(); return storeGet(MAINT_TECHS_KEY) || []; }
 
 function getTaskById(id) {
-  return getTasks().find(function (t) { return t.id === id; }) || null;
+  if (!id) return null;
+  return getTasks().find(function (t) { return t.id === id || t.reportId === id; }) || null;
 }
 function getTechById(id) {
+  if (!id) return null;
   return getTechs().find(function (t) { return t.id === id; }) || null;
 }
 
 function saveTasks(tasks)  { storeSet(MAINT_TASKS_KEY, tasks); }
 function saveTechs(techs)  { storeSet(MAINT_TECHS_KEY, techs); }
 
-/** Update a single task and persist */
+/**
+ * Two-way sync: when a maintenance task is updated by staff or manager,
+ * automatically update the corresponding student report in campusone_reports.
+ */
+function syncTaskToReports(updatedTask) {
+  try {
+    var raw = localStorage.getItem('campusone_reports');
+    if (!raw) return;
+    var reports = JSON.parse(raw);
+    var found = reports.find(function (r) {
+      return r.id === updatedTask.reportId || r.id === updatedTask.id || r.taskId === updatedTask.id;
+    });
+    if (!found) return;
+
+    var statusMap = {
+      'pending':     updatedTask.assignedTo ? 'assigned' : 'submitted',
+      'in_progress': 'in_progress',
+      'resolved':    'resolved',
+      'on_hold':     'in_progress'
+    };
+    found.status = statusMap[updatedTask.status] || updatedTask.status;
+    found.updatedAt = new Date().toISOString();
+
+    if (updatedTask.assignedTo) {
+      var tech = getTechById(updatedTask.assignedTo);
+      if (tech) {
+        found.assignedTo = { name: tech.name, role: tech.role, id: tech.id, phone: tech.phone };
+      }
+    } else {
+      found.assignedTo = null;
+    }
+
+    if (updatedTask.log && updatedTask.log.length) {
+      var latestLog = updatedTask.log[updatedTask.log.length - 1];
+      found.timeline = found.timeline || [];
+      var exists = found.timeline.some(function (item) { return item.timestamp === latestLog.ts; });
+      if (!exists) {
+        found.timeline.push({
+          status: found.status,
+          timestamp: latestLog.ts,
+          note: latestLog.action + (latestLog.note ? ': ' + latestLog.note : '')
+        });
+      }
+    }
+
+    localStorage.setItem('campusone_reports', JSON.stringify(reports));
+  } catch (e) {
+    console.error('Error syncing task to reports', e);
+  }
+}
+
+/** Update a single task and persist, syncing back to reports */
 function updateTask(updatedTask) {
   var tasks = getTasks();
   var idx   = tasks.findIndex(function (t) { return t.id === updatedTask.id; });
   if (idx === -1) return false;
   tasks[idx] = updatedTask;
   saveTasks(tasks);
+  syncTaskToReports(updatedTask);
   return true;
+}
+
+/**
+ * Intelligent categorization and priority detection helpers
+ */
+function detectCategory(title, desc) {
+  var text = ((title || '') + ' ' + (desc || '')).toLowerCase();
+  if (/\b(leak|water|pipe|tap|faucet|sink|drain|toilet|restroom|bathroom|dispenser|flush|plumb)\b/.test(text)) return 'Plumbing';
+  if (/\b(light|bulb|electric|power|socket|wire|fuse|breaker|switch|flicker|outlet|cable)\b/.test(text)) return 'Electrical';
+  if (/\b(ac|air condition|hvac|heat|cooling|thermostat|fan|vent|filter|cold)\b/.test(text)) return 'HVAC';
+  if (/\b(door|lock|handle|window|table|chair|bench|desk|wood|hinge|cabinet|carpenter)\b/.test(text)) return 'Carpentry';
+  if (/\b(elevator|lift)\b/.test(text)) return 'Elevator';
+  if (/\b(paint|wall|crack|ceiling|plaster|peeling)\b/.test(text)) return 'Painting';
+  return 'General Maint.';
+}
+
+function detectPriority(title, desc) {
+  var text = ((title || '') + ' ' + (desc || '')).toLowerCase();
+  if (/\b(emergency|urgent|danger|hazard|flood|fire|spark|smoke|burst|shock)\b/.test(text)) return 'emergency';
+  if (/\b(broken|stopped|blocked|fail|critical|exam|major|completely|safety)\b/.test(text)) return 'high';
+  return 'medium';
+}
+
+function findBestTechForCategory(category, techs) {
+  if (!techs || !techs.length) techs = getTechs();
+  var catRoleMap = {
+    'Plumbing':        'Plumber',
+    'Electrical':      'Electrician',
+    'HVAC':            'HVAC Technician',
+    'Carpentry':       'Carpenter',
+    'Painting':        'Painter',
+    'General Maint.':  'Maintenance Staff',
+    'Elevator':        'General Maint.'
+  };
+  var targetRole = catRoleMap[category];
+  if (targetRole) {
+    var match = techs.find(function (t) {
+      return t.role.toLowerCase() === targetRole.toLowerCase() && t.availability !== 'off_shift';
+    });
+    if (match) return match;
+  }
+  // Default to Omar Khaled (tech-0) or first available staff
+  var fallback = techs.find(function (t) { return t.id === 'tech-0'; }) || techs[0];
+  return fallback;
+}
+
+/**
+ * Creates a maintenance task when a report is submitted, ensuring
+ * that the report immediately reaches the maintenance staff dashboard.
+ */
+function createMaintenanceTaskFromReport(reportData, assignedTechId) {
+  var tasks = getTasks();
+  var techs = getTechs();
+
+  var category = reportData.category || detectCategory(reportData.title, reportData.description);
+  var targetTech = null;
+
+  if (assignedTechId) {
+    targetTech = getTechById(assignedTechId);
+  }
+
+  if (!targetTech) {
+    targetTech = findBestTechForCategory(category, techs);
+  }
+
+  // Generate next MNT id
+  var maxNum = 0;
+  tasks.forEach(function (t) {
+    var m = t.id && t.id.match(/^MNT-(\d+)$/);
+    if (m) {
+      var n = parseInt(m[1], 10);
+      if (n > maxNum) maxNum = n;
+    }
+  });
+  var nextId = 'MNT-' + String(maxNum + 1).padStart(3, '0');
+  var now = new Date().toISOString();
+  var priority = reportData.priority || detectPriority(reportData.title, reportData.description);
+
+  var newTask = {
+    id:          nextId,
+    reportId:    reportData.id || '',
+    title:       reportData.title,
+    description: reportData.description,
+    category:    category,
+    building:    reportData.building,
+    room:        reportData.room,
+    priority:    priority,
+    status:      'pending',
+    reportedBy:  reportData.studentName || 'Student',
+    reportedAt:  now,
+    assignedTo:  targetTech ? targetTech.id : '',
+    photoUrl:    (reportData.images && reportData.images.length > 0) ? reportData.images[0] : '',
+    images:      reportData.images || [],
+    log: [
+      {
+        actor:  (reportData.studentName || 'Student') + ' (Student)',
+        action: 'Report Submitted',
+        note:   'Reported via campus portal: ' + (reportData.building || '') + ' - ' + (reportData.room || ''),
+        ts:     now
+      }
+    ]
+  };
+
+  if (targetTech) {
+    newTask.log.push({
+      actor:  'Campus System',
+      action: 'Assigned to ' + targetTech.name,
+      note:   'Dispatched to ' + targetTech.name + ' (' + targetTech.role + ').',
+      ts:     now
+    });
+
+    var tIdx = techs.findIndex(function (t) { return t.id === targetTech.id; });
+    if (tIdx !== -1) {
+      techs[tIdx].activeTasks = (techs[tIdx].activeTasks || 0) + 1;
+      saveTechs(techs);
+    }
+  }
+
+  tasks.unshift(newTask);
+  saveTasks(tasks);
+
+  return { task: newTask, tech: targetTech };
 }
 
 /* --------------------------------------------------------------------------

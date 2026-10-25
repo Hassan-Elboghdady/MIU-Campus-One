@@ -36,6 +36,10 @@ export const MOCK_USERS = [
   { id: 'u3', name: 'Omar Khaled',       email: 'tech@miuegypt.edu.eg',         password: 'tech123',     role: 'technician',       studentId: null,           faculty: null },
   { id: 'u4', name: 'Nour El-Din Fawzy', email: 'lostandfound@miuegypt.edu.eg', password: 'lf123',       role: 'lost-found-staff', studentId: null,           faculty: null },
   { id: 'u5', name: 'Admin User',        email: 'admin@miuegypt.edu.eg',        password: 'admin123',    role: 'admin',            studentId: null,           faculty: null },
+  { id: 'u6', name: 'Ahmed Hassan',      email: 'a.hassan@miu.edu.eg',          password: 'staff123',    role: 'staff',            studentId: null,           faculty: null },
+  { id: 'u7', name: 'Mohamed Salah',     email: 'm.salah@miu.edu.eg',           password: 'staff123',    role: 'staff',            studentId: null,           faculty: null },
+  { id: 'u8', name: 'Khaled Ibrahim',    email: 'k.ibrahim@miu.edu.eg',         password: 'staff123',    role: 'staff',            studentId: null,           faculty: null },
+  { id: 'u9', name: 'Manager One',       email: 'manager@miuegypt.edu.eg',      password: 'manager123',  role: 'manager',          studentId: null,           faculty: null },
   { id: 'u13', name: 'Lost & Found Manager', email: 'manager.lostfound@miuegypt.edu.eg', password: 'lostfound2026', role: 'lost-found-manager', studentId: null, faculty: null },
 ];
 
@@ -44,10 +48,12 @@ export const MOCK_USERS = [
 // --------------------------------------------------------------------------
 export const ROLE_HOME = Object.freeze({
   'student':          'home.html',
-  'supervisor':       'staff.html',
-  'technician':       'maintenance.html',
+  'supervisor':       'manager-dashboard.html',
+  'manager':          'manager-dashboard.html',
+  'technician':       'staff-dashboard.html',
+  'staff':            'staff-dashboard.html',
   'lost-found-staff': 'staff-lost-found.html',
-  'admin':            'admin.html',
+  'admin':            'admin-panel.html',
   'lost-found-manager': 'maneger-lost-found.html',
 });
 

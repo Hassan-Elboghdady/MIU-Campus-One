@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -262,12 +262,18 @@
         }
 
         list.innerHTML = tasks.map(function (task) {
+          var isStudentReport = !!(task.reportId || task.reportedBy);
+          var studentBadge = isStudentReport
+            ? '<span class="req-badge req-badge--student" style="background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE;font-weight:600;font-size:0.75rem;padding:2px 8px;border-radius:12px;">Student Report</span>'
+            : '';
+
           return '<a href="task-details.html?id=' + encodeURIComponent(task.id) + '" class="task-card" data-priority="' + task.priority + '" id="task-' + task.id + '">' +
             '<div class="task-card__header">' +
               '<span class="task-card__title">' + task.title + '</span>' +
               '<div class="task-card__chips">' +
                 priorityChip(task.priority) +
                 statusChip(task.status) +
+                studentBadge +
               '</div>' +
             '</div>' +
             '<p class="task-card__desc">' + task.description + '</p>' +
@@ -275,7 +281,8 @@
               '<span class="task-card__meta-item">' + locIcon + task.building + ' · ' + task.room + '</span>' +
               '<span class="task-card__meta-item">' + tagIcon  + task.category + '</span>' +
               '<span class="task-card__meta-item">' + calIcon  + fmtDate(task.reportedAt) + '</span>' +
-              '<span class="task-card__meta-item" style="margin-inline-start:auto;font-size:var(--text-xs);font-family:monospace;color:var(--color-muted)">' + task.id + '</span>' +
+              (task.reportedBy ? '<span class="task-card__meta-item" style="color:#2563EB;font-weight:600;">Reported by: ' + task.reportedBy + '</span>' : '') +
+              '<span class="task-card__meta-item" style="margin-inline-start:auto;font-size:var(--text-xs);font-family:monospace;color:var(--color-muted)">' + task.id + (task.reportId ? ' (' + task.reportId + ')' : '') + '</span>' +
             '</div>' +
           '</a>';
         }).join('');
