@@ -1,7 +1,5 @@
 /* back-button.js
-   Shows a floating "← Back to Dashboard" button for roles that visit a page
-   outside their home. Student and Manager are excluded — they navigate freely
-   and don't need the back button. Admin, Staff, Technician, and L&F Staff get it.
+   Adds a floating dashboard link for supported roles visiting other pages.
    Works on file:// (no ES modules, pure IIFE). */
 (function () {
   'use strict';
@@ -10,20 +8,16 @@
   try { s = JSON.parse(localStorage.getItem('campusone_session')); } catch (e) {}
   if (!s || !s.role) return;
 
-  /* Roles that do NOT get the back button */
-  var SKIP_ROLES = { student: true, manager: true, supervisor: true };
+  /* Staff-role dashboard links are intentionally not shown. */
+  var SKIP_ROLES = { student: true, staff: true, technician: true, manager: true, supervisor: true };
   if (SKIP_ROLES[s.role]) return;
 
   var ROLE_HOME = {
-    staff:              'staff-dashboard.html',
-    technician:         'staff-dashboard.html',
     'lost-found-staff': 'staff-lost-found.html',
     admin:              'admin-panel.html'
   };
 
   var ROLE_LABEL = {
-    staff:              'Staff Dashboard',
-    technician:         'Staff Dashboard',
     'lost-found-staff': 'L&F Dashboard',
     admin:              'Admin Panel'
   };
@@ -66,7 +60,7 @@
     '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" ' +
     'stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
     '<path d="M10 4L6 8l4 4"/></svg>' +
-    'Back to ' + (ROLE_LABEL[s.role] || 'Dashboard');
+    'Back to ' + ROLE_LABEL[s.role];
 
   btn.addEventListener('mouseenter', function () {
     btn.style.transform = 'translateY(-3px)';

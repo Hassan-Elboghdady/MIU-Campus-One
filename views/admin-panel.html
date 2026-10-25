@@ -260,19 +260,30 @@
               <select id="cu-role">
                 <option value="student">Student</option>
                 <option value="staff">Maintenance Staff</option>
-                <option value="technician">Technician</option>
                 <option value="manager">Manager</option>
                 <option value="lost-found-staff">Lost &amp; Found Staff</option>
+                <option value="lost-found-manager">Lost &amp; Found Manager</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
             <div class="form-group" id="cu-faculty-wrap">
-              <label for="cu-faculty">Faculty</label>
-              <input id="cu-faculty" type="text" placeholder="e.g. Engineering">
+              <label for="cu-faculty">Faculty *</label>
+              <select id="cu-faculty">
+                <option value="">— Select Faculty —</option>
+                <option value="Engineering">Faculty of Engineering</option>
+                <option value="Computer Science">Faculty of Computer Science</option>
+                <option value="Business">Faculty of Business Administration</option>
+                <option value="Mass Communication">Faculty of Mass Communication</option>
+                <option value="Oral &amp; Dental Medicine">Faculty of Oral &amp; Dental Medicine</option>
+                <option value="Pharmacy">Faculty of Pharmacy</option>
+                <option value="Arts &amp; Design">Faculty of Arts &amp; Design</option>
+                <option value="Languages">Faculty of Languages</option>
+              </select>
             </div>
             <div class="form-group" id="cu-id-wrap">
-              <label for="cu-studentid">Student ID</label>
-              <input id="cu-studentid" type="text" placeholder="e.g. 2022-12345">
+              <label for="cu-studentid">Student ID *</label>
+              <input id="cu-studentid" type="text" placeholder="e.g. 2022-12345" autocomplete="off">
+              <small id="cu-id-hint" style="color:var(--color-muted);font-size:11px;">Format: YYYY-NNNNN (e.g. 2022-12345)</small>
             </div>
           </div>
           <div style="display:flex;align-items:center;gap:10px;margin-block-start:var(--space-4);">
@@ -296,9 +307,9 @@
               <option value="">All Roles</option>
               <option value="student">Student</option>
               <option value="staff">Maint. Staff</option>
-              <option value="technician">Technician</option>
               <option value="manager">Manager</option>
               <option value="lost-found-staff">L&amp;F Staff</option>
+              <option value="lost-found-manager">L&amp;F Manager</option>
               <option value="admin">Admin</option>
             </select>
           </div>
@@ -435,9 +446,9 @@
           <select id="eu-role">
             <option value="student">Student</option>
             <option value="staff">Maintenance Staff</option>
-            <option value="technician">Technician</option>
             <option value="manager">Manager</option>
             <option value="lost-found-staff">Lost &amp; Found Staff</option>
+            <option value="lost-found-manager">Lost &amp; Found Manager</option>
             <option value="admin">Admin</option>
           </select>
         </div>
@@ -605,8 +616,8 @@
     el('admin-filter-tech').addEventListener('change',function(){adminFilter.tech=this.value;renderAdminTable();});
 
     /* ── USER ACCOUNTS TAB ── */
-    var roleChipClass = { student:'role-chip--student', staff:'role-chip--staff', technician:'role-chip--technician', supervisor:'role-chip--manager', manager:'role-chip--manager', 'lost-found-staff':'role-chip--lost-found-staff', admin:'role-chip--admin' };
-    var roleLabels    = { student:'Student', staff:'Maint. Staff', technician:'Technician', supervisor:'Manager', manager:'Manager', 'lost-found-staff':'L&F Staff', admin:'Admin' };
+    var roleChipClass = { student:'role-chip--student', staff:'role-chip--staff', technician:'role-chip--technician', supervisor:'role-chip--manager', manager:'role-chip--manager', 'lost-found-staff':'role-chip--lost-found-staff', 'lost-found-manager':'role-chip--manager', admin:'role-chip--admin' };
+    var roleLabels    = { student:'Student', staff:'Maint. Staff', technician:'Technician', supervisor:'Manager', manager:'Manager', 'lost-found-staff':'L&F Staff', 'lost-found-manager':'L&F Manager', admin:'Admin' };
     var userSearch = '', userRoleFilter = '';
 
     function renderUsers() {
@@ -663,35 +674,119 @@
       var isStudent = role === 'student';
       el('cu-faculty-wrap').style.display = isStudent ? '' : 'none';
       el('cu-id-wrap').style.display = isStudent ? '' : 'none';
+      clearFieldErrors();
     }
     el('cu-role').addEventListener('change', updateCreateFields);
     updateCreateFields();
 
+    /* ── Validation helpers ── */
+    var emailRegex = /^[a-zA-Z0-9._%+\-]+@(miuegypt\.edu\.eg|miu\.edu\.eg)$/;
+    var idRegex    = /^\d{4}-\d{4,5}$/;
+
+    function setFieldError(fieldId, message) {
+      var f = el(fieldId);
+      if (!f) return;
+      f.style.borderColor = '#DC2626';
+      f.style.boxShadow   = '0 0 0 2px rgba(220,38,38,.15)';
+      /* Add or update error hint below field */
+      var hintId = fieldId + '-err';
+      var hint = el(hintId);
+      if (!hint) {
+        hint = document.createElement('small');
+        hint.id = hintId;
+        hint.style.cssText = 'color:#DC2626;font-size:11px;font-weight:600;margin-top:2px;display:block;';
+        f.parentNode.appendChild(hint);
+      }
+      hint.textContent = message;
+    }
+    function clearFieldError(fieldId) {
+      var f = el(fieldId);
+      if (!f) return;
+      f.style.borderColor = '';
+      f.style.boxShadow   = '';
+      var hint = el(fieldId + '-err');
+      if (hint) hint.remove();
+    }
+    function clearFieldErrors() {
+      ['cu-name','cu-email','cu-password','cu-faculty','cu-studentid'].forEach(clearFieldError);
+      el('cu-msg').textContent = '';
+    }
+
+    /* Clear error styling on input */
+    ['cu-name','cu-email','cu-password','cu-studentid'].forEach(function(fid) {
+      var f = el(fid);
+      if (f) f.addEventListener('input', function(){ clearFieldError(fid); });
+    });
+    el('cu-faculty').addEventListener('change', function(){ clearFieldError('cu-faculty'); });
+
     el('cu-submit-btn').addEventListener('click', function(){
+      clearFieldErrors();
       var name  = (el('cu-name').value||'').trim();
       var email = (el('cu-email').value||'').trim().toLowerCase();
       var pass  = (el('cu-password').value||'').trim();
       var role  = el('cu-role').value;
       var msg   = el('cu-msg');
-      if (!name||!email||!pass) { msg.style.color='#B91C1C'; msg.textContent='All starred fields are required.'; return; }
+      var valid = true;
+
+      /* Required fields */
+      if (!name)  { setFieldError('cu-name',  'Full name is required.');   valid = false; }
+      if (!email) { setFieldError('cu-email', 'Email is required.');       valid = false; }
+      if (!pass)  { setFieldError('cu-password','Password is required.');  valid = false; }
+
+      /* Email format */
+      if (email && !emailRegex.test(email)) {
+        setFieldError('cu-email', 'Must be a valid @miuegypt.edu.eg or @miu.edu.eg address.');
+        valid = false;
+      }
+
+      /* Password length */
+      if (pass && pass.length < 6) {
+        setFieldError('cu-password', 'Password must be at least 6 characters.');
+        valid = false;
+      }
+
+      /* Student-specific validation */
+      if (role === 'student') {
+        var sid = (el('cu-studentid').value||'').trim();
+        var fac = el('cu-faculty').value;
+        if (!fac) { setFieldError('cu-faculty',   'Faculty is required for students.'); valid = false; }
+        if (!sid) { setFieldError('cu-studentid',  'Student ID is required.');           valid = false; }
+        else if (!idRegex.test(sid)) { setFieldError('cu-studentid', 'Invalid format. Use YYYY-NNNNN (e.g. 2022-12345).'); valid = false; }
+      }
+
+      if (!valid) { msg.style.color='#B91C1C'; msg.textContent='Please fix the errors above.'; return; }
+
+      /* Duplicate email check */
       var all = getAllUsers();
       if (all.find(function(u){ return u.email.toLowerCase()===email; })) {
-        msg.style.color='#B91C1C'; msg.textContent='An account with that email already exists.'; return;
+        setFieldError('cu-email', 'An account with this email already exists.');
+        msg.style.color='#B91C1C'; msg.textContent='Email already in use.'; return;
       }
+
+      /* Duplicate student ID check */
+      if (role === 'student') {
+        var sid2 = (el('cu-studentid').value||'').trim();
+        if (all.find(function(u){ return u.studentId && u.studentId === sid2; })) {
+          setFieldError('cu-studentid', 'This Student ID is already registered.');
+          msg.style.color='#B91C1C'; msg.textContent='Student ID already in use.'; return;
+        }
+      }
+
       var newUser = {
         id: 'u-' + Date.now(),
         name: name, email: email, password: pass, role: role,
         studentId: role==='student' ? (el('cu-studentid').value||'').trim() : null,
-        faculty:   role==='student' ? (el('cu-faculty').value||'').trim()   : null
+        faculty:   role==='student' ? el('cu-faculty').value               : null
       };
       var reg = getRegistered();
       reg.push(newUser);
       saveRegistered(reg);
-      msg.style.color='#15803D'; msg.textContent='Account created successfully!';
+      msg.style.color='#15803D'; msg.textContent='✓ Account created successfully!';
       el('cu-name').value=''; el('cu-email').value=''; el('cu-password').value='';
       el('cu-studentid').value=''; el('cu-faculty').value='';
+      clearFieldErrors();
       renderUsers(); renderAdminStats();
-      setTimeout(function(){ msg.textContent=''; }, 3000);
+      setTimeout(function(){ msg.textContent=''; }, 4000);
     });
 
     /* Edit modal */
