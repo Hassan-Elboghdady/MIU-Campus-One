@@ -123,6 +123,7 @@
           <div class="dev-hint__row"><span class="dev-hint__badge dev-hint__badge--student">Student</span><code>student@miuegypt.edu.eg</code> / <code>student123</code></div>
           <div class="dev-hint__row"><span class="dev-hint__badge dev-hint__badge--staff">Maint. Staff</span><code>a.hassan@miu.edu.eg</code> / <code>staff123</code></div>
           <div class="dev-hint__row"><span class="dev-hint__badge dev-hint__badge--staff">Manager</span><code>manager@miuegypt.edu.eg</code> / <code>manager123</code></div>
+          <div class="dev-hint__row"><span class="dev-hint__badge dev-hint__badge--staff">L&amp;F Manager</span><code>manager.lostfound@miuegypt.edu.eg</code> / <code>lostfound2026</code></div>
           <div class="dev-hint__row"><span class="dev-hint__badge dev-hint__badge--staff">L&F Staff</span><code>lf.staff1@miuegypt.edu.eg</code> / <code>lf2026</code></div>
           <div class="dev-hint__row"><span class="dev-hint__badge dev-hint__badge--staff">Admin</span><code>admin@miuegypt.edu.eg</code> / <code>admin123</code></div>
         </div>
@@ -147,6 +148,7 @@
         { id:'u7', name:'Mohamed Salah',     email:'m.salah@miu.edu.eg',            password:'staff123',   role:'staff',            studentId:null, faculty:null },
         { id:'u8', name:'Khaled Ibrahim',    email:'k.ibrahim@miu.edu.eg',          password:'staff123',   role:'staff',            studentId:null, faculty:null },
         { id:'u9', name:'Manager One',       email:'manager@miuegypt.edu.eg',       password:'manager123', role:'manager',          studentId:null, faculty:null },
+        { id:'u13', name:'Lost & Found Manager', email:'manager.lostfound@miuegypt.edu.eg', password:'lostfound2026', role:'lost-found-manager', studentId:null, faculty:null },
         /* ── LOST & FOUND STAFF ── */
         { id:'u10', name:'Layla Hassan',     email:'lf.staff1@miuegypt.edu.eg',     password:'lf2026',     role:'lost-found-staff', studentId:null, faculty:null },
         { id:'u11', name:'Rania Mostafa',    email:'lf.staff2@miuegypt.edu.eg',     password:'lf2026',     role:'lost-found-staff', studentId:null, faculty:null },
@@ -159,7 +161,8 @@
         'lost-found-staff':'staff-lost-found.html',
         admin:             'admin-panel.html',
         staff:             'staff-dashboard.html',
-        manager:           'manager-dashboard.html'
+        manager:           'manager-dashboard.html',
+        'lost-found-manager': 'maneger-lost-found.html'
       };
 
       function findUser(email, password) {

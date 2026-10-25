@@ -161,6 +161,18 @@
     }
   }
   function configureNavigation(session) {
+    if (session.role === 'lost-found-manager') {
+      var restrictedLogo = document.querySelector('.app-header__logo');
+      var restrictedNavigation = document.querySelector('.app-nav');
+      if (restrictedLogo) {
+        restrictedLogo.href = 'maneger-lost-found.html';
+        restrictedLogo.setAttribute('aria-label', 'Go to Lost & Found');
+      }
+      if (restrictedNavigation) {
+        restrictedNavigation.innerHTML = '<a href="maneger-lost-found.html" class="app-nav__link" aria-current="page">Lost &amp; Found</a>';
+      }
+      return;
+    }
     if (session.role !== 'admin') return;
     var logo = document.querySelector('.app-header__logo');
     var navigation = document.querySelector('.app-nav');
@@ -182,7 +194,7 @@
     var session = null;
     try { session = JSON.parse(localStorage.getItem('campusone_session') || 'null'); } catch (error) {}
     if (!session) { window.location.replace('login.html'); return; }
-    if (['manager', 'supervisor', 'admin'].indexOf(session.role) === -1) { window.location.replace('home.html'); return; }
+    if (['manager', 'lost-found-manager', 'supervisor', 'admin'].indexOf(session.role) === -1) { window.location.replace('home.html'); return; }
     configureNavigation(session);
     window.currentManagerName = session.name || 'Manager';
     document.getElementById('nav-initials').textContent = window.currentManagerName.trim().split(/\s+/).map(function (word) { return word[0]; }).slice(0, 2).join('').toUpperCase();
