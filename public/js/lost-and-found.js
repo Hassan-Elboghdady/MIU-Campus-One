@@ -166,7 +166,7 @@ function renderClaim() {
     itemSelect.disabled = true;
   } else {
     itemSelect.innerHTML = '<option value="">Select the item you recognize</option>' +
-      inventory.filter(item => item.type === "found").map(item =>
+      inventory.filter(item => item.type === "found" && (item.approvalStatus || "approved") === "approved").map(item =>
         `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)} — ${escapeHtml(item.location)}</option>`
       ).join("");
   }
