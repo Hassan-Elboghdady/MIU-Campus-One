@@ -1,7 +1,7 @@
 /* nav-switcher.js
-   Dynamically rewrites <nav class="app-nav"> and injects a role badge
-   based on the signed-in user's role. Admin is left unchanged.
-   Works on file:// — pure IIFE, no ES modules.
+   Dynamically rewrites <nav class="app-nav"> (header) AND
+   <nav class="app-footer__links"> (footer) based on the signed-in user's role.
+   Admin is left unchanged. Works on file:// — pure IIFE, no ES modules.
 */
 (function () {
   'use strict';
@@ -70,24 +70,33 @@
   };
 
   var role = s.role;
-  if (role === 'admin') return; /* Admin keeps its own header */
+  if (role === 'admin') return; /* Admin keeps its own header/footer */
 
   var def = NAV_SETS[role];
   if (!def) return;
 
   var page = (window.location.pathname.split('/').pop()) || 'index.html';
 
-  /* Replace nav links */
-  var nav = document.getElementById('app-nav');
-  if (nav) {
-    nav.innerHTML = def.links.map(function (lnk) {
+  function buildLinks(forFooter) {
+    return def.links.map(function (lnk) {
       var isActive = lnk.activeOn.indexOf(page) !== -1;
+      if (forFooter) {
+        return '<a href="' + lnk.href + '"' + (isActive ? ' aria-current="page"' : '') + '>' + lnk.label + '</a>';
+      }
       return '<a href="' + lnk.href + '" class="app-nav__link' + (isActive ? ' is-active' : '') + '"' +
              (isActive ? ' aria-current="page"' : '') + '>' + lnk.label + '</a>';
     }).join('\n        ');
   }
 
-  /* Inject role badge before notification bell */
+  /* ── Replace header nav links ──────────────────────────────────────────── */
+  var nav = document.getElementById('app-nav');
+  if (nav) nav.innerHTML = buildLinks(false);
+
+  /* ── Replace footer nav links ──────────────────────────────────────────── */
+  var footerNav = document.querySelector('.app-footer__links');
+  if (footerNav) footerNav.innerHTML = buildLinks(true);
+
+  /* ── Inject role badge (before notification bell) ──────────────────────── */
   if (def.badge) {
     var existing = document.getElementById('nav-role-badge');
     if (!existing) {

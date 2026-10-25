@@ -1175,13 +1175,13 @@ class CampusMapApp {
             <!-- filled by JS -->
           </div>
 
-          <a href="my-reports.html" class="map-sidebar-help">
+          <a href="report.html" class="map-sidebar-help">
             <span class="map-sidebar-help-icon">
               <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
             </span>
             <span class="map-sidebar-help-text">
-              Need help?
-              <small>Check the Maintenance page for reporting issues or finding university services.</small>
+              Report an Issue
+              <small>Spotted a problem on campus? Submit a maintenance request directly.</small>
             </span>
             <svg class="map-sidebar-help-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l4 4-4 4"/></svg>
           </a>
