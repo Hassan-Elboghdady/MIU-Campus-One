@@ -57,6 +57,7 @@
     document.getElementById('manager-inventory-category').value = item.category || '';
     document.getElementById('manager-inventory-location').value = item.location || '';
     document.getElementById('manager-inventory-date').value = item.date || '';
+    document.getElementById('manager-inventory-color').value = item.color || '';
     document.getElementById('manager-inventory-details').value = item.details || '';
     document.getElementById('manager-inventory-form').hidden = false;
     document.getElementById('manager-inventory-name').focus();
@@ -228,6 +229,7 @@
         name: document.getElementById('manager-inventory-name').value.trim(),
         type: document.getElementById('manager-inventory-type').value,
         category: document.getElementById('manager-inventory-category').value.trim(),
+        color: document.getElementById('manager-inventory-color').value.trim(),
         location: document.getElementById('manager-inventory-location').value.trim(),
         date: document.getElementById('manager-inventory-date').value,
         details: document.getElementById('manager-inventory-details').value.trim(),

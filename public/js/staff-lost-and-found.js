@@ -36,7 +36,7 @@
       var approval = item.approvalStatus || 'approved';
       var approvalLabel = approval === 'approved' ? 'Verified' : approval === 'rejected' ? 'Not verified' : 'Pending approval';
       var approvalClass = approval === 'approved' ? 'badge-found' : approval === 'rejected' ? 'badge-lost' : '';
-      return '<article class="inventory-card"><span class="badge badge-' + escapeHtml(item.type) + '">' + escapeHtml(item.type) + '</span><span class="badge ' + approvalClass + '">' + approvalLabel + '</span><h3>' + escapeHtml(item.name) + '</h3><p>' + escapeHtml(item.category) + ' · ' + escapeHtml(item.location) + '</p><p>' + escapeHtml(item.details || 'No additional details.') + '</p><p class="report-card__meta">' + escapeHtml(formatDate(item.date)) + '</p><div class="inventory-actions"><button class="button button-ghost" data-edit="' + escapeHtml(item.id) + '" type="button">Edit</button><button class="button button-ghost" data-remove="' + escapeHtml(item.id) + '" type="button">Remove</button></div></article>';
+      return '<article class="inventory-card"><span class="badge badge-' + escapeHtml(item.type) + '">' + escapeHtml(item.type) + '</span><span class="badge ' + approvalClass + '">' + approvalLabel + '</span><h3>' + escapeHtml(item.name) + '</h3><p>' + escapeHtml(item.category) + ' · ' + escapeHtml(item.location) + (item.color ? ' · ' + escapeHtml(item.color) : '') + '</p><p>' + escapeHtml(item.details || 'No additional details.') + '</p><p class="report-card__meta">' + escapeHtml(formatDate(item.date)) + '</p><div class="inventory-actions"><button class="button button-ghost" data-edit="' + escapeHtml(item.id) + '" type="button">Edit</button><button class="button button-ghost" data-remove="' + escapeHtml(item.id) + '" type="button">Remove</button></div></article>';
     }).join('') : '<p class="empty-state">Inventory is empty. Add an item to get started.</p>';
   }
   function makePickupCode() {
@@ -58,18 +58,20 @@
       var item = inventory.find(function (entry) { return entry.id === claim.itemId; }) || { name: 'Inventory item removed', location: 'Unknown' };
       var student = claim.student || {};
       var code = claim.pickupCode ? '<div class="claim-code">Pickup code: ' + escapeHtml(claim.pickupCode) + '<br><small>Expires ' + escapeHtml(formatDate(claim.codeExpiresAt)) + '</small></div>' : '';
-      var actions = claim.status === 'Pending verification'
-        ? '<div class="claim-controls"><label for="score-' + escapeHtml(claim.id) + '">Matched answers</label><select id="score-' + escapeHtml(claim.id) + '" data-score="' + escapeHtml(claim.id) + '"><option value="0">0 / 2</option><option value="1">1 / 2</option><option value="2">2 / 2</option></select><button class="button button-primary" data-approve="' + escapeHtml(claim.id) + '" type="button">Approve &amp; issue code</button><button class="button button-ghost" data-reject="' + escapeHtml(claim.id) + '" type="button">Reject</button></div>'
-        : claim.status === 'Pickup code issued'
+      var claimStatus = String(claim.status || '').toLowerCase();
+      var isPending = claimStatus === 'pending verification' || claimStatus === 'pending';
+      var actions = isPending
+        ? '<p class="claim-review-note"><strong>Pending manager verification.</strong> The manager will approve or reject this claim and issue the pickup code.</p>'
+        : claimStatus === 'pickup code issued'
           ? '<div class="claim-controls"><input data-student-id="' + escapeHtml(claim.id) + '" placeholder="Confirm student ID"><input data-pickup-code="' + escapeHtml(claim.id) + '" placeholder="Enter pickup code"><button class="button button-primary" data-collect="' + escapeHtml(claim.id) + '" type="button">Mark collected</button></div>'
-          : '<p><strong>Final status:</strong> ' + escapeHtml(claim.status) + '</p>';
+          : '<p><strong>Final status:</strong> ' + escapeHtml(claim.status || 'Unknown') + '</p>';
       return '<article class="claim-card"><div class="claim-card__header"><div><span class="badge">' + escapeHtml(claim.status) + '</span><h3>' + escapeHtml(item.name) + '</h3><p><strong>Claimant:</strong> ' + escapeHtml(student.name || 'Unknown student') + ' · ' + escapeHtml(student.email || 'No email') + '<br><strong>Student ID:</strong> ' + escapeHtml(claim.studentId) + ' · <strong>Lost at:</strong> ' + escapeHtml(claim.location) + '</p></div>' + code + '</div><div class="claim-answers"><strong>Private details provided</strong><p>' + escapeHtml(claim.uniqueDetails) + '</p><strong>What makes it unique?</strong><p>' + escapeHtml(claim.answers && claim.answers[0]) + '</p><strong>What was inside or attached?</strong><p>' + escapeHtml(claim.answers && claim.answers[1]) + '</p></div>' + actions + '</article>';
     }).join('') : '<p class="empty-state">No claims have been submitted yet.</p>';
   }
   function resetForm() { document.getElementById('inventory-form').reset(); document.getElementById('inventory-id').value = ''; document.getElementById('inventory-form').hidden = true; }
   function editItem(id) {
     var item = read(INVENTORY_KEY, []).find(function (entry) { return entry.id === id; }); if (!item) return;
-    document.getElementById('inventory-id').value = item.id; document.getElementById('inventory-name').value = item.name; document.getElementById('inventory-type').value = item.type; document.getElementById('inventory-category').value = item.category; document.getElementById('inventory-location').value = item.location; document.getElementById('inventory-date').value = item.date; document.getElementById('inventory-details').value = item.details || ''; document.getElementById('inventory-form').hidden = false; document.getElementById('inventory-name').focus();
+    document.getElementById('inventory-id').value = item.id; document.getElementById('inventory-name').value = item.name; document.getElementById('inventory-type').value = item.type; document.getElementById('inventory-category').value = item.category; document.getElementById('inventory-color').value = item.color || ''; document.getElementById('inventory-location').value = item.location; document.getElementById('inventory-date').value = item.date; document.getElementById('inventory-details').value = item.details || ''; document.getElementById('inventory-form').hidden = false; document.getElementById('inventory-name').focus();
   }
   function init() {
     try { currentUser = JSON.parse(localStorage.getItem('campusone_session') || 'null'); } catch (error) { currentUser = null; }
@@ -82,35 +84,21 @@
     document.getElementById('report-filter').addEventListener('change', renderReports);
     document.getElementById('add-item-btn').addEventListener('click', function () { document.getElementById('inventory-form').hidden = false; document.getElementById('inventory-name').focus(); });
     document.getElementById('cancel-item-btn').addEventListener('click', resetForm);
-    document.getElementById('inventory-form').addEventListener('submit', function (event) { event.preventDefault(); var items = read(INVENTORY_KEY, []), id = document.getElementById('inventory-id').value || 'inventory-' + Date.now(), existing = items.find(function (entry) { return entry.id === id; }), item = {id:id,name:document.getElementById('inventory-name').value.trim(),type:document.getElementById('inventory-type').value,category:document.getElementById('inventory-category').value.trim(),location:document.getElementById('inventory-location').value.trim(),date:document.getElementById('inventory-date').value,details:document.getElementById('inventory-details').value.trim(),approvalStatus:existing ? (existing.approvalStatus || 'approved') : 'pending'}; var existingIndex = items.findIndex(function (entry) { return entry.id === id; }); if (existingIndex === -1) items.unshift(item); else items[existingIndex] = item; if (write(INVENTORY_KEY, items)) { resetForm(); renderInventory(); showToast(existing ? 'Inventory item updated.' : 'Item saved and sent to the manager for approval.'); } });
+    document.getElementById('inventory-form').addEventListener('submit', function (event) { event.preventDefault(); var items = read(INVENTORY_KEY, []), id = document.getElementById('inventory-id').value || 'inventory-' + Date.now(), existing = items.find(function (entry) { return entry.id === id; }), item = {id:id,name:document.getElementById('inventory-name').value.trim(),type:document.getElementById('inventory-type').value,category:document.getElementById('inventory-category').value.trim(),color:document.getElementById('inventory-color').value.trim(),location:document.getElementById('inventory-location').value.trim(),date:document.getElementById('inventory-date').value,details:document.getElementById('inventory-details').value.trim(),approvalStatus:existing ? (existing.approvalStatus || 'approved') : 'pending'}; var existingIndex = items.findIndex(function (entry) { return entry.id === id; }); if (existingIndex === -1) items.unshift(item); else items[existingIndex] = item; if (write(INVENTORY_KEY, items)) { resetForm(); renderInventory(); showToast(existing ? 'Inventory item updated.' : 'Item saved and sent to the manager for approval.'); } });
     document.getElementById('inventory-list').addEventListener('click', function (event) { var edit = event.target.dataset.edit, remove = event.target.dataset.remove; if (edit) editItem(edit); if (remove && window.confirm('Remove this inventory item?')) { var items = read(INVENTORY_KEY, []).filter(function (item) { return item.id !== remove; }); if (write(INVENTORY_KEY, items)) { renderInventory(); showToast('Inventory item removed.'); } } });
     document.getElementById('claims-list').addEventListener('click', function (event) {
       var claims = read(CLAIMS_KEY, []);
-      var id = event.target.dataset.approve || event.target.dataset.reject || event.target.dataset.collect;
+      var id = event.target.dataset.collect;
       if (!id) return;
       var claim = claims.find(function (entry) { return entry.id === id; });
       if (!claim) return;
-      if (event.target.dataset.approve) {
-        var score = document.querySelector('[data-score="' + id + '"]').value;
-        if (score !== '2' && !window.confirm('Not all answers matched. Approve anyway?')) return;
-        claim.status = 'Pickup code issued';
-        claim.pickupCode = makePickupCode();
-        claim.codeExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString().slice(0, 10);
-        claim.verifiedBy = currentUser.name;
-        claim.verifiedAt = new Date().toISOString();
-      } else if (event.target.dataset.reject) {
-        claim.status = 'Rejected';
-        claim.verifiedBy = currentUser.name;
-        claim.verifiedAt = new Date().toISOString();
-      } else {
-        var studentId = document.querySelector('[data-student-id="' + id + '"]').value.trim();
-        var pickupCode = document.querySelector('[data-pickup-code="' + id + '"]').value.trim().toUpperCase();
-        if (studentId !== claim.studentId || pickupCode !== claim.pickupCode) { showToast('Student ID or pickup code does not match.'); return; }
-        if (new Date(claim.codeExpiresAt + 'T23:59:59') < new Date()) { showToast('This pickup code has expired.'); return; }
-        claim.status = 'Collected';
-        claim.collectedBy = currentUser.name;
-        claim.collectedAt = new Date().toISOString();
-      }
+      var studentId = document.querySelector('[data-student-id="' + id + '"]').value.trim();
+      var pickupCode = document.querySelector('[data-pickup-code="' + id + '"]').value.trim().toUpperCase();
+      if (studentId !== claim.studentId || pickupCode !== claim.pickupCode) { showToast('Student ID or pickup code does not match.'); return; }
+      if (new Date(claim.codeExpiresAt + 'T23:59:59') < new Date()) { showToast('This pickup code has expired.'); return; }
+      claim.status = 'Collected';
+      claim.collectedBy = currentUser.name;
+      claim.collectedAt = new Date().toISOString();
       if (write(CLAIMS_KEY, claims)) { renderClaims(); showToast('Claim status updated.'); }
     });
     document.getElementById('profile-trigger').addEventListener('click', function () { var panel = document.getElementById('profile-panel'), open = panel.classList.toggle('is-open'); this.setAttribute('aria-expanded', String(open)); });

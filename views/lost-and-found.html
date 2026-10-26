@@ -230,7 +230,7 @@
         </div>
         <div class="field">
           <label for="claim-student-id">Student ID <span>*</span></label>
-          <input id="claim-student-id" name="studentId" required placeholder="e.g. 2022-00001">
+          <input id="claim-student-id" name="studentId" required inputmode="numeric" minlength="10" maxlength="10" pattern="[0-9]{4}-[0-9]{5}" title="Enter your student ID in the format 2022-00001" placeholder="e.g. 2022-00001">
         </div>
         <div class="field">
           <label for="claim-location">Where did you lose it? <span>*</span></label>
