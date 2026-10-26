@@ -13,6 +13,10 @@ const lostItems = [
 const REPORTS_KEY = "campusone_lost_found_reports";
 const INVENTORY_KEY = "campusone_lost_found_inventory";
 const CLAIMS_KEY = "campusone_lost_found_claims";
+const DEFAULT_INVENTORY = [
+  { id: "inventory-1", name: "Blue backpack found near Library", type: "found", category: "Bag", location: "Central Library", date: "2026-10-16", details: "Navy blue with silver zipper pull and a small front pocket.", approvalStatus: "approved" },
+  { id: "inventory-2", name: "Silver watch handed to security", type: "found", category: "Other", location: "Main Building security", date: "2026-10-15", details: "Silver band with a dark face.", approvalStatus: "approved" }
+];
 
 function getReports() {
   try {
@@ -157,22 +161,47 @@ function renderClaim() {
   const itemSelect = document.querySelector("#claim-item");
   let inventory = [];
   try {
-    inventory = JSON.parse(localStorage.getItem(INVENTORY_KEY) || "[]");
+    const storedInventory = localStorage.getItem(INVENTORY_KEY);
+    if (storedInventory === null) {
+      localStorage.setItem(INVENTORY_KEY, JSON.stringify(DEFAULT_INVENTORY));
+      inventory = DEFAULT_INVENTORY;
+    } else {
+      inventory = JSON.parse(storedInventory);
+    }
   } catch (error) {
     showToast("Could not load the inventory.");
   }
-  if (!inventory.length) {
-    itemSelect.innerHTML = '<option value="">No items are currently ready for claiming</option>';
+  const claimableItems = inventory.filter(item => {
+    const type = String(item.type || "").toLowerCase();
+    const approvalStatus = String(item.approvalStatus || "approved").toLowerCase();
+    return type === "found" && approvalStatus !== "rejected";
+  });
+  if (!claimableItems.length) {
+    itemSelect.innerHTML = '<option value="">No found items are currently available</option>';
     itemSelect.disabled = true;
   } else {
+    itemSelect.disabled = false;
     itemSelect.innerHTML = '<option value="">Select the item you recognize</option>' +
-      inventory.filter(item => item.type === "found" && (item.approvalStatus || "approved") === "approved").map(item =>
-        `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)} — ${escapeHtml(item.location)}</option>`
-      ).join("");
+      claimableItems.map(item => {
+        const approvalStatus = String(item.approvalStatus || "approved").toLowerCase();
+        const statusSuffix = approvalStatus === "pending" ? " (awaiting manager verification)" : "";
+        const color = item.color ? `, ${item.color}` : "";
+        const description = item.details ? ` — ${item.details}` : "";
+        return `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}${escapeHtml(color)}${escapeHtml(description)}${escapeHtml(statusSuffix)}</option>`;
+      }).join("");
   }
 
   document.querySelector("#claim-form").addEventListener("submit", event => {
     event.preventDefault();
+    const studentId = String(new FormData(event.currentTarget).get("studentId") || "").trim();
+    if (!/^\d{4}-\d{5}$/.test(studentId)) {
+      const studentIdInput = document.querySelector("#claim-student-id");
+      studentIdInput.setCustomValidity("Student ID must contain 4 digits, a hyphen, and 5 digits (for example, 2022-00001).");
+      studentIdInput.reportValidity();
+      studentIdInput.focus();
+      return;
+    }
+    document.querySelector("#claim-student-id").setCustomValidity("");
     if (!event.currentTarget.reportValidity()) return;
     const session = JSON.parse(localStorage.getItem("campusone_session") || "null");
     const form = new FormData(event.currentTarget);
@@ -186,7 +215,7 @@ function renderClaim() {
     claims.unshift({
       id: `claim-${Date.now()}`,
       itemId: form.get("itemId"),
-      studentId: form.get("studentId"),
+      studentId,
       location: form.get("location"),
       uniqueDetails: form.get("uniqueDetails"),
       answers: [form.get("answerOne"), form.get("answerTwo")],
@@ -328,8 +357,18 @@ function renderRoute() {
 /* Re-render on hash change (back/forward buttons) */
 window.addEventListener("hashchange", renderRoute);
 window.addEventListener("storage", event => {
+  if (event.key === INVENTORY_KEY && getRoute() === "claim") renderClaim();
   if ((event.key === CLAIMS_KEY || event.key === INVENTORY_KEY) &&
       getRoute() === "my-claims") renderMyClaims();
+});
+window.addEventListener("focus", () => {
+  if (getRoute() === "claim") renderClaim();
+  if (getRoute() === "my-claims") renderMyClaims();
+});
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState !== "visible") return;
+  if (getRoute() === "claim") renderClaim();
+  if (getRoute() === "my-claims") renderMyClaims();
 });
 
 /* Initial render */

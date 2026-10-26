@@ -64,6 +64,7 @@
           <div class="field"><label for="inventory-name">Item name *</label><input id="inventory-name" required></div>
           <div class="field"><label for="inventory-type">Type</label><select id="inventory-type"><option value="found">Found item</option><option value="lost">Lost item</option></select></div>
           <div class="field"><label for="inventory-category">Category *</label><input id="inventory-category" required placeholder="e.g. Phone"></div>
+          <div class="field"><label for="inventory-color">Color</label><input id="inventory-color" placeholder="e.g. Black"></div>
           <div class="field"><label for="inventory-location">Location *</label><input id="inventory-location" required></div>
           <div class="field"><label for="inventory-date">Date *</label><input id="inventory-date" type="date" required></div>
           <div class="field full"><label for="inventory-details">Details</label><textarea id="inventory-details"></textarea></div>
@@ -73,7 +74,7 @@
       </section>
 
       <section data-panel="claims" hidden>
-        <div class="section-heading"><div><h2>Claim verification</h2><p>Review private answers before issuing a one-time pickup code.</p></div></div>
+        <div class="section-heading"><div><h2>Claim pickup</h2><p>Claims are approved by the manager. Use the student ID and pickup code to release approved items.</p></div></div>
         <div id="claims-list" class="claims-list" aria-live="polite"></div>
       </section>
     </div>
