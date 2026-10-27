@@ -295,57 +295,6 @@
     </article>
   </template>
 
-  <template id="matches-view-template">
-    <a class="back-link" href="#new">← Post another item</a>
-    <div class="matches-heading">
-      <div>
-        <p class="eyebrow">AI match assistant</p>
-        <h1>We found a few possibilities.</h1>
-        <p class="lead">Your report is now being compared with items recently found around campus. The closest matches appear first.</p>
-      </div>
-      <span class="button button-ghost">3 matches found</span>
-    </div>
-    <div class="matches-layout">
-      <section>
-        <article class="student-item">
-          <div class="item-photo"></div>
-          <div class="item-info">
-            <p class="eyebrow">Your item</p>
-            <h2>Blue North Face backpack</h2>
-            <p>Navy blue backpack with a small front pocket and silver zipper pull. Reported near the Library entrance.</p>
-            <div class="meta-row">
-              <span>◉ Bag</span>
-              <span>⌖ Central Library</span>
-              <span>◷ Yesterday</span>
-            </div>
-          </div>
-        </article>
-      </section>
-      <aside class="match-panel">
-        <h3>Top matches</h3>
-        <p class="panel-kicker">Sorted by confidence score</p>
-        <article class="match-card">
-          <div class="match-top">
-            <strong>Blue backpack found near Library</strong>
-            <span class="score">87%</span>
-          </div>
-          <div class="match-thumbs">
-            <div class="thumb one"></div>
-            <div class="thumb two"></div>
-          </div>
-          <ul class="match-reasons">
-            <li>✅ Similar description</li>
-            <li>✅ Similar image</li>
-            <li>✅ Same building</li>
-            <li>✅ 1 day apart</li>
-          </ul>
-          <button class="button claim-button" id="claim-button" type="button">This is mine</button>
-        </article>
-        <div class="confidence">Matches are suggestions for review. Lost &amp; Found staff will verify every claim.</div>
-      </aside>
-    </div>
-  </template>
-
   <!-- ── Inline auth guard + header wiring (no module required) ── -->
   <script>
     (function () {

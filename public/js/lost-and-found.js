@@ -62,7 +62,6 @@ function navigate(hash) {
 
 function getRoute() {
   const hash = window.location.hash.replace("#", "");
-  if (hash.startsWith("matches")) return "matches";
   if (hash === "claim") return "claim";
   if (hash === "my-claims") return "my-claims";
   if (hash === "browse")          return "browse";
@@ -257,8 +256,7 @@ function handleReportSubmit(event) {
     status: "Open"
   };
   if (!saveReport(report)) return;
-  showToast("Report received. Finding the closest matches…");
-  window.setTimeout(() => navigate("matches"), 700);
+  showToast("Report received successfully.");
 }
 
 function handlePhotoChange(event) {
@@ -330,25 +328,9 @@ function renderBrowse() {
   catFilter.addEventListener("change", filterItems);
 }
 
-function renderMatches() {
-  app.replaceChildren(cloneTemplate("matches-view-template"));
-
-  /* Wire back link inside matches view */
-  const backLink = app.querySelector(".back-link");
-  if (backLink) backLink.addEventListener("click", e => { e.preventDefault(); navigate("new"); });
-
-  document.querySelector("#claim-button").addEventListener("click", event => {
-    event.currentTarget.classList.add("claimed");
-    event.currentTarget.textContent = "Claim sent to staff ✓";
-    event.currentTarget.disabled = true;
-    showToast("Your claim has been sent to Lost & Found staff.");
-  });
-}
-
 function renderRoute() {
   const route = getRoute();
-  if (route === "matches")      renderMatches();
-  else if (route === "claim")   renderClaim();
+  if (route === "claim")        renderClaim();
   else if (route === "my-claims") renderMyClaims();
   else if (route === "browse")  renderBrowse();
   else                          renderNew();
